@@ -11,4 +11,8 @@ public class Vector extends ArrayRealVector {
 	public Vector(int size) {
 		super(size);
 	}
+
+	public Vector(long size) {
+		super((int)size);
+	}
 }

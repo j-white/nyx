@@ -8,6 +8,6 @@
  
 	<context:annotation-config />
  
-	<bean id="affineFractalCodec" class="math.nyx.core.AffineFractalCodec"/>
+	<bean id="fractalEncoder" class="math.nyx.codecs.AffineFractalEncoder"/>
  
 </beans>

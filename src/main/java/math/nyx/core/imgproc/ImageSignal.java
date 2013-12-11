@@ -16,9 +16,8 @@ import math.nyx.core.Vector;
  *
  * @author jwhite
  */
-public class ImageSignal implements Signal {
+public class ImageSignal extends Signal {
 	private static final long serialVersionUID = -1875089091108123392L;
-	private final Vector v;
 	private final ImageMetadata metadata;
 
 	public ImageSignal(BufferedImage img) {
@@ -26,30 +25,23 @@ public class ImageSignal implements Signal {
 	}
 
 	public ImageSignal(Signal s, ImageMetadata metadata) {
-		this(s.getVector(), metadata);
-	}
-
-	public ImageSignal(Vector v, ImageMetadata metadata) {
-		this.v = v;
+		super(s.getVector());
 		this.metadata = metadata;
 	}
 
-	public Vector getVector() {
-		return v;
+	public ImageSignal(Vector v, ImageMetadata metadata) {
+		super(v);
+		this.metadata = metadata;
 	}
 
 	public ImageMetadata getMetadata() {
 		return metadata;
 	}
 
-	public long getDimension() {
-		return v.getDimension();
-	}
-
 	public BufferedImage getImage() {
 		BufferedImage img = new BufferedImage(metadata.getWidth(), metadata.getHeight(), metadata.getType());
 		DataBuffer dataBuffer = img.getRaster().getDataBuffer();
-		double[] data = v.getData();
+		double[] data = getVector().getData();
 
 		switch(dataBuffer.getDataType()) {
 		case DataBuffer.TYPE_BYTE:

@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import math.nyx.core.Fractal;
-import math.nyx.core.FractalCodec;
+import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
 
 import org.junit.Test;
@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
 public class FractalTest {
 	@Autowired
-	private FractalCodec fractalCodec;
+	private FractalEncoder fractalEncoder;
 
 	private BufferedImage createImage(int size) {
 		// Create a new image and fill it with red
@@ -45,14 +45,15 @@ public class FractalTest {
 		Signal sourceSignal = new ImageSignal(sourceImage);
 
 		// Now encode the signal as a fractal
-		Fractal fractal = fractalCodec.encode(sourceSignal);
+		Fractal fractal = fractalEncoder.encode(sourceSignal);
 
 		// Serialize and de-serialize the fractal
 		byte[] fractalAsBytes = SerializationUtils.serialize(fractal);
 		fractal = (Fractal)SerializationUtils.deserialize(fractalAsBytes);
 
 		// Now decode the signal from the fractal using the given scale
-		Signal decodedSignal = fractalCodec.decode(fractal, scale);
+		// Square the scale, since we are increasing both the width and height of the image
+		Signal decodedSignal = fractal.decode(scale*scale);
 
 		// Convert the signal to and image
 		ImageMetadata imageMetadata = new ImageMetadata(size * scale, size * scale, BufferedImage.TYPE_4BYTE_ABGR);
