@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import math.nyx.core.Collage;
-import math.nyx.core.Image;
 import math.nyx.core.Matrix;
+import math.nyx.core.imgproc.Image;
 import math.nyx.fie.FractalImageEncodingStrategy;
 import math.nyx.fie.MatrixDecodingVisitor;
 import math.nyx.fie.simple.SimpleEncodingStrategy;

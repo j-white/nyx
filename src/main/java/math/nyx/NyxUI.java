@@ -25,11 +25,11 @@ import org.springframework.core.io.Resource;
 
 import math.nyx.core.Collage;
 import math.nyx.core.ContractiveMap;
-import math.nyx.core.Image;
 import math.nyx.core.Matrix;
 import math.nyx.core.Partition;
 import math.nyx.core.Point2D;
 import math.nyx.core.RMSMetric;
+import math.nyx.core.imgproc.Image;
 import math.nyx.fie.FractalImageEncodingStrategy;
 import math.nyx.fie.simple.SimpleEncodingStrategy;
 import math.nyx.util.CollageIO;

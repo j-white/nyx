@@ -5,18 +5,35 @@
   <version>0.0.1</version>
   <name>Nyx</name>
   <description>Fractal-based Signal Encoding and Decoding</description>
+  <properties>
+  	<springVersion>3.2.5.RELEASE</springVersion>
+  </properties>
   <dependencies>
   	<dependency>
   		<groupId>org.springframework</groupId>
   		<artifactId>spring-core</artifactId>
-  		<version>3.2.5.RELEASE</version>
+  		<version>${springVersion}</version>
   		<type>jar</type>
   		<scope>compile</scope>
   	</dependency>
   	<dependency>
   		<groupId>org.springframework</groupId>
   		<artifactId>spring-beans</artifactId>
-  		<version>3.2.5.RELEASE</version>
+  		<version>${springVersion}</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-test</artifactId>
+  		<version>${springVersion}</version>
+  		<type>jar</type>
+  		<scope>test</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-context</artifactId>
+  		<version>${springVersion}</version>
   		<type>jar</type>
   		<scope>compile</scope>
   	</dependency>

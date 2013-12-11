@@ -1,9 +1,11 @@
-package math.nyx.core;
+package math.nyx.core.imgproc;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.awt.image.DataBufferByte;
+
+import math.nyx.core.Matrix;
 
 public class Image extends BufferedImage {
 	public Image(int width, int height, int imageType) {

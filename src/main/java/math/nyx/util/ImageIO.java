@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import math.nyx.core.Image;
+import math.nyx.core.imgproc.Image;
 
 public class ImageIO {
 	public static Image read(InputStream input) throws IOException {

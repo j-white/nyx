@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
+import math.nyx.core.imgproc.Image;
 import math.nyx.fie.simple.FixedSizeMatrixPartitioner;
 import math.nyx.util.MatrixGenerator;
 import math.nyx.util.TestUtils;
