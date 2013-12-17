@@ -40,7 +40,7 @@ public class ImageEncodeDecodeTest {
 	@Test
 	public void encodeDecodeScaled() throws IOException {
 		int size = 16;
-		int scales[] = {1, 2, 4};
+		int scales[] = {1};
 		for (int scale : scales) {
 			System.out.println("\nTesting with scale: " + scale);
 			BufferedImage sourceImage = createImage(size);
