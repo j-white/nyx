@@ -1,10 +1,6 @@
 package math.nyx.codecs;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
 
 import math.nyx.core.SignalBlock;
 import math.nyx.core.Signal;
@@ -12,17 +8,19 @@ import math.nyx.core.Signal;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
 public class AffineFractalCodecTest {
-	private AffineFractalCodec affineCodec;
 	private final double delta = 0.00001;
 
-	@Before
-	public void setUp() {
-		affineCodec = new AffineFractalCodec();
-	}
+	@Autowired
+	private AffineFractalCodec affineCodec;
 
 	private RealMatrix generateSignal(int signalDimension) {
 		// Generate a signal with with x[0] = 1 and x[k] = x[k-1] + 1
@@ -31,77 +29,6 @@ public class AffineFractalCodecTest {
 			signal.setEntry(i, 0, i+1);
 		}
 		return signal;
-	}
-
-	@Test
-	public void isPowerOfTwo() {
-		assertFalse(affineCodec.isPowerOfTwo(0));
-		assertFalse(affineCodec.isPowerOfTwo(-2));
-		assertFalse(affineCodec.isPowerOfTwo(3));
-		assertFalse(affineCodec.isPowerOfTwo(-3));
-		assertFalse(affineCodec.isPowerOfTwo(11));
-
-		assertTrue(affineCodec.isPowerOfTwo(1));
-		assertTrue(affineCodec.isPowerOfTwo(2));
-		assertTrue(affineCodec.isPowerOfTwo(4));
-		assertTrue(affineCodec.isPowerOfTwo(1024));
-	}
-
-	@Test(expected = IllegalArgumentException.class)  
-	public void getDomainDimensionWithOddNumber() {  
-		affineCodec.getDomainDimension(1);
-	}  
-
-	@Test(expected = IllegalArgumentException.class)  
-	public void getRangeDimensionWithOddNumber() {  
-		affineCodec.getRangeDimension(1);
-	}
-
-	@Test
-	public void getDomainDimension() {
-		assertEquals(2, affineCodec.getDomainDimension(2));
-		assertEquals(2, affineCodec.getDomainDimension(4));
-		assertEquals(2, affineCodec.getDomainDimension(8));
-		assertEquals(4, affineCodec.getDomainDimension(16));
-		assertEquals(8, affineCodec.getDomainDimension(32));
-		assertEquals(32, affineCodec.getDomainDimension(128));
-		assertEquals(32, affineCodec.getDomainDimension(256));
-		assertEquals(64, affineCodec.getDomainDimension(1024));
-		assertEquals(96, affineCodec.getDomainDimension(196608));
-	}
-
-	@Test
-	public void getRangeDimension() {
-		assertEquals(1, affineCodec.getRangeDimension(2));
-		assertEquals(1, affineCodec.getRangeDimension(4));
-		assertEquals(1, affineCodec.getRangeDimension(8));
-		assertEquals(2, affineCodec.getRangeDimension(16));
-		assertEquals(4, affineCodec.getRangeDimension(32));
-		assertEquals(16, affineCodec.getRangeDimension(128));
-		assertEquals(16, affineCodec.getRangeDimension(256));
-		assertEquals(32, affineCodec.getRangeDimension(1024));
-		assertEquals(48, affineCodec.getRangeDimension(196608));
-	}
-
-	@Test
-	public void getFetchOperator() {
-		int signalDimension = 8;
-		int domainDimension = 2;
-
-		// Generate a signal with fixed entries
-		RealMatrix signal = generateSignal(signalDimension);
-
-		// Grab and verify the first domain block
-		SparseRealMatrix fetchOperator = affineCodec.getFetchOperator(0, domainDimension, signalDimension);
-		RealMatrix block = fetchOperator.multiply(signal);
-		assertEquals(1, (int)block.getEntry(0, 0));
-		assertEquals(2, (int)block.getEntry(1, 0));
-
-		// Grab and verify the last domain block
-		fetchOperator = affineCodec.getFetchOperator(6, domainDimension, signalDimension);
-		block = fetchOperator.multiply(signal);
-		assertEquals(7, (int)block.getEntry(0, 0));
-		assertEquals(8, (int)block.getEntry(1, 0));
 	}
 
 	@Test
@@ -116,28 +43,6 @@ public class AffineFractalCodecTest {
 		// Verify
 		assertEquals((1.0 + 2.0)/2.0, decimated.getEntry(0, 0), delta);
 		assertEquals((3.0 + 4.0)/2.0, decimated.getEntry(1, 0), delta);
-	}
-
-	@Test
-	public void getPutOperator() {
-		int signalDimension = 8;
-		int rangeDimesion = 2;
-
-		RealMatrix block = generateSignal(rangeDimesion);
-
-		// Put and verify the first range block		
-		SparseRealMatrix putOperator = affineCodec.getPutOperator(0, rangeDimesion, signalDimension);
-		RealMatrix signal = putOperator.multiply(block);
-		assertEquals(1, (int)signal.getEntry(0, 0));
-		assertEquals(2, (int)signal.getEntry(1, 0));
-		assertEquals(0, (int)signal.getEntry(2, 0));
-
-		// Put and verify the last range block
-		putOperator = affineCodec.getPutOperator(3, rangeDimesion, signalDimension);
-		signal = putOperator.multiply(block);
-		assertEquals(0, (int)signal.getEntry(5, 0));
-		assertEquals(1, (int)signal.getEntry(6, 0));
-		assertEquals(2, (int)signal.getEntry(7, 0));
 	}
 
 	@Test
@@ -184,7 +89,7 @@ public class AffineFractalCodecTest {
 		// Decode at various scales and verify
 		decodeAndVerifyConstantSignalAtVaryingScales(fractal, c);
 	}
-	
+
 	private void decodeAndVerifyConstantSignalAtVaryingScales(AffineFractal fractal, double c) {
 		// Decode at various scales and verify
 		int scales[] = {1, 2, 3, 8, 16, 32, 256};
@@ -245,11 +150,6 @@ public class AffineFractalCodecTest {
 	
 		// Encode it
 		AffineFractal fractal = affineCodec.encode(signal);
-
-		// The number of transforms should equal the number of range blocks
-		int numTransforms = Math.round((float)signalDimension / affineCodec.getRangeDimension(signalDimension));
-		List<AffineTransform> transforms = fractal.getTransforms();
-		assertEquals(numTransforms, transforms.size());
 
 		// Decode at various scales and verify
 		decodeAndVerifyConstantSignalAtVaryingScales(fractal, c);

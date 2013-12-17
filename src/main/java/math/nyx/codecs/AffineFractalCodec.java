@@ -14,13 +14,13 @@ import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
 
 public class AffineFractalCodec implements FractalEncoder {
-	private final double ln_of_2 = Math.log(2);
+	PartitioningStrategy partitioningStrategy = new LinearPartitioningStrategy();
 
 	public AffineFractal encode(Signal signal) {
 		RealMatrix x = signal.getVector();
 		int signalDimension = signal.getDimension();
-		int domainDimension = getDomainDimension(signalDimension);
-		int rangeDimension = getRangeDimension(signalDimension);
+		int domainDimension = partitioningStrategy.getDomainDimension(signalDimension);
+		int rangeDimension = partitioningStrategy.getRangeDimension(signalDimension);
 
 		Assert.isTrue(signalDimension % domainDimension == 0, "Domain dimension should divide the signal dimension");
 		Assert.isTrue(domainDimension % rangeDimension == 0, "Range dimension should divide the domain dimension");
@@ -92,9 +92,10 @@ public class AffineFractalCodec implements FractalEncoder {
 
 	public Signal decode(AffineFractal fractal, float scale) {
 		int signalDimension = Math.round(fractal.getSignalDimension() * scale);
-		int domainDimension = Math.round(getDomainDimension(fractal.getSignalDimension()) * scale);
-		int rangeDimension = Math.round(getRangeDimension(fractal.getSignalDimension()) * scale);
-
+		int domainDimension = Math.round(partitioningStrategy.getDomainDimension(fractal.getSignalDimension())
+											* scale);
+		int rangeDimension = Math.round(partitioningStrategy.getRangeDimension(fractal.getSignalDimension())
+											* scale);
 		SparseRealMatrix D = getDecimationOperator(rangeDimension, domainDimension);
 		List<AffineTransform> transforms = fractal.getTransforms();
 
@@ -113,7 +114,8 @@ public class AffineFractalCodec implements FractalEncoder {
 				int rangeBlockIndex = transform.getRangeBlockIndex();
 
 				// Fetch
-				SparseRealMatrix F_I = getFetchOperator(domainBlockIndex, domainDimension, signalDimension);
+				SparseRealMatrix F_I = partitioningStrategy.getFetchOperator(domainBlockIndex,
+																			 domainDimension, signalDimension);
 				RealMatrix domainBlock = F_I.multiply(x);
 
 				// Decimate
@@ -134,58 +136,14 @@ public class AffineFractalCodec implements FractalEncoder {
 				RealMatrix transformedBlock = (K_scale.multiply(decimatedDomainBlock)).add(K_offset);
 
 				// Put
-				SparseRealMatrix P_J = getPutOperator(rangeBlockIndex, rangeDimension, signalDimension);
+				SparseRealMatrix P_J = partitioningStrategy.getPutOperator(rangeBlockIndex,
+																		   rangeDimension, signalDimension);
 				x_n = x_n.add(P_J.multiply(transformedBlock));
 			}
 			x = x_n;
 		}
 
 		return new Signal(x);
-	}
-
-	public boolean isPowerOfTwo(int x) {
-		double a = Math.log(x) / ln_of_2;
-		return (a - Math.floor(a)) == 0;
-	}
-
-	private void checkSignalDimesion(int signalDimension) {
-		if (signalDimension < 1 || signalDimension % 2 != 0) {
-			throw new IllegalArgumentException("Signal dimension must be an even positive integer.");
-		}
-	}
-
-	public int getDomainDimension(int signalDimension) {
-		checkSignalDimesion(signalDimension);
-
-		int N = Math.round((float)signalDimension / 4);
-		int M = Math.min((int)Math.floor(Math.log(signalDimension) / Math.log(1.1)), N);
-
-		// If M is odd, make it even
-		if ((M+1) % 2 == 0) {
-			M--;
-		}
-
-		// Find the largest positive even integer bounded by M that divides the signal dimension
-		for (int k = M; k > 0; k -= 2) {
-			if (signalDimension % k == 0) {
-				return k;
-			}
-		}
-
-		return 2;
-	}
-
-	public int getRangeDimension(int signalDimension) {
-		checkSignalDimesion(signalDimension);
-		return Math.round((float)getDomainDimension(signalDimension)/2);
-	}
-
-	public SparseRealMatrix getFetchOperator(int domainBlockIndex, int domainDimension, int signalDimension) {
-		SparseRealMatrix F_I = new OpenMapRealMatrix(domainDimension, signalDimension);
-		for (int j = 0; j < domainDimension; j++) {
-			F_I.setEntry(j, domainBlockIndex + j, 1);
-		}
-		return F_I;
 	}
 
 	public SparseRealMatrix getDecimationOperator(int rangeDimension, int domainDimension) {
@@ -200,16 +158,7 @@ public class AffineFractalCodec implements FractalEncoder {
 		return D;
 	}
 
-	public SparseRealMatrix getPutOperator(int rangeBlockIndex, int rangeDimension, int signalDimension) {
-		SparseRealMatrix P_J = new OpenMapRealMatrix(signalDimension, rangeDimension);
-		for (int j = 0; j < rangeDimension; j++) {
-			P_J.setEntry(rangeDimension*rangeBlockIndex + j, j, 1);
-		}
-		return P_J;
-	}
-
 	public AffineTransform getAffineTransform(SignalBlock domainBlock, SignalBlock rangeBlock) {
-		boolean allowNegativeValues = true;
 		RealMatrix domain = domainBlock.getBlock();
 		RealMatrix range = rangeBlock.getBlock();
 
@@ -243,10 +192,13 @@ public class AffineFractalCodec implements FractalEncoder {
 			s = ((n*sum_ais_times_bis) - (sum_ais*sum_bis))/s_denum;
 			o = one_over_n * (sum_bis - s*sum_ais);
 		}
-		
+
+		/*
+		boolean allowNegativeValues = true;
 		if (s < 0 && allowNegativeValues == false) {
 			s = 0;
 		}
+		*/
 
 		double u = (s*sum_squared_ais) - (2*sum_ais_times_bis) + (2*o*sum_ais);
 		double v = (n*o) - (2*sum_bis);
