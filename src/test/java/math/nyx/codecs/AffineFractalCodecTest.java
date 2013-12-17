@@ -2,7 +2,6 @@ package math.nyx.codecs;
 
 import static org.junit.Assert.assertEquals;
 
-import math.nyx.core.SignalBlock;
 import math.nyx.core.Signal;
 import math.nyx.utils.TestUtils;
 
@@ -19,36 +18,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class AffineFractalCodecTest {
 	@Autowired
 	private AffineFractalCodec affineCodec;
-
-	@Test
-	public void getAffineTransformForIdenticalBlocks() {
-		verifyAffineTransform(TestUtils.generateSignal(4), TestUtils.generateSignal(4), 0.0, 1.0, 0.0);
-	}
-
-	@Test
-	public void getAffineTransformForBlocksWithScaleAndOffset() {
-		int signalDimension = 4;
-		double scale = -7.0f;
-		double offset = 11.0f;
-
-		RealMatrix domain = TestUtils.generateSignal(signalDimension);
-		RealMatrix range = TestUtils.generateSignal(signalDimension);
-		range = range.scalarMultiply(scale);
-		range = range.scalarAdd(offset);
-
-		verifyAffineTransform(domain, range, 0.0, scale, offset);
-	}
-
-	private void verifyAffineTransform(RealMatrix domain, RealMatrix range,
-			double expectedDistance, double expectedScale, double expectedOffset) {
-		SignalBlock domainBlock = new SignalBlock(0, domain);
-		SignalBlock rangeBlock = new SignalBlock(0, range);
-
-		AffineTransform transform = affineCodec.getAffineTransform(domainBlock, rangeBlock);
-		assertEquals(expectedDistance, transform.getDistance(), TestUtils.DELTA);
-		assertEquals(transform.toString(), expectedScale, transform.getScale(), TestUtils.DELTA);
-		assertEquals(expectedOffset, transform.getOffset(), TestUtils.DELTA);
-	}
 
 	@Test
 	public void decodeConstantSignal() {
@@ -94,9 +63,6 @@ public class AffineFractalCodecTest {
 
 		// Encode it
 		AffineFractal fractal = affineCodec.encode(signal);
-		for (AffineTransform f : fractal.getTransforms()) {
-			System.out.println(f);
-		}
 
 		// Decode at 1x and 4x
 		Signal signal1x = affineCodec.decode(fractal, 1);

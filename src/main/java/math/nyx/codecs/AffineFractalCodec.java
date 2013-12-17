@@ -14,12 +14,15 @@ import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
 import math.nyx.framework.AveragingDecimationStrategy;
 import math.nyx.framework.DecimationStrategy;
+import math.nyx.framework.Kernel;
 import math.nyx.framework.LinearPartitioningStrategy;
 import math.nyx.framework.PartitioningStrategy;
+import math.nyx.framework.Transform;
 
 public class AffineFractalCodec implements FractalEncoder {
 	PartitioningStrategy partitioningStrategy = new LinearPartitioningStrategy();
 	DecimationStrategy decimationStrategy = new AveragingDecimationStrategy();
+	Kernel kernel = new AffineKernel();
 
 	public AffineFractal encode(Signal signal) {
 		RealMatrix x = signal.getVector();
@@ -79,9 +82,9 @@ public class AffineFractalCodec implements FractalEncoder {
 		int k = 0;
 		for (SignalBlock rangeBlock : rangeBlocks) {
 			System.out.printf("Encoding range block %d of %d\n", ++k, rangeBlocks.size());
-			AffineTransform bestTransform = null;
+			Transform bestTransform = null;
 			for (SignalBlock domainBlock : decimatedDomainBlocks) {
-				AffineTransform transform = getAffineTransform(domainBlock, rangeBlock);
+				Transform transform = kernel.encode(domainBlock, rangeBlock);
 				if (transform.compareTo(bestTransform) < 0) {
 					bestTransform = transform;
 				}
@@ -89,7 +92,6 @@ public class AffineFractalCodec implements FractalEncoder {
 
 			Assert.isTrue(bestTransform != null, "No domain blocks found.");
 			fractal.addTransform(bestTransform);
-			//System.out.println(bestTransform);
 		}
 
 		return fractal;
@@ -102,11 +104,7 @@ public class AffineFractalCodec implements FractalEncoder {
 		int rangeDimension = Math.round(partitioningStrategy.getRangeDimension(fractal.getSignalDimension())
 											* scale);
 		SparseRealMatrix D = decimationStrategy.getDecimationOperator(rangeDimension, domainDimension);
-		List<AffineTransform> transforms = fractal.getTransforms();
-
-		// Kernel matrices, entries will be reset every iteration
-		SparseRealMatrix K_scale = new OpenMapRealMatrix(rangeDimension, rangeDimension);
-		RealMatrix K_offset = new Array2DRowRealMatrix(rangeDimension, 1);
+		List<Transform> transforms = fractal.getTransforms();
 
 		// Iterated system
 		int numberOfIterations = 12;
@@ -114,7 +112,7 @@ public class AffineFractalCodec implements FractalEncoder {
 		for (int n = 1; n <= numberOfIterations; n++) {
 			System.out.printf("Decoding: Iteration %d of %d.\n", n, numberOfIterations);
 			RealMatrix x_n = new Array2DRowRealMatrix(signalDimension, 1);
-			for (AffineTransform transform : transforms) {
+			for (Transform transform : transforms) {
 				int domainBlockIndex =  Math.round(transform.getDomainBlockIndex() * scale);
 				int rangeBlockIndex = transform.getRangeBlockIndex();
 
@@ -126,19 +124,8 @@ public class AffineFractalCodec implements FractalEncoder {
 				// Decimate
 				RealMatrix decimatedDomainBlock = D.multiply(domainBlock);
 
-				// Build the transform
-				for (int i = 0; i < rangeDimension; i++) {
-					K_offset.setEntry(i, 0, transform.getOffset());
-
-					for (int j = 0; j < rangeDimension; j++) {
-						if (i == j) {
-							K_scale.setEntry(i, j, transform.getScale());
-						}
-					}
-				}		
-
 				// Apply the transform
-				RealMatrix transformedBlock = (K_scale.multiply(decimatedDomainBlock)).add(K_offset);
+				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock);
 
 				// Put
 				SparseRealMatrix P_J = partitioningStrategy.getPutOperator(rangeBlockIndex,
@@ -149,55 +136,6 @@ public class AffineFractalCodec implements FractalEncoder {
 		}
 
 		return new Signal(x);
-	}
-
-	public AffineTransform getAffineTransform(SignalBlock domainBlock, SignalBlock rangeBlock) {
-		RealMatrix domain = domainBlock.getBlock();
-		RealMatrix range = rangeBlock.getBlock();
-
-		Assert.isTrue(domain.getColumnDimension() == 1, "Domain must be a column vector.");
-		Assert.isTrue(range.getColumnDimension() == 1, "Range must be a column vector.");
-		Assert.isTrue(domain.getRowDimension() == range.getRowDimension(), "Domain and range must have the same dimension.");
-
-		int n = domain.getRowDimension();
-		double s = 0;
-		double o = 0;
-		double ai[] = domain.getColumn(0);
-		double bi[] = range.getColumn(0);
-		double sum_ais = domainBlock.getSumOfPoints();
-		double sum_bis = rangeBlock.getSumOfPoints();
-		double sum_squared_ais = domainBlock.getSumOfSquaredPoints();
-		double sum_squared_bis = rangeBlock.getSumOfSquaredPoints();
-		double sum_ais_squared = Math.pow(sum_ais,2);
-		double one_over_n = ((double)1/(double)n);
-
-		double sum_ais_times_bis = 0;
-
-		for (int i = 0; i < n; i++) {
-			sum_ais_times_bis += ai[i] * bi[i];
-		}
-
-		double s_denum = (n*sum_squared_ais) - sum_ais_squared;
-		if (s_denum == 0) {
-			s = 0;
-			o = one_over_n * sum_bis;
-		} else {
-			s = ((n*sum_ais_times_bis) - (sum_ais*sum_bis))/s_denum;
-			o = one_over_n * (sum_bis - s*sum_ais);
-		}
-
-		/*
-		boolean allowNegativeValues = true;
-		if (s < 0 && allowNegativeValues == false) {
-			s = 0;
-		}
-		*/
-
-		double u = (s*sum_squared_ais) - (2*sum_ais_times_bis) + (2*o*sum_ais);
-		double v = (n*o) - (2*sum_bis);
-		double R = one_over_n * (sum_squared_bis + s*u + o*v);
-		return new AffineTransform(domainBlock.getIndex(), rangeBlock.getIndex(),
-				Math.sqrt(Math.abs(R)), s, o);
 	}
 
 	public PartitioningStrategy getPartitioningStrategy() {

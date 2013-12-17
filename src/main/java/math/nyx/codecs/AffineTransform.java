@@ -1,31 +1,23 @@
 package math.nyx.codecs;
 
-import java.io.Serializable;
+import org.apache.commons.math.linear.Array2DRowRealMatrix;
+import org.apache.commons.math.linear.OpenMapRealMatrix;
+import org.apache.commons.math.linear.RealMatrix;
+import org.apache.commons.math.linear.SparseRealMatrix;
+
+import math.nyx.framework.AbstractTransform;
 
 import com.google.common.base.Objects;
 
-public class AffineTransform implements Comparable<AffineTransform>, Serializable {
+public class AffineTransform extends AbstractTransform {
 	private static final long serialVersionUID = 4115274904771797361L;
-	private final int domainBlockIndex;
-	private final int rangeBlockIndex;
-	private final Double distance;
 	private final double scale;
 	private final double offset;
 	
 	public AffineTransform(int domainBlockIndex, int rangeBlockIndex, double distance, double scale, double offset) {
-		this.domainBlockIndex = domainBlockIndex;
-		this.rangeBlockIndex = rangeBlockIndex;
-		this.distance = distance;
+		super(domainBlockIndex, rangeBlockIndex, distance);
 		this.scale = scale;
 		this.offset = offset;
-	}
-
-	public int getDomainBlockIndex() {
-		return domainBlockIndex;
-	}
-
-	public int getRangeBlockIndex() {
-		return rangeBlockIndex;
 	}
 
 	public double getScale() {
@@ -36,22 +28,29 @@ public class AffineTransform implements Comparable<AffineTransform>, Serializabl
 		return offset;
 	}
 
-	public double getDistance() {
-		return distance;
-	}
+	public RealMatrix apply(RealMatrix domain) {
+		int rangeDimension = domain.getRowDimension();
+		SparseRealMatrix K_scale = new OpenMapRealMatrix(rangeDimension, rangeDimension);
+		RealMatrix K_offset = new Array2DRowRealMatrix(rangeDimension, 1);
 
-	public int compareTo(AffineTransform o) {
-		if (o == null) {
-			return distance.compareTo(Double.MAX_VALUE);
+		// Build the transform
+		for (int i = 0; i < rangeDimension; i++) {
+			K_offset.setEntry(i, 0, offset);
+
+			for (int j = 0; j < rangeDimension; j++) {
+				if (i == j) {
+					K_scale.setEntry(i, j, scale);
+				}
+			}
 		}
-		return distance.compareTo(o.distance);
+
+		// Apply the transform
+		return (K_scale.multiply(domain)).add(K_offset);
 	}
 
 	@Override
 	public String toString() {
-	    return Objects.toStringHelper(this.getClass()).add("domainBlockIndex", domainBlockIndex)
-	            .add("rangeBlockIndex", rangeBlockIndex)
-	            .add("distance", distance)
+	    return Objects.toStringHelper(this.getClass())
 	            .add("scale", scale)
 	            .add("offset", offset)
 	            .toString();
