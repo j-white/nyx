@@ -47,66 +47,71 @@ public class Nyx {
 		nyxFactory.autowireBean(this);
 	}
  
+	private Fractal loadFractalFromDisk(String imageName) throws IOException {
+	    // De-serialize the fractal
+	    try(
+	    	InputStream file = new FileInputStream(String.format("%s-fractal.nyx", imageName));
+	    	InputStream buffer = new BufferedInputStream(file);
+	    	ObjectInput input = new ObjectInputStream (buffer);
+	    ){
+	    	return (Fractal)input.readObject();
+	    }
+	    catch(ClassNotFoundException ex) {
+	    	System.out.println("Cannot perform input. Class not found: " + ex);
+	    	ex.printStackTrace();
+	    	System.exit(1);
+	    }
+	    
+	    return null;
+	}
+
 	private void main() {
+		final String imageName = "ocean-gray.png";
 		Fractal fractal = null;
 
     	// Read the image from disk
-		Resource imageFile = new ClassPathResource("math/nyx/resources/tiny2x.png");
+		Resource imageFile = new ClassPathResource("math/nyx/resources/" + imageName);
 		BufferedImage sourceImage = null;
 		try {
 			sourceImage = ImageIO.read(imageFile.getInputStream());
 		} catch (IOException ex) {
-			System.out.println("Failed to read image from disk: " + ex);
+			System.err.println("Failed to read image from disk.");
 			ex.printStackTrace();
 			System.exit(1);
 		}
 
 		// Encode the image into a signal
 		ImageSignal sourceSignal = new ImageSignal(sourceImage);
-		System.out.println(sourceSignal);
 
-		// Encode the signal into a fractal
-		System.out.printf("Encoding signal with dimension %d.\n", sourceSignal.getDimension());
-		fractal = fractalEncoder.encode(sourceSignal);
+		// Try and load the fractal from disk before encoding
+		try {
+			fractal = loadFractalFromDisk(imageName);
+		} catch (IOException pass) {
+			// Encode the signal into a fractal
+			System.out.printf("Encoding signal with dimension %d.\n", sourceSignal.getDimension());
+			fractal = fractalEncoder.encode(sourceSignal);
 
-		// Serialize the fractal
-	    try (
-			OutputStream file = new FileOutputStream("fractal.nyx");
-			OutputStream buffer = new BufferedOutputStream(file);
-			ObjectOutput output = new ObjectOutputStream(buffer);
-	    ){
-	    	output.writeObject(fractal);
+			// Serialize the fractal
+		    try (
+				OutputStream file = new FileOutputStream(String.format("%s-fractal.nyx", imageName));
+				OutputStream buffer = new BufferedOutputStream(file);
+				ObjectOutput output = new ObjectOutputStream(buffer);
+		    ){
+		    	output.writeObject(fractal);
+			}
+		    catch(IOException ex){
+		    	System.err.println("Failed to save fractal to disk.");
+		    	ex.printStackTrace();
+		    }
 		}
-	    catch(IOException ex){
-	    	System.out.println("Cannot perform output: " + ex);
-	    	ex.printStackTrace();
-	    }
-		
-	    // De-serialize the fractal
-	    try(
-	    	InputStream file = new FileInputStream("fractal.nyx");
-	    	InputStream buffer = new BufferedInputStream(file);
-	    	ObjectInput input = new ObjectInputStream (buffer);
-	    ){
-	    	fractal = (Fractal)input.readObject();
-	    }
-	    catch(ClassNotFoundException ex){
-	    	System.out.println("Cannot perform input. Class not found: " + ex);
-	    	ex.printStackTrace();
-	    }
-	    catch(IOException ex){
-	    	System.out.println("Cannot perform input: " + ex);
-	    	ex.printStackTrace();
-	    }
-	    
+
 	    // Decode at varying scales
-	    int scales[] = {2};
+	    int scales[] = {1, 2};
 	    for (int scale : scales) {
-			System.out.printf("Decoding at %dx...\n", scale);
+			System.out.printf("\nDecoding at %dx ...\n", scale);
 			
 			// Decode the fractal into a signal
 			Signal decodedSignal = fractal.decode(scale * scale);
-			System.out.println(decodedSignal);
 
 			// Decode the signal into an image
 			ImageMetadata originalImageMetadata = sourceSignal.getMetadata();
@@ -118,11 +123,11 @@ public class Nyx {
 			ImageMetadata imageMetadata = new ImageMetadata(originalWidth * scale, originalHeight * scale,
 															originalType, orginalNumComponents);
 			ImageSignal decodedImageSignal = new ImageSignal(decodedSignal, imageMetadata);
-			File outputfile = new File(String.format("decoded-%dx.png", scale));
+			File outputfile = new File(String.format("%s-decoded-%dx.png", imageName, scale));
 			try {
 				ImageIO.write(decodedImageSignal.getImage(), "png", outputfile);
 			} catch (IOException ex) {
-				System.out.println("Failed to write the image to disk: " + ex);
+				System.out.println("Failed to write the image to disk.");
 				ex.printStackTrace();
 			}
 	    }
