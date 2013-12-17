@@ -60,7 +60,6 @@ public class ImageSignalTest {
 		testImageSignalConversion(img);
 	}
 
-
 	@Test
 	public void testIntARGBImage() {
 		int w = 16;
@@ -93,7 +92,6 @@ public class ImageSignalTest {
 	public void testPNG() throws IOException {
 		Resource imgFile = new ClassPathResource("math/nyx/resources/ocean.png");
 		BufferedImage img = ImageIO.read(imgFile.getInputStream());
-
 		testImageSignalConversion(img);
 	}
 

@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
-public class FractalTest {
+public class ImageEncodeDecodeTest {
 	@Autowired
 	private FractalEncoder fractalEncoder;
 
@@ -30,17 +30,26 @@ public class FractalTest {
 		Graphics2D g2 = img.createGraphics();
 		g2.setColor(Color.RED);
 		g2.fillRect(0, 0, size, size);
+		g2.setColor(Color.BLACK);
+		g2.drawLine(0, 0, size, 0);
+		g2.setColor(Color.YELLOW);
+		g2.drawLine(0, size, size, size);
 		return img;
 	}
 
 	@Test
-	public void doTest() throws IOException {
+	public void encodeDecodeScaled() throws IOException {
 		int size = 16;
-		int scale = 2;
+		int scales[] = {1, 2, 4};
+		for (int scale : scales) {
+			System.out.println("\nTesting with scale: " + scale);
+			BufferedImage sourceImage = createImage(size);
+			BufferedImage sourceImageScaled = createImage(size * scale);
+			testEncodeDecodeScaled(sourceImage, sourceImageScaled, size, scale);
+		}
+	}
 
-		BufferedImage sourceImage = createImage(size);
-		BufferedImage sourceImageScaled = createImage(size * scale);
-
+	private void testEncodeDecodeScaled(BufferedImage sourceImage, BufferedImage sourceImageScaled, int size, int scale) {
 		// Encode the image as a signal
 		Signal sourceSignal = new ImageSignal(sourceImage);
 
@@ -56,7 +65,7 @@ public class FractalTest {
 		Signal decodedSignal = fractal.decode(scale*scale);
 
 		// Convert the signal to and image
-		ImageMetadata imageMetadata = new ImageMetadata(size * scale, size * scale, BufferedImage.TYPE_4BYTE_ABGR);
+		ImageMetadata imageMetadata = new ImageMetadata(size * scale, size * scale, BufferedImage.TYPE_4BYTE_ABGR, 4);
 		ImageSignal decodedImageSignal = new ImageSignal(decodedSignal, imageMetadata);
 		BufferedImage decodedImage = decodedImageSignal.getImage();
 

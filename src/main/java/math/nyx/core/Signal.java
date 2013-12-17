@@ -2,24 +2,40 @@ package math.nyx.core;
 
 import java.io.Serializable;
 
+import org.apache.commons.math.linear.Array2DRowRealMatrix;
+import org.apache.commons.math.linear.RealMatrix;
+
+import com.google.common.base.Objects;
+
 public class Signal implements Serializable {
 	private static final long serialVersionUID = -3505516831802019801L;
 
-	private final Vector v;
+	private final RealMatrix x;
 
-	public Signal(long dimension) {
-		this(new Vector(dimension));
+	public Signal(int dimension) {
+		this(new Array2DRowRealMatrix(dimension, 1));
 	}
 
-	public Signal(Vector v) {
-		this.v = v;
+	public Signal(RealMatrix x) {
+		this.x = x;
 	}
 
-	public Vector getVector() {
-		return v;
+	public RealMatrix getVector() {
+		return x;
 	}
 
-	public long getDimension() {
-		return v.getDimension();
+	public int getDimension() {
+		return x.getRowDimension();
+	}
+
+	public double getEntry(int row) {
+		return x.getEntry(row, 0);
+	}
+
+	@Override
+	public String toString() {
+	    return Objects.toStringHelper(this.getClass()).add("dimension", getDimension())
+	            .add("vector", x)
+	            .toString();
 	}
 }

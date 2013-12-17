@@ -6,8 +6,10 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DataBufferUShort;
 
+import org.apache.commons.math.linear.Array2DRowRealMatrix;
+import org.apache.commons.math.linear.RealMatrix;
+
 import math.nyx.core.Signal;
-import math.nyx.core.Vector;
 
 /**
  * Representation of an image as a vector.
@@ -21,7 +23,8 @@ public class ImageSignal extends Signal {
 	private final ImageMetadata metadata;
 
 	public ImageSignal(BufferedImage img) {
-		this(bufferedImageToVector(img), new ImageMetadata(img.getWidth(), img.getHeight(), img.getType()));
+		this(bufferedImageToVector(img), new ImageMetadata(img.getWidth(), img.getHeight(),
+														   img.getType(), img.getColorModel().getNumComponents()));
 	}
 
 	public ImageSignal(Signal s, ImageMetadata metadata) {
@@ -29,7 +32,7 @@ public class ImageSignal extends Signal {
 		this.metadata = metadata;
 	}
 
-	public ImageSignal(Vector v, ImageMetadata metadata) {
+	public ImageSignal(RealMatrix v, ImageMetadata metadata) {
 		super(v);
 		this.metadata = metadata;
 	}
@@ -41,25 +44,40 @@ public class ImageSignal extends Signal {
 	public BufferedImage getImage() {
 		BufferedImage img = new BufferedImage(metadata.getWidth(), metadata.getHeight(), metadata.getType());
 		DataBuffer dataBuffer = img.getRaster().getDataBuffer();
-		double[] data = getVector().getData();
+		double[] data = getVector().getColumn(0);
+
+		int numChannels = metadata.getNumComponents();
+		int numEntriesPerChannel = Math.round((float)dataBuffer.getSize() / numChannels);
 
 		switch(dataBuffer.getDataType()) {
 		case DataBuffer.TYPE_BYTE:
-			final byte[] bytePixels = ((DataBufferByte)dataBuffer).getData();
-			for (int i = 0; i < bytePixels.length; i++) {
-				bytePixels[i] = (byte)data[i];
+			{
+				final byte[] pixels = ((DataBufferByte)dataBuffer).getData();
+				for (int i = 0; i < numChannels; i++) {
+					for (int j = 0; j < numEntriesPerChannel; j++) {
+						int u = numEntriesPerChannel*i + j;
+						int v = i + j*numChannels;
+						//System.out.println("u: " + u + " v: " + v);
+						pixels[v] = (byte)data[u];
+					}
+				}
+				//System.out.println("reverted pixels: " + java.util.Arrays.toString(pixels));
 			}
 			break;
 		case DataBuffer.TYPE_USHORT:
-			final short[] shortPixels = ((DataBufferUShort)dataBuffer).getData();
-			for (int i = 0; i < shortPixels.length; i++) {
-				shortPixels[i] = (short)data[i];
+			{
+				final short[] pixels = ((DataBufferUShort)dataBuffer).getData();
+				for (int i = 0; i < pixels.length; i++) {
+					pixels[i] = (short)data[i];
+				}
 			}
 			break;
 		case DataBuffer.TYPE_INT:
-			final int[] intPixels = ((DataBufferInt)dataBuffer).getData();
-			for (int i = 0; i < intPixels.length; i++) {
-				intPixels[i] = (int)data[i];
+			{
+				final int[] pixels = ((DataBufferInt)dataBuffer).getData();
+				for (int i = 0; i < pixels.length; i++) {
+					pixels[i] = (int)data[i];
+				}
 			}
 			break;
 		default:
@@ -69,35 +87,40 @@ public class ImageSignal extends Signal {
 		return img;
 	}
 
-	private static Vector bufferedImageToVector(BufferedImage img)  {
+	private static RealMatrix bufferedImageToVector(BufferedImage img)  {
 		DataBuffer dataBuffer = img.getRaster().getDataBuffer();
-		final int numBanks = dataBuffer.getNumBanks();
+		final int numChannels = img.getColorModel().getNumComponents();
 		final int bufferSize = dataBuffer.getSize();
-		Vector v = new Vector(numBanks * bufferSize);
+		RealMatrix x = new Array2DRowRealMatrix(bufferSize, 1);
 
 		int k = 0;
 		switch(dataBuffer.getDataType()) {
 		case DataBuffer.TYPE_BYTE:
-			for (int i = 0; i < numBanks; i++) {
-				final byte[] pixels = ((DataBufferByte)dataBuffer).getData(i);
-				for (int j = 0; j < bufferSize; j++) {
-					v.setEntry(k++, pixels[j]);
+			{
+				final byte[] pixels = ((DataBufferByte)dataBuffer).getData();
+				for (int i = 0; i < numChannels; i++) {
+					for (int j = i; j < pixels.length; j += numChannels) {
+						int u = j;
+						int v = k++;
+						//System.out.println("u: " + u + " v: " + v);
+						x.setEntry(v, 0, pixels[u]);
+					}
 				}
 			}
 			break;
 		case DataBuffer.TYPE_USHORT:
-			for (int i = 0; i < numBanks; i++) {
-				final short[] pixels = ((DataBufferUShort)dataBuffer).getData(i);
+			{
+				final short[] pixels = ((DataBufferUShort)dataBuffer).getData();
 				for (int j = 0; j < bufferSize; j++) {
-					v.setEntry(k++, pixels[j]);
+					x.setEntry(k++, 0, pixels[j]);
 				}
 			}
 			break;
-		case DataBuffer.TYPE_INT:
-			for (int i = 0; i < numBanks; i++) {
-				final int[] pixels = ((DataBufferInt)dataBuffer).getData(i);
+			case DataBuffer.TYPE_INT:
+			{
+				final int[] pixels = ((DataBufferInt)dataBuffer).getData();
 				for (int j = 0; j < bufferSize; j++) {
-					v.setEntry(k++, pixels[j]);
+					x.setEntry(k++, 0, pixels[j]);
 				}
 			}
 			break;
@@ -105,6 +128,7 @@ public class ImageSignal extends Signal {
 			throw new RuntimeException("Unsupported image buffer type " + dataBuffer.getDataType());
 		}
 
-		return v;
+		
+		return x;
 	}
 }
