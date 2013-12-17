@@ -12,9 +12,14 @@ import org.springframework.util.Assert;
 import math.nyx.core.SignalBlock;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
+import math.nyx.framework.AveragingDecimationStrategy;
+import math.nyx.framework.DecimationStrategy;
+import math.nyx.framework.LinearPartitioningStrategy;
+import math.nyx.framework.PartitioningStrategy;
 
 public class AffineFractalCodec implements FractalEncoder {
 	PartitioningStrategy partitioningStrategy = new LinearPartitioningStrategy();
+	DecimationStrategy decimationStrategy = new AveragingDecimationStrategy();
 
 	public AffineFractal encode(Signal signal) {
 		RealMatrix x = signal.getVector();
@@ -44,7 +49,7 @@ public class AffineFractalCodec implements FractalEncoder {
 		}
 
 		// Build the decimation operator D
-		SparseRealMatrix D = getDecimationOperator(rangeDimension, domainDimension);
+		SparseRealMatrix D = decimationStrategy.getDecimationOperator(rangeDimension, domainDimension);
 
 		// Break the signal into overlapping domain blocks
 		List<SignalBlock> decimatedDomainBlocks = new ArrayList<SignalBlock>();
@@ -96,7 +101,7 @@ public class AffineFractalCodec implements FractalEncoder {
 											* scale);
 		int rangeDimension = Math.round(partitioningStrategy.getRangeDimension(fractal.getSignalDimension())
 											* scale);
-		SparseRealMatrix D = getDecimationOperator(rangeDimension, domainDimension);
+		SparseRealMatrix D = decimationStrategy.getDecimationOperator(rangeDimension, domainDimension);
 		List<AffineTransform> transforms = fractal.getTransforms();
 
 		// Kernel matrices, entries will be reset every iteration
@@ -146,18 +151,6 @@ public class AffineFractalCodec implements FractalEncoder {
 		return new Signal(x);
 	}
 
-	public SparseRealMatrix getDecimationOperator(int rangeDimension, int domainDimension) {
-		final int decimationRatio = Math.round((float)domainDimension / rangeDimension);
-
-		SparseRealMatrix D = new OpenMapRealMatrix(rangeDimension, domainDimension);
-		for (int i = 0; i < rangeDimension; i++) {
-			for (int j = 0; j < decimationRatio; j++) {
-				D.setEntry(i, i*decimationRatio + j, 1.0f/decimationRatio);
-			}
-		}
-		return D;
-	}
-
 	public AffineTransform getAffineTransform(SignalBlock domainBlock, SignalBlock rangeBlock) {
 		RealMatrix domain = domainBlock.getBlock();
 		RealMatrix range = rangeBlock.getBlock();
@@ -205,5 +198,13 @@ public class AffineFractalCodec implements FractalEncoder {
 		double R = one_over_n * (sum_squared_bis + s*u + o*v);
 		return new AffineTransform(domainBlock.getIndex(), rangeBlock.getIndex(),
 				Math.sqrt(Math.abs(R)), s, o);
+	}
+
+	public PartitioningStrategy getPartitioningStrategy() {
+		return partitioningStrategy;
+	}
+
+	public DecimationStrategy getDecimationStrategy() {
+		return decimationStrategy;
 	}
 }

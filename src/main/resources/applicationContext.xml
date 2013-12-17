@@ -10,6 +10,7 @@
  
 	<bean id="affineFractalCodec" class="math.nyx.codecs.AffineFractalCodec"/>
 
-	<bean id="linearPartitioningStrategy" class="math.nyx.codecs.LinearPartitioningStrategy"/>
- 
+	<bean id="linearPartitioningStrategy" class="math.nyx.framework.LinearPartitioningStrategy"/>
+	
+	<bean id="averagingDecimationStrategy" class="math.nyx.framework.AveragingDecimationStrategy"/>
 </beans>

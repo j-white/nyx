@@ -106,7 +106,7 @@ public class Nyx {
 		}
 
 	    // Decode at varying scales
-	    int scales[] = {1, 2};
+	    int scales[] = {1, 2, 3, 4};
 	    for (int scale : scales) {
 			System.out.printf("\nDecoding at %dx ...\n", scale);
 			

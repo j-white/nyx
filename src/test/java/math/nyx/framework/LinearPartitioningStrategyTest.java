@@ -1,8 +1,10 @@
-package math.nyx.codecs;
+package math.nyx.framework;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.commons.math.linear.Array2DRowRealMatrix;
+import math.nyx.framework.LinearPartitioningStrategy;
+import math.nyx.utils.TestUtils;
+
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 import org.junit.Test;
@@ -16,15 +18,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class LinearPartitioningStrategyTest {
 	@Autowired
 	private LinearPartitioningStrategy lpStrategy;
-
-	private RealMatrix generateSignal(int signalDimension) {
-		// Generate a signal with with x[0] = 1 and x[k] = x[k-1] + 1
-		RealMatrix signal = new Array2DRowRealMatrix(signalDimension, 1);
-		for (int i = 0; i < signalDimension; i++) {
-			signal.setEntry(i, 0, i+1);
-		}
-		return signal;
-	}
 
 	@Test(expected = IllegalArgumentException.class)  
 	public void getDomainDimensionWithOddNumber() {  
@@ -68,7 +61,7 @@ public class LinearPartitioningStrategyTest {
 		int domainDimension = 2;
 
 		// Generate a signal with fixed entries
-		RealMatrix signal = generateSignal(signalDimension);
+		RealMatrix signal = TestUtils.generateSignal(signalDimension);
 
 		// Grab and verify the first domain block
 		SparseRealMatrix fetchOperator = lpStrategy.getFetchOperator(0, domainDimension, signalDimension);
@@ -88,7 +81,7 @@ public class LinearPartitioningStrategyTest {
 		int signalDimension = 8;
 		int rangeDimesion = 2;
 
-		RealMatrix block = generateSignal(rangeDimesion);
+		RealMatrix block = TestUtils.generateSignal(rangeDimesion);
 
 		// Put and verify the first range block		
 		SparseRealMatrix putOperator = lpStrategy.getPutOperator(0, rangeDimesion, signalDimension);

@@ -1,4 +1,4 @@
-package math.nyx.codecs;
+package math.nyx.framework;
 
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
