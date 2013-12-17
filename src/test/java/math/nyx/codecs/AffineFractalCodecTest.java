@@ -2,22 +2,25 @@ package math.nyx.codecs;
 
 import static org.junit.Assert.assertEquals;
 
+import javax.annotation.Resource;
+
+import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
+import math.nyx.framework.FractalCodec;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
 public class AffineFractalCodecTest {
-	@Autowired
-	private AffineFractalCodec affineCodec;
+	@Resource(name="affineFractalCodec")
+	private FractalCodec affineCodec;
 
 	@Test
 	public void decodeConstantSignal() {
@@ -25,7 +28,7 @@ public class AffineFractalCodecTest {
 		final double c = 13.0;
 
 		// Build a simple fractal
-		AffineFractal fractal = new AffineFractal();
+		Fractal fractal = new Fractal();
 		fractal.setSignalDimension(signalDimension);
 		fractal.addTransform(new AffineTransform(0, 0, 0, 0, c));
 		fractal.addTransform(new AffineTransform(0, 1, 0, 0, c));
@@ -34,7 +37,7 @@ public class AffineFractalCodecTest {
 		decodeAndVerifyConstantSignalAtVaryingScales(fractal, c);
 	}
 
-	private void decodeAndVerifyConstantSignalAtVaryingScales(AffineFractal fractal, double c) {
+	private void decodeAndVerifyConstantSignalAtVaryingScales(Fractal fractal, double c) {
 		// Decode at various scales and verify
 		int scales[] = {1, 2, 3, 8, 16, 32, 256};
 		for (int scale : scales) {
@@ -62,7 +65,7 @@ public class AffineFractalCodecTest {
 		Signal signal = new Signal(x);
 
 		// Encode it
-		AffineFractal fractal = affineCodec.encode(signal);
+		Fractal fractal = affineCodec.encode(signal);
 
 		// Decode at 1x and 4x
 		Signal signal1x = affineCodec.decode(fractal, 1);
@@ -90,7 +93,7 @@ public class AffineFractalCodecTest {
 		Signal signal = new Signal(x);
 	
 		// Encode it
-		AffineFractal fractal = affineCodec.encode(signal);
+		Fractal fractal = affineCodec.encode(signal);
 
 		// Decode at various scales and verify
 		decodeAndVerifyConstantSignalAtVaryingScales(fractal, c);

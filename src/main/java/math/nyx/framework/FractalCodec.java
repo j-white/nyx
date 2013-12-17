@@ -1,4 +1,4 @@
-package math.nyx.codecs;
+package math.nyx.framework;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,22 +9,22 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 import org.springframework.util.Assert;
 
+import math.nyx.core.Fractal;
 import math.nyx.core.SignalBlock;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
-import math.nyx.framework.AveragingDecimationStrategy;
 import math.nyx.framework.DecimationStrategy;
 import math.nyx.framework.Kernel;
-import math.nyx.framework.LinearPartitioningStrategy;
 import math.nyx.framework.PartitioningStrategy;
 import math.nyx.framework.Transform;
 
-public class AffineFractalCodec implements FractalEncoder {
-	PartitioningStrategy partitioningStrategy = new LinearPartitioningStrategy();
-	DecimationStrategy decimationStrategy = new AveragingDecimationStrategy();
-	Kernel kernel = new AffineKernel();
+public class FractalCodec implements FractalEncoder {
+	private Kernel kernel;
+	private PartitioningStrategy partitioningStrategy;
+	private DecimationStrategy decimationStrategy;
+	private String name;
 
-	public AffineFractal encode(Signal signal) {
+	public Fractal encode(Signal signal) {
 		RealMatrix x = signal.getVector();
 		int signalDimension = signal.getDimension();
 		int domainDimension = partitioningStrategy.getDomainDimension(signalDimension);
@@ -74,7 +74,8 @@ public class AffineFractalCodec implements FractalEncoder {
 		}
 
 		// Construct the fractal used to store our results
-		AffineFractal fractal = new AffineFractal();
+		Fractal fractal = new Fractal();
+		fractal.setCodecName(name);
 		fractal.setSignalDimension(signal.getDimension());
 
 		// Now match the domain and range partitions while minimizing the distance
@@ -97,7 +98,7 @@ public class AffineFractalCodec implements FractalEncoder {
 		return fractal;
 	}
 
-	public Signal decode(AffineFractal fractal, float scale) {
+	public Signal decode(Fractal fractal, float scale) {
 		int signalDimension = Math.round(fractal.getSignalDimension() * scale);
 		int domainDimension = Math.round(partitioningStrategy.getDomainDimension(fractal.getSignalDimension())
 											* scale);
@@ -138,11 +139,35 @@ public class AffineFractalCodec implements FractalEncoder {
 		return new Signal(x);
 	}
 
+	public void setKernel(Kernel kernel) {
+		this.kernel = kernel;
+	}
+
+	public Kernel getKernel() {
+		return kernel;
+	}
+	
+	public void setPartitioningStrategy(PartitioningStrategy partitioningStrategy) {
+		this.partitioningStrategy = partitioningStrategy;
+	}
+
 	public PartitioningStrategy getPartitioningStrategy() {
 		return partitioningStrategy;
 	}
 
+	public void setDecimationStrategy(DecimationStrategy decimationStrategy) {
+		this.decimationStrategy = decimationStrategy;
+	}
+
 	public DecimationStrategy getDecimationStrategy() {
 		return decimationStrategy;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
 	}
 }

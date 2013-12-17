@@ -8,12 +8,16 @@
  
 	<context:annotation-config />
  
-	<bean id="affineFractalCodec" class="math.nyx.codecs.AffineFractalCodec"/>
-
 	<bean id="affineKernel" class="math.nyx.codecs.AffineKernel"/>
 
 	<bean id="linearPartitioningStrategy" class="math.nyx.framework.LinearPartitioningStrategy"/>
 	
 	<bean id="averagingDecimationStrategy" class="math.nyx.framework.AveragingDecimationStrategy"/>
 
+	<bean id="affineFractalCodec" class="math.nyx.framework.FractalCodec">
+		<property name="name" value="affineFractalCodec" />
+		<property name="kernel" ref="affineKernel" />
+		<property name="partitioningStrategy" ref="linearPartitioningStrategy" />
+		<property name="decimationStrategy" ref="averagingDecimationStrategy" />
+	</bean>
 </beans>

@@ -4,20 +4,41 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import math.nyx.framework.FractalCodec;
 import math.nyx.framework.Transform;
 
 import com.google.common.base.Objects;
 
-public abstract class Fractal implements Serializable {
+public class Fractal implements Serializable {
 	private static final long serialVersionUID = -3691227743645881425L;
 
+	private String codecName;
+	
 	private int signalDimension;
 
 	private final List<Transform> transforms = new LinkedList<Transform>();
 
-	public abstract Signal decode();
+	public Signal decode() {
+		return decode(1.0f);
+	}
 
-	public abstract Signal decode(float scale);
+	public Signal decode(float scale) {
+		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+		FractalCodec codec = (FractalCodec)ctx.getBean(codecName);
+		Signal signal = codec.decode(this, scale);
+		ctx.close();
+		return signal;
+	}
+
+	public void setCodecName(String codecName) {
+		this.codecName = codecName;
+	}
+
+	public String getCodecName() {
+		return codecName;
+	}
 
 	public int getSignalDimension() {
 		return signalDimension;
