@@ -127,7 +127,6 @@ public class ImageSignal extends Signal {
 		default:
 			throw new RuntimeException("Unsupported image buffer type " + dataBuffer.getDataType());
 		}
-
 		
 		return x;
 	}

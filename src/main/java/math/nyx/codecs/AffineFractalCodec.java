@@ -109,7 +109,6 @@ public class AffineFractalCodec implements FractalEncoder {
 			System.out.printf("Decoding: Iteration %d of %d.\n", n, numberOfIterations);
 			RealMatrix x_n = new Array2DRowRealMatrix(signalDimension, 1);
 			for (AffineTransform transform : transforms) {
-				//int domainBlockIndex = transform.getDomainBlockIndex();
 				int domainBlockIndex =  Math.round(transform.getDomainBlockIndex() * scale);
 				int rangeBlockIndex = transform.getRangeBlockIndex();
 
