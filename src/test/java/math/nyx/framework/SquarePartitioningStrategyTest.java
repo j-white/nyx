@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 import math.nyx.utils.TestUtils;
 
-import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 import org.junit.Test;
@@ -15,12 +14,36 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
-public class SquarePartitioningStrategyTest {
+public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategyTest {
 	@Autowired
 	private SquarePartitioningStrategy spStrategy;
 
 	@Autowired
 	private DecimationStrategy decStrategy;
+
+	@Override
+	public SquarePartitioningStrategy getPartitioner(int signalDimension, int scale) {
+		return spStrategy.getPartitioner(signalDimension, scale);
+	}
+
+	@Test
+	public void getDomainAndRangeDimensions() {
+		int signalDomainRange[][] = new int[][] {
+				{16, 4, 1},
+				{36, 9, 4},
+				{64, 9, 4},
+		};
+		
+		for (int i = 0; i < signalDomainRange.length; i++) {
+			int signalDimension = signalDomainRange[i][0];
+			int domainDimension = signalDomainRange[i][1];
+			int rangeDimension = signalDomainRange[i][2];
+			
+			spStrategy = spStrategy.getPartitioner(signalDimension);
+			assertEquals(domainDimension, spStrategy.getDomainDimension());
+			assertEquals(rangeDimension, spStrategy.getRangeDimension());
+		}
+	}
 
 	@Test
 	public void getFetchOperator() {
@@ -198,20 +221,24 @@ public class SquarePartitioningStrategyTest {
 	}
 
 	@Test
-	public void partitionSmallSquareImage() {
-		/* A 4x4 gray-scale image:
+	public void scaledDomainAndRangePartitions() {
+		/*
+		  A 4x4 gray-scale image:
 			1  2  3  4
 			5  6  7  8
 			9  10 11 12
 			13 14 15 16
-			
-		  will get mapped to a vector as:
-			1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-			
-		  the square domain partitioner should return 9 * 2*2 overlapping 
-		  square matrix partitions that look like:
+		 
+		  should have 16 range partitions and 9 domain partitions:
 		*/
-		double expectedDomains[][] = new double[][]{
+		double expectedRanges[][] = new double[][] {
+			{1},  {2},  {3},  {4},
+			{5},  {6},  {7},  {8},
+			{9},  {10}, {11}, {12},
+			{13}, {14}, {15}, {16},
+		};
+		
+		double expectedDomains[][] = new double[][] {
 			{1, 2, 5, 6},
 			{2, 3, 6, 7},
 			{3, 4, 7, 8},
@@ -222,44 +249,82 @@ public class SquarePartitioningStrategyTest {
 			{10, 11, 14, 15},
 			{11, 12, 15, 16}
 		};
+		
+		/*
+		   An 4x4 image scaled by 4 should yield an 8x8 image:
+		    1  2  3  4  5  6  7  8
+		    9  10 11 12 13 14 15 16
+		    17 18 19 20 21 22 23 24
+		    25 26 27 28 29 30 31 32
+		    33 34 35 36 37 38 39 40
+		    41 42 43 44 45 46 47 48
+		    49 50 51 52 53 54 55 56
+		    57 58 59 60 61 62 63 64
+		   
+		   with 16 range partitions and 9 domain partitions:
+		*/
+		double expectedScaledRanges[][] = new double[][] {
+			{1, 2, 9, 10}, {3, 4, 11, 12}, {5, 6, 13, 14}, {7, 8, 15, 16},
+			{17, 18, 25, 26}, {19, 20, 27, 28}, {21, 22, 29, 30}, {23, 24, 31, 32},
+			{33, 34, 41, 42}, {35, 36, 43, 44}, {37, 38, 45, 46}, {39, 40, 47, 48},
+			{49, 50, 57, 58}, {51, 52, 59, 60}, {53, 54, 61, 62}, {55, 56, 63, 64}
+		};
 
-		// Verify the domain and range partition sizes
+		double expectedScaledDomains[][] = new double[][] {
+			{1, 2, 3, 4, 9, 10, 11, 12, 17, 18, 19, 20, 25, 26, 27, 28},
+			{3, 4, 5, 6, 11, 12, 13, 14, 19, 20, 21, 22, 27, 28, 29, 30},
+			{5, 6, 7, 8, 13, 14, 15, 16, 21, 22, 23, 24, 29, 30, 31, 32},
+			{17, 18, 19, 20, 25, 26, 27, 28, 33, 34, 35, 36, 41, 42, 43, 44},
+			{19, 20, 21, 22, 27, 28, 29, 30, 35, 36, 37, 38, 43, 44, 45, 46},
+			{21, 22, 23, 24, 29, 30, 31, 32, 37, 38, 39, 40, 45, 46, 47, 48},
+			{33, 34, 35, 36, 41, 42, 43, 44, 49, 50, 51, 52, 57, 58, 59, 60},
+			{35, 36, 37, 38, 43, 44, 45, 46, 51, 52, 53, 54, 59, 60, 61, 62},
+			{37, 38, 39, 40, 45, 46, 47, 48, 53, 54, 55, 56, 61, 62, 63, 64}
+		};
+
 		int signalDimension = 16;
-		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension);
-		int domainDimension = partitioner.getDomainDimension();
-		int rangeDimension = partitioner.getRangeDimension();
-		assertEquals(4, domainDimension);
-		assertEquals(1, rangeDimension);
+		SquarePartitioningStrategy orignalPartitioner = spStrategy.getPartitioner(signalDimension);
+		assertEquals(16, orignalPartitioner.getScaledSignalDimension());
+		
+		assertEquals(1, orignalPartitioner.getRangeDimension());
+		assertEquals(16, orignalPartitioner.getNumRangePartitions());
+		
+		assertEquals(4, orignalPartitioner.getDomainDimension());
+		assertEquals(9, orignalPartitioner.getNumDomainPartitions());
 
-		int numDomainPartitions = partitioner.getNumDomainPartitions();
-		int numRangePartitions = partitioner.getNumRangePartitions();
-		assertEquals(expectedDomains.length, numDomainPartitions);
-		assertEquals(16, numRangePartitions);
+		int scale = 4;
+		SquarePartitioningStrategy scaledPartitioner = spStrategy.getPartitioner(signalDimension, scale);
+		assertEquals(64, scaledPartitioner.getScaledSignalDimension());
+		
+		assertEquals(4, scaledPartitioner.getRangeDimension());
+		assertEquals(16, orignalPartitioner.getNumRangePartitions());
+		
+		assertEquals(16, scaledPartitioner.getDomainDimension());
+		assertEquals(9, scaledPartitioner.getNumDomainPartitions());
 
-		// Verify the domain partitions retrieved via the fetch operator
-		RealMatrix signal = TestUtils.generateSignal(signalDimension);
-		for (int i = 0; i < numDomainPartitions; i++) {
-			SparseRealMatrix fetchOperator = partitioner.getDomainFetchOperator(i);
-			RealMatrix domain = fetchOperator.multiply(signal);
-			assertArrayEquals("Comparing domain partition " + i, expectedDomains[i],
-							  domain.getColumn(0), TestUtils.DELTA);
+		RealMatrix originalSignal = TestUtils.generateSignal(orignalPartitioner.getScaledSignalDimension());
+		RealMatrix scaledSignal = TestUtils.generateSignal(scaledPartitioner.getScaledSignalDimension());
+
+		// Verify the range partitions
+		for (int i = 0; i < orignalPartitioner.getRangeDimension(); i++) {
+			String message = String.format("Range partition at index %d", i);
+			RealMatrix rangePartition = orignalPartitioner.getRangeFetchOperator(i).multiply(originalSignal);
+			assertArrayEquals(message, expectedRanges[i], rangePartition.getColumn(0), TestUtils.DELTA);
+			
+			message = String.format("Scaled range partition at index %d", i);
+			RealMatrix rangePartitionInScaled = scaledPartitioner.getRangeFetchOperator(i).multiply(scaledSignal);
+			assertArrayEquals(message, expectedScaledRanges[i], rangePartitionInScaled.getColumn(0), TestUtils.DELTA);
 		}
 
-		// Verify the range partitions restored via the put operator
-		SparseRealMatrix decimationOperator = decStrategy.getDecimationOperator(rangeDimension, domainDimension);
-		RealMatrix decodedSignal = new Array2DRowRealMatrix(signalDimension, 1);
-		for (int i = 0; i < numRangePartitions; i++) {
-			// Create a new domain partition with constant values
-			RealMatrix domainPartition = new Array2DRowRealMatrix(domainDimension, 1);
-			domainPartition = domainPartition.scalarAdd(i+1);
+		// Verify the domain partitions
+		for (int i = 0; i < orignalPartitioner.getNumDomainPartitions(); i++) {
+			String message = String.format("Domain partition at index %d", i);
+			RealMatrix domainPartition = orignalPartitioner.getDomainFetchOperator(i).multiply(originalSignal);
+			assertArrayEquals(message, expectedDomains[i], domainPartition.getColumn(0), TestUtils.DELTA);
 			
-			// Decimate it
-			RealMatrix rangePartition = decimationOperator.multiply(domainPartition);
-			
-			// Now restore it via the put operator
-			SparseRealMatrix putOperator = partitioner.getPutOperator(i);
-			decodedSignal = decodedSignal.add(putOperator.multiply(rangePartition));
+			message = String.format("Scaled domain partition at index %d", i);
+			RealMatrix domainPartitionInScaled = scaledPartitioner.getDomainFetchOperator(i).multiply(scaledSignal);
+			assertArrayEquals(message, expectedScaledDomains[i], domainPartitionInScaled.getColumn(0), TestUtils.DELTA);
 		}
-		assertArrayEquals(signal.getColumn(0), decodedSignal.getColumn(0), TestUtils.DELTA);
 	}
 }

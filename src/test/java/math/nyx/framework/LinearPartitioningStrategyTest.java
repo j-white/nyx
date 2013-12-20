@@ -1,11 +1,9 @@
 package math.nyx.framework;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
 import math.nyx.framework.LinearPartitioningStrategy;
 import math.nyx.utils.TestUtils;
 
-import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 import org.junit.Test;
@@ -16,9 +14,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
-public class LinearPartitioningStrategyTest {
+public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategyTest {
 	@Autowired
 	private LinearPartitioningStrategy lpStrategy;
+
+	@Override
+	public LinearPartitioningStrategy getPartitioner(int signalDimension, int scale) {
+		return lpStrategy.getPartitioner(signalDimension, scale);
+	}
 
 	@Test(expected = IllegalArgumentException.class)  
 	public void getPartitionerWithOddSignalDimension() {
@@ -69,32 +72,5 @@ public class LinearPartitioningStrategyTest {
 		block = fetchOperator.multiply(signal);
 		assertEquals(7, (int)block.getEntry(0, 0));
 		assertEquals(8, (int)block.getEntry(1, 0));
-	}
-
-	@Test
-	public void fetchAndPutRange() {
-		int signalDimension = 16;
-		lpStrategy = lpStrategy.getPartitioner(signalDimension);
-
-		// Generate a vector with fixed entries
-		RealMatrix signal = TestUtils.generateSignal(signalDimension);
-
-		// And create another vector to store the results
-		RealMatrix result = new Array2DRowRealMatrix(signalDimension, 1);
-
-		// Iterate over all the range partitions
-		int numRangePartitions = lpStrategy.getNumRangePartitions();
-		for (int i = 0; i < numRangePartitions; i++) {
-			// Fetch the range partition
-			SparseRealMatrix rangeFetchOperator = lpStrategy.getRangeFetchOperator(i);
-			RealMatrix rangePartition = rangeFetchOperator.multiply(signal);
-			
-			// Now restore the range partition with the put operator
-			SparseRealMatrix putOperator = lpStrategy.getPutOperator(i);
-			result = result.add(putOperator.multiply(rangePartition));
-		}
-
-		// And compare the two vectors
-		assertArrayEquals(signal.getColumn(0), result.getColumn(0), TestUtils.DELTA);
 	}
 }

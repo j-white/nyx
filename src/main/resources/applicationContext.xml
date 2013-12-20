@@ -19,7 +19,7 @@
 	<bean id="affineFractalCodec" class="math.nyx.framework.FractalCodec">
 		<property name="name" value="affineFractalCodec" />
 		<property name="kernel" ref="affineKernel" />
-		<property name="partitioningStrategy" ref="linearPartitioningStrategy" />
+		<property name="partitioningStrategy" ref="squarePartitioningStrategy" />
 		<property name="decimationStrategy" ref="averagingDecimationStrategy" />
 	</bean>
 </beans>

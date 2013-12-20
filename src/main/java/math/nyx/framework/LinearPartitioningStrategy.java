@@ -74,12 +74,12 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 
 	@Override
 	public int getNumDomainPartitions() {
-		return getSignalDimension() - domainDimension;
+		return getScaledSignalDimension() - domainDimension;
 	}
 
 	@Override
 	public int getNumRangePartitions() {
-		return getSignalDimension() / getRangeDimension();
+		return getScaledSignalDimension() / getRangeDimension();
 	}
 
 	@Override

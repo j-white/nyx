@@ -3,6 +3,8 @@ package math.nyx.framework;
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
+import com.google.common.base.Objects;
+
 public abstract class AbstractPartitioningStrategy implements PartitioningStrategy {
 
 	private final int signalDimension;
@@ -54,5 +56,18 @@ public abstract class AbstractPartitioningStrategy implements PartitioningStrate
 			P_J.setEntry(rangeIndices[k], k, 1);
 		}
 		return P_J;
+	}
+
+	@Override
+	public String toString() {
+	    return Objects.toStringHelper(this.getClass())
+	            .add("signalDimension", signalDimension)
+	            .add("scale", scale)
+	            .add("scaledSignalDimension", getScaledSignalDimension())
+	            .add("domainDimension", getDomainDimension())
+	            .add("rangeDimension", getRangeDimension())
+	            .add("numDomainPartitions", getNumDomainPartitions())
+	            .add("numRangePartitions", getNumRangePartitions())
+	            .toString();
 	}
 }
