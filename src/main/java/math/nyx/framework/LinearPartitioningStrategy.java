@@ -39,6 +39,16 @@ public class LinearPartitioningStrategy implements PartitioningStrategy {
 	}
 
 	@Override
+	public int getNumDomainPartitions(int signalDimension) {
+		return signalDimension - getDomainDimension(signalDimension);
+	}
+
+	@Override
+	public int getNumRangePartitions(int signalDimension) {
+		return Math.round((float)signalDimension / getRangeDimension(signalDimension));
+	}
+
+	@Override
 	public SparseRealMatrix getPutOperator(int rangeBlockIndex,
 			int rangeDimension, int signalDimension) {
 		SparseRealMatrix P_J = new OpenMapRealMatrix(signalDimension, rangeDimension);

@@ -12,6 +12,8 @@
 
 	<bean id="linearPartitioningStrategy" class="math.nyx.framework.LinearPartitioningStrategy"/>
 	
+	<bean id="squarePartitioningStrategy" class="math.nyx.framework.SquarePartitioningStrategy"/>
+	
 	<bean id="averagingDecimationStrategy" class="math.nyx.framework.AveragingDecimationStrategy"/>
 
 	<bean id="affineFractalCodec" class="math.nyx.framework.FractalCodec">
