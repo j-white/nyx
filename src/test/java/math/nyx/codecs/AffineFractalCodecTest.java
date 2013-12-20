@@ -24,7 +24,7 @@ public class AffineFractalCodecTest {
 
 	@Test
 	public void decodeConstantSignal() {
-		final int signalDimension = 2;
+		final int signalDimension = 4;
 		final double c = 13.0;
 
 		// Build a simple fractal
@@ -32,6 +32,8 @@ public class AffineFractalCodecTest {
 		fractal.setSignalDimension(signalDimension);
 		fractal.addTransform(new AffineTransform(0, 0, 0, 0, c));
 		fractal.addTransform(new AffineTransform(0, 1, 0, 0, c));
+		fractal.addTransform(new AffineTransform(0, 2, 0, 0, c));
+		fractal.addTransform(new AffineTransform(0, 3, 0, 0, c));
 
 		// Decode at various scales and verify
 		decodeAndVerifyConstantSignalAtVaryingScales(fractal, c);
@@ -82,7 +84,7 @@ public class AffineFractalCodecTest {
 
 	@Test
 	public void encodeDecodeConstantSignal() {
-		int signalDimension = 2;
+		int signalDimension = 4;
 		final double c = -29.0;
 
 		// Build a signal with constant entries
