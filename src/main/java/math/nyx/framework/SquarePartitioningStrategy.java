@@ -4,7 +4,7 @@ import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 import org.springframework.util.Assert;
 
-public class SquarePartitioningStrategy implements PartitioningStrategy {
+public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	
 	private int getSignalWidth(int signalDimension) {
 		int signalWidth = (int)Math.round(Math.sqrt(signalDimension));
@@ -43,7 +43,7 @@ public class SquarePartitioningStrategy implements PartitioningStrategy {
 	}
 
 	@Override
-	public SparseRealMatrix getFetchOperator(int domainBlockIndex,
+	public SparseRealMatrix getDomainFetchOperator(int domainBlockIndex,
 			int domainDimension, int signalDimension) {
 		int signalWidth = getSignalWidth(signalDimension);
 		int domainWidth = (int)Math.round(Math.sqrt(domainDimension));
@@ -67,8 +67,9 @@ public class SquarePartitioningStrategy implements PartitioningStrategy {
 	}
 
 	@Override
-	public SparseRealMatrix getPutOperator(int rangeBlockIndex,
+	public int[] getRangeIndices(int rangeBlockIndex,
 			int rangeDimension, int signalDimension) {
+		
 		int signalWidth = getSignalWidth(signalDimension);
 		int rangeWidth = (int)Math.round(Math.sqrt(rangeDimension));
 		Assert.isTrue(rangeWidth * rangeWidth == rangeDimension, "Range dimension must be a square.");
@@ -82,11 +83,11 @@ public class SquarePartitioningStrategy implements PartitioningStrategy {
 
 		int rowIndexOffset = rangeColumnIndex + (rangeRowIndex * rangeWidth * signalWidth);
 
-		SparseRealMatrix P_J = new OpenMapRealMatrix(signalDimension, rangeDimension);
+		int rangeIndices[] = new int[rangeDimension];
 		for (int k = 0; k < rangeDimension; k++) {
 			int rowIndex = ((int)Math.floor((float)k / rangeWidth) * signalWidth) + (k % rangeWidth);
-			P_J.setEntry(rowIndex + rowIndexOffset, k, 1);
+			rangeIndices[k] = rowIndex + rowIndexOffset;
 		}
-		return P_J;
+		return rangeIndices;
 	}
 }

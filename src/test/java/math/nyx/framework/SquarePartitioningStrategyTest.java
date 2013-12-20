@@ -111,7 +111,7 @@ public class SquarePartitioningStrategyTest {
 				continue;
 			}
 
-			SparseRealMatrix fetchOperator = spStrategy.getFetchOperator(i, domainDimension, signalDimension);
+			SparseRealMatrix fetchOperator = spStrategy.getDomainFetchOperator(i, domainDimension, signalDimension);
 			for (int j = 0; j < domainDimension; j++) {
 				String message = String.format("Signal dimension: %d Domain block index: %d Row: %d Column: %d",
 												signalDimension, i, j, columnIndicesToCheck[i][j]);
@@ -233,7 +233,7 @@ public class SquarePartitioningStrategyTest {
 		// Verify the domain partitions retrieved via the fetch operator
 		RealMatrix signal = TestUtils.generateSignal(signalDimension);
 		for (int i = 0; i < numDomainPartitions; i++) {
-			SparseRealMatrix fetchOperator = spStrategy.getFetchOperator(i, domainDimension, signalDimension);
+			SparseRealMatrix fetchOperator = spStrategy.getDomainFetchOperator(i, domainDimension, signalDimension);
 			RealMatrix domain = fetchOperator.multiply(signal);
 			assertArrayEquals("Comparing domain partition " + i, expectedDomains[i],
 							  domain.getColumn(0), TestUtils.DELTA);

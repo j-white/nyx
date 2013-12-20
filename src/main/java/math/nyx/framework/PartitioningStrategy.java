@@ -11,7 +11,9 @@ public interface PartitioningStrategy {
 
 	public int getNumRangePartitions(int signalDimension);
 
-	public SparseRealMatrix getPutOperator(int rangeBlockIndex, int rangeDimension, int signalDimension);
+	public SparseRealMatrix getDomainFetchOperator(int domainBlockIndex, int domainDimension, int signalDimension);
 
-	public SparseRealMatrix getFetchOperator(int domainBlockIndex, int domainDimension, int signalDimension);
+	public SparseRealMatrix getRangeFetchOperator(int rangeBlockIndex, int rangeDimension, int signalDimension);
+
+	public SparseRealMatrix getPutOperator(int rangeBlockIndex, int rangeDimension, int signalDimension);
 }

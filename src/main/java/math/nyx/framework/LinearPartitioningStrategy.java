@@ -3,7 +3,7 @@ package math.nyx.framework;
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
-public class LinearPartitioningStrategy implements PartitioningStrategy {
+public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 	private void checkSignalDimesion(int signalDimension) {
 		if (signalDimension < 1 || signalDimension % 2 != 0) {
 			throw new IllegalArgumentException("Signal dimension must be an even positive integer.");
@@ -49,22 +49,22 @@ public class LinearPartitioningStrategy implements PartitioningStrategy {
 	}
 
 	@Override
-	public SparseRealMatrix getPutOperator(int rangeBlockIndex,
-			int rangeDimension, int signalDimension) {
-		SparseRealMatrix P_J = new OpenMapRealMatrix(signalDimension, rangeDimension);
-		for (int j = 0; j < rangeDimension; j++) {
-			P_J.setEntry(rangeDimension*rangeBlockIndex + j, j, 1);
-		}
-		return P_J;
-	}
-
-	@Override
-	public SparseRealMatrix getFetchOperator(int domainBlockIndex,
+	public SparseRealMatrix getDomainFetchOperator(int domainBlockIndex,
 			int domainDimension, int signalDimension) {
 		SparseRealMatrix F_I = new OpenMapRealMatrix(domainDimension, signalDimension);
 		for (int j = 0; j < domainDimension; j++) {
 			F_I.setEntry(j, domainBlockIndex + j, 1);
 		}
 		return F_I;
+	}
+
+	@Override
+	public int[] getRangeIndices(int rangeBlockIndex,
+			int rangeDimension, int signalDimension) {
+		int rangeIndices[] = new int[rangeDimension];
+		for (int k = 0; k < rangeDimension; k++) {
+			rangeIndices[k] = rangeDimension*rangeBlockIndex + k;
+		}
+		return rangeIndices;
 	}
 }

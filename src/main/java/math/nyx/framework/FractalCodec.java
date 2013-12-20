@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
-import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 import org.springframework.util.Assert;
@@ -33,19 +32,13 @@ public class FractalCodec implements FractalEncoder {
 		Assert.isTrue(signalDimension % domainDimension == 0, "Domain dimension should divide the signal dimension");
 		Assert.isTrue(domainDimension % rangeDimension == 0, "Range dimension should divide the domain dimension");
 
-		int numberOfRanges = Math.round((float)signalDimension / rangeDimension);
-
 		// Break the signal into non-overlapping range blocks
+		int numRangePartitions = partitioningStrategy.getNumRangePartitions(signalDimension);
 		List<SignalBlock> rangeBlocks = new ArrayList<SignalBlock>();
-		for (int i = 0; i < numberOfRanges; i++) {
-			// Build a sparse matrix with 1s on the diagonal offset at i*rangeDimension
-			SparseRealMatrix F_I = new OpenMapRealMatrix(rangeDimension, signalDimension);
-			for (int j = 0; j < rangeDimension; j++) {
-				F_I.setEntry(j, i*rangeDimension + j, 1);
-			}
-
-			// Multiply the sparse matrix with the vector to retrieve the range block
-			RealMatrix rangeBlock = F_I.multiply(x);		
+		for (int i = 0; i < numRangePartitions; i++) {
+			// Fetch the range block at index i
+			SparseRealMatrix F_I = partitioningStrategy.getRangeFetchOperator(i, rangeDimension, signalDimension);
+			RealMatrix rangeBlock = F_I.multiply(x);			
 
 			// Store the results
 			rangeBlocks.add(new SignalBlock(i, rangeBlock));
@@ -55,18 +48,14 @@ public class FractalCodec implements FractalEncoder {
 		SparseRealMatrix D = decimationStrategy.getDecimationOperator(rangeDimension, domainDimension);
 
 		// Break the signal into overlapping domain blocks
+		int numDomainPartitions = partitioningStrategy.getNumDomainPartitions(signalDimension);
 		List<SignalBlock> decimatedDomainBlocks = new ArrayList<SignalBlock>();
-		for (int i = 0; i <= (signalDimension - domainDimension); i++) {
-			// Build a sparse matrix with 1s on the diagonal offset at i
-			SparseRealMatrix F_I = new OpenMapRealMatrix(domainDimension, signalDimension);
-			for (int j = 0; j < domainDimension; j++) {
-				F_I.setEntry(j, i + j, 1);
-			}
-
-			// Multiply the sparse matrix with the vector to retrieve the domain block
+		for (int i = 0; i <= numDomainPartitions; i++) {
+			// Fetch the domain block at index i
+			SparseRealMatrix F_I = partitioningStrategy.getDomainFetchOperator(i, domainDimension, signalDimension);
 			RealMatrix domainBlock = F_I.multiply(x);		
 
-			// Decimate the domain block
+			// Decimate it
 			RealMatrix decimatedDomainBlock = D.multiply(domainBlock);
 
 			// Store the results
@@ -118,7 +107,7 @@ public class FractalCodec implements FractalEncoder {
 				int rangeBlockIndex = transform.getRangeBlockIndex();
 
 				// Fetch
-				SparseRealMatrix F_I = partitioningStrategy.getFetchOperator(domainBlockIndex,
+				SparseRealMatrix F_I = partitioningStrategy.getDomainFetchOperator(domainBlockIndex,
 																			 domainDimension, signalDimension);
 				RealMatrix domainBlock = F_I.multiply(x);
 

@@ -64,13 +64,13 @@ public class LinearPartitioningStrategyTest {
 		RealMatrix signal = TestUtils.generateSignal(signalDimension);
 
 		// Grab and verify the first domain block
-		SparseRealMatrix fetchOperator = lpStrategy.getFetchOperator(0, domainDimension, signalDimension);
+		SparseRealMatrix fetchOperator = lpStrategy.getDomainFetchOperator(0, domainDimension, signalDimension);
 		RealMatrix block = fetchOperator.multiply(signal);
 		assertEquals(1, (int)block.getEntry(0, 0));
 		assertEquals(2, (int)block.getEntry(1, 0));
 
 		// Grab and verify the last domain block
-		fetchOperator = lpStrategy.getFetchOperator(6, domainDimension, signalDimension);
+		fetchOperator = lpStrategy.getDomainFetchOperator(6, domainDimension, signalDimension);
 		block = fetchOperator.multiply(signal);
 		assertEquals(7, (int)block.getEntry(0, 0));
 		assertEquals(8, (int)block.getEntry(1, 0));
