@@ -21,10 +21,10 @@ public class Fractal implements Serializable {
 	private final List<Transform> transforms = new LinkedList<Transform>();
 
 	public Signal decode() {
-		return decode(1.0f);
+		return decode(1);
 	}
 
-	public Signal decode(float scale) {
+	public Signal decode(int scale) {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
 		FractalCodec codec = (FractalCodec)ctx.getBean(codecName);
 		Signal signal = codec.decode(this, scale);

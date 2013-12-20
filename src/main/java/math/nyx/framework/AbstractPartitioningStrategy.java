@@ -5,25 +5,52 @@ import org.apache.commons.math.linear.SparseRealMatrix;
 
 public abstract class AbstractPartitioningStrategy implements PartitioningStrategy {
 
-	public abstract int[] getRangeIndices(int rangeBlockIndex, int rangeDimension, int signalDimension);
+	private final int signalDimension;
+
+	private final int scale;
+
+	public AbstractPartitioningStrategy() {
+		signalDimension = 0;
+		scale = 0;
+	}
+
+	public AbstractPartitioningStrategy(int signalDimension, int scale) {
+		this.signalDimension = signalDimension;
+		this.scale = scale;
+	}
+
+	public int getScale() {
+		return scale;
+	}
+
+	public int getSignalDimension() {
+		return signalDimension;
+	}
 
 	@Override
-	public SparseRealMatrix getRangeFetchOperator(int rangeBlockIndex,
-			int rangeDimension, int signalDimension) {
-		int rangeIndices[] = getRangeIndices(rangeBlockIndex, rangeDimension, signalDimension);
-		SparseRealMatrix F_I = new OpenMapRealMatrix(rangeDimension, signalDimension);
-		for (int k = 0; k < rangeDimension; k++) {
+	public int getScaledSignalDimension() {
+		return signalDimension * scale;
+	}
+
+	public abstract void checkSignalDimension(int signalDimension, int scale);
+
+	public abstract int[] getRangeIndices(int rangeBlockIndex);
+
+	@Override
+	public SparseRealMatrix getRangeFetchOperator(int rangeBlockIndex) {
+		int rangeIndices[] = getRangeIndices(rangeBlockIndex);
+		SparseRealMatrix F_I = new OpenMapRealMatrix(getRangeDimension(), getScaledSignalDimension());
+		for (int k = 0; k < getRangeDimension(); k++) {
 			F_I.setEntry(k, rangeIndices[k], 1);
 		}
 		return F_I;
 	}
 
 	@Override
-	public SparseRealMatrix getPutOperator(int rangeBlockIndex,
-			int rangeDimension, int signalDimension) {
-		int rangeIndices[] = getRangeIndices(rangeBlockIndex, rangeDimension, signalDimension);
-		SparseRealMatrix P_J = new OpenMapRealMatrix(signalDimension, rangeDimension);
-		for (int k = 0; k < rangeDimension; k++) {
+	public SparseRealMatrix getPutOperator(int rangeBlockIndex) {
+		int rangeIndices[] = getRangeIndices(rangeBlockIndex);
+		SparseRealMatrix P_J = new OpenMapRealMatrix(getScaledSignalDimension(), getRangeDimension());
+		for (int k = 0; k < getRangeDimension(); k++) {
 			P_J.setEntry(rangeIndices[k], k, 1);
 		}
 		return P_J;

@@ -105,13 +105,15 @@ public class SquarePartitioningStrategyTest {
 	}
 
 	private void checkEntriesInFetchOperator(int columnIndicesToCheck[][], int signalDimension) {
+		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension);
+	
 		for (int i = 0; i < columnIndicesToCheck.length; i++) {
 			int domainDimension = columnIndicesToCheck[i].length;
 			if (domainDimension == 0) {
 				continue;
 			}
 
-			SparseRealMatrix fetchOperator = spStrategy.getDomainFetchOperator(i, domainDimension, signalDimension);
+			SparseRealMatrix fetchOperator = partitioner.getDomainFetchOperator(i);
 			for (int j = 0; j < domainDimension; j++) {
 				String message = String.format("Signal dimension: %d Domain block index: %d Row: %d Column: %d",
 												signalDimension, i, j, columnIndicesToCheck[i][j]);
@@ -139,10 +141,10 @@ public class SquarePartitioningStrategyTest {
 		 */
 
 		int signalDimension = 16;
-		int rangeDimension = spStrategy.getRangeDimension(signalDimension);
-		int numRangePartitions = spStrategy.getNumRangePartitions(signalDimension);
+		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension);
+		int numRangePartitions = partitioner.getNumRangePartitions();
 		for (int i = 0; i < numRangePartitions; i++) {
-			SparseRealMatrix putOperator = spStrategy.getPutOperator(i, rangeDimension, signalDimension);
+			SparseRealMatrix putOperator = partitioner.getPutOperator(i);
 			assertEquals(1, putOperator.getEntry(i, 0), TestUtils.DELTA);
 		}
 
@@ -177,13 +179,16 @@ public class SquarePartitioningStrategyTest {
 	}
 
 	private void checkEntriesInPutOperator(int rowIndicesToCheck[][], int signalDimension) {
+		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension);
+
 		for (int i = 0; i < rowIndicesToCheck.length; i++) {
 			int rangeDimension = rowIndicesToCheck[i].length;
 			if (rangeDimension == 0) {
 				continue;
 			}
-
-			SparseRealMatrix putOperator = spStrategy.getPutOperator(i, rangeDimension, signalDimension);
+			assertEquals(rangeDimension, partitioner.getRangeDimension());
+			
+			SparseRealMatrix putOperator = partitioner.getPutOperator(i);
 			for (int j = 0; j < rangeDimension; j++) {
 				String message = String.format("Signal dimension: %d Range block index: %d Row: %d Column: %d",
 												signalDimension, i, rowIndicesToCheck[i][j], j);
@@ -220,20 +225,21 @@ public class SquarePartitioningStrategyTest {
 
 		// Verify the domain and range partition sizes
 		int signalDimension = 16;
-		int domainDimension = spStrategy.getDomainDimension(signalDimension);
-		int rangeDimension = spStrategy.getRangeDimension(signalDimension);
+		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension);
+		int domainDimension = partitioner.getDomainDimension();
+		int rangeDimension = partitioner.getRangeDimension();
 		assertEquals(4, domainDimension);
 		assertEquals(1, rangeDimension);
 
-		int numDomainPartitions = spStrategy.getNumDomainPartitions(signalDimension);
-		int numRangePartitions = spStrategy.getNumRangePartitions(signalDimension);
+		int numDomainPartitions = partitioner.getNumDomainPartitions();
+		int numRangePartitions = partitioner.getNumRangePartitions();
 		assertEquals(expectedDomains.length, numDomainPartitions);
 		assertEquals(16, numRangePartitions);
 
 		// Verify the domain partitions retrieved via the fetch operator
 		RealMatrix signal = TestUtils.generateSignal(signalDimension);
 		for (int i = 0; i < numDomainPartitions; i++) {
-			SparseRealMatrix fetchOperator = spStrategy.getDomainFetchOperator(i, domainDimension, signalDimension);
+			SparseRealMatrix fetchOperator = partitioner.getDomainFetchOperator(i);
 			RealMatrix domain = fetchOperator.multiply(signal);
 			assertArrayEquals("Comparing domain partition " + i, expectedDomains[i],
 							  domain.getColumn(0), TestUtils.DELTA);
@@ -251,7 +257,7 @@ public class SquarePartitioningStrategyTest {
 			RealMatrix rangePartition = decimationOperator.multiply(domainPartition);
 			
 			// Now restore it via the put operator
-			SparseRealMatrix putOperator = spStrategy.getPutOperator(i, rangeDimension, signalDimension);
+			SparseRealMatrix putOperator = partitioner.getPutOperator(i);
 			decodedSignal = decodedSignal.add(putOperator.multiply(rangePartition));
 		}
 		assertArrayEquals(signal.getColumn(0), decodedSignal.getColumn(0), TestUtils.DELTA);

@@ -2,54 +2,77 @@ package math.nyx.framework;
 
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
-import org.springframework.util.Assert;
 
 public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
-	
-	private int getSignalWidth(int signalDimension) {
-		int signalWidth = (int)Math.round(Math.sqrt(signalDimension));
-		if (signalWidth*signalWidth != signalDimension) {
+	private final int signalWidth;
+	private final int domainWidth;
+	private final int rangeWidth;
+	private final int domainDimension;
+	private final int rangeDimension;
+
+	public SquarePartitioningStrategy() {
+		// Default constructor
+		signalWidth = 0;
+		domainWidth = 0;
+		rangeWidth = 0;
+		domainDimension = 0;
+		rangeDimension = 0;
+	}
+
+	private SquarePartitioningStrategy(int signalDimension, int scale) {
+		super(signalDimension, scale);
+
+		signalWidth = (int)Math.round(Math.sqrt(getSignalDimension()));
+		int powerOfTwo = (int)Math.floor(Math.log(signalWidth) / Math.log(2) - 1);
+		domainWidth = signalWidth / (int)Math.pow(2, powerOfTwo);
+		rangeWidth = domainWidth - 1;
+		
+		domainDimension = domainWidth * domainWidth;
+		rangeDimension = rangeWidth * rangeWidth;
+	}
+
+	@Override
+	public void checkSignalDimension(int signalDimension, int scale) {
+		int root = (int)Math.round(Math.sqrt(signalDimension));
+		if (root*root != signalDimension) {
 			throw new IllegalArgumentException("Signal dimension must be a square.");
 		}
-		return signalWidth;
 	}
 
 	@Override
-	public int getDomainDimension(int signalDimension) {
-		int signalWidth = getSignalWidth(signalDimension);
-		int powerOfTwo = (int)Math.floor(Math.log(signalWidth) / Math.log(2) - 1);
-		int domainWidth = signalWidth / (int)Math.pow(2, powerOfTwo);
-		return domainWidth * domainWidth;
+	public SquarePartitioningStrategy getPartitioner(int signalDimension) {
+		return getPartitioner(signalDimension, 1);
 	}
 
 	@Override
-	public int getRangeDimension(int signalDimension) {
-		int domainWidth = (int)Math.round(Math.sqrt(getDomainDimension(signalDimension)));
-		int rangeWidth = domainWidth - 1;
-		return rangeWidth * rangeWidth;
+	public SquarePartitioningStrategy getPartitioner(int signalDimension, int scale) {
+		checkSignalDimension(signalDimension, scale);
+		return new SquarePartitioningStrategy(signalDimension, scale);
 	}
 
 	@Override
-	public int getNumDomainPartitions(int signalDimension) {
-		int signalWidth = getSignalWidth(signalDimension);
-		int domainWidth = (int)Math.round(Math.sqrt(getDomainDimension(signalDimension)));
+	public int getDomainDimension() {
+		return domainDimension;
+	}
+
+	@Override
+	public int getRangeDimension() {
+		return rangeDimension;
+	}
+
+	@Override
+	public int getNumDomainPartitions() {
 		int k = signalWidth - domainWidth + 1;
 		return k*k;
 	}
 
 	@Override
-	public int getNumRangePartitions(int signalDimension) {
-		return Math.round((float)signalDimension / getRangeDimension(signalDimension));
+	public int getNumRangePartitions() {
+		return getSignalDimension() / (rangeWidth * rangeWidth);
 	}
 
 	@Override
-	public SparseRealMatrix getDomainFetchOperator(int domainBlockIndex,
-			int domainDimension, int signalDimension) {
-		int signalWidth = getSignalWidth(signalDimension);
-		int domainWidth = (int)Math.round(Math.sqrt(domainDimension));
-		Assert.isTrue(domainWidth * domainWidth == domainDimension, "Domain dimension must be a square.");
-		Assert.isTrue(signalWidth % domainWidth == 0, "Domain width must divide the signal width.");
-
+	public SparseRealMatrix getDomainFetchOperator(int domainBlockIndex) {
 		int numDomainsPerRow = signalWidth - domainWidth + 1;
 		int numDomainsPerColumn = numDomainsPerRow;
 
@@ -57,8 +80,8 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		int domainRowIndex = (int)Math.floor((float)domainBlockIndex / numDomainsPerColumn);
 
 		int columnIndexOffset = domainColumnIndex + (domainRowIndex * signalWidth);
-
-		SparseRealMatrix F_I = new OpenMapRealMatrix(domainDimension, signalDimension);
+	
+		SparseRealMatrix F_I = new OpenMapRealMatrix(domainDimension, getSignalDimension());
 		for (int k = 0; k < domainDimension; k++) {
 			int columnIndex = ((int)Math.floor((float)k / domainWidth) * signalWidth) + (k % domainWidth);
 			F_I.setEntry(k, columnIndex + columnIndexOffset, 1);
@@ -67,14 +90,7 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	}
 
 	@Override
-	public int[] getRangeIndices(int rangeBlockIndex,
-			int rangeDimension, int signalDimension) {
-		
-		int signalWidth = getSignalWidth(signalDimension);
-		int rangeWidth = (int)Math.round(Math.sqrt(rangeDimension));
-		Assert.isTrue(rangeWidth * rangeWidth == rangeDimension, "Range dimension must be a square.");
-		Assert.isTrue(signalWidth % rangeWidth == 0, "Range width must divide the signal width.");
-
+	public int[] getRangeIndices(int rangeBlockIndex) {
 		int numRangesPerRow = signalWidth / rangeWidth;
 		int numRangePerColumn = numRangesPerRow;
 

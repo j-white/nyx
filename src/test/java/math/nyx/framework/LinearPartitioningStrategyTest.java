@@ -1,10 +1,11 @@
 package math.nyx.framework;
 
 import static org.junit.Assert.assertEquals;
-
+import static org.junit.Assert.assertArrayEquals;
 import math.nyx.framework.LinearPartitioningStrategy;
 import math.nyx.utils.TestUtils;
 
+import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 import org.junit.Test;
@@ -20,81 +21,80 @@ public class LinearPartitioningStrategyTest {
 	private LinearPartitioningStrategy lpStrategy;
 
 	@Test(expected = IllegalArgumentException.class)  
-	public void getDomainDimensionWithOddNumber() {  
-		lpStrategy.getDomainDimension(1);
+	public void getPartitionerWithOddSignalDimension() {
+		lpStrategy = lpStrategy.getPartitioner(1);
 	}  
 
-	@Test(expected = IllegalArgumentException.class)  
-	public void getRangeDimensionWithOddNumber() {  
-		lpStrategy.getRangeDimension(1);
+	@Test
+	public void getDomainAndRangeDimensions() {
+		int signalDomainRange[][] = new int[][] {
+				{2, 2, 1},
+				{4, 2, 1},
+				{8, 2, 1},
+				{16, 4, 2},
+				{32, 8, 4},
+				{128, 32, 16},
+				{256, 32, 16},
+				{1024, 64, 32},
+				{196608, 96, 48},
+		};
+		
+		for (int i = 0; i < signalDomainRange.length; i++) {
+			int signalDimension = signalDomainRange[i][0];
+			int domainDimension = signalDomainRange[i][1];
+			int rangeDimension = signalDomainRange[i][2];
+			
+			lpStrategy = lpStrategy.getPartitioner(signalDimension);
+			assertEquals(domainDimension, lpStrategy.getDomainDimension());
+			assertEquals(rangeDimension, lpStrategy.getRangeDimension());
+		}
 	}
 
 	@Test
-	public void getDomainDimension() {
-		assertEquals(2, lpStrategy.getDomainDimension(2));
-		assertEquals(2, lpStrategy.getDomainDimension(4));
-		assertEquals(2, lpStrategy.getDomainDimension(8));
-		assertEquals(4, lpStrategy.getDomainDimension(16));
-		assertEquals(8, lpStrategy.getDomainDimension(32));
-		assertEquals(32, lpStrategy.getDomainDimension(128));
-		assertEquals(32, lpStrategy.getDomainDimension(256));
-		assertEquals(64, lpStrategy.getDomainDimension(1024));
-		assertEquals(96, lpStrategy.getDomainDimension(196608));
-	}
-
-	@Test
-	public void getRangeDimension() {
-		assertEquals(1, lpStrategy.getRangeDimension(2));
-		assertEquals(1, lpStrategy.getRangeDimension(4));
-		assertEquals(1, lpStrategy.getRangeDimension(8));
-		assertEquals(2, lpStrategy.getRangeDimension(16));
-		assertEquals(4, lpStrategy.getRangeDimension(32));
-		assertEquals(16, lpStrategy.getRangeDimension(128));
-		assertEquals(16, lpStrategy.getRangeDimension(256));
-		assertEquals(32, lpStrategy.getRangeDimension(1024));
-		assertEquals(48, lpStrategy.getRangeDimension(196608));
-	}
-
-	@Test
-	public void getFetchOperator() {
+	public void fetchAndVerifyDomain() {
 		int signalDimension = 8;
-		int domainDimension = 2;
+		lpStrategy = lpStrategy.getPartitioner(signalDimension);
 
 		// Generate a signal with fixed entries
 		RealMatrix signal = TestUtils.generateSignal(signalDimension);
 
 		// Grab and verify the first domain block
-		SparseRealMatrix fetchOperator = lpStrategy.getDomainFetchOperator(0, domainDimension, signalDimension);
+		SparseRealMatrix fetchOperator = lpStrategy.getDomainFetchOperator(0);
 		RealMatrix block = fetchOperator.multiply(signal);
 		assertEquals(1, (int)block.getEntry(0, 0));
 		assertEquals(2, (int)block.getEntry(1, 0));
 
 		// Grab and verify the last domain block
-		fetchOperator = lpStrategy.getDomainFetchOperator(6, domainDimension, signalDimension);
+		fetchOperator = lpStrategy.getDomainFetchOperator(6);
 		block = fetchOperator.multiply(signal);
 		assertEquals(7, (int)block.getEntry(0, 0));
 		assertEquals(8, (int)block.getEntry(1, 0));
 	}
 
 	@Test
-	public void getPutOperator() {
-		int signalDimension = 8;
-		int rangeDimesion = 2;
+	public void fetchAndPutRange() {
+		int signalDimension = 16;
+		lpStrategy = lpStrategy.getPartitioner(signalDimension);
 
-		RealMatrix block = TestUtils.generateSignal(rangeDimesion);
+		// Generate a vector with fixed entries
+		RealMatrix signal = TestUtils.generateSignal(signalDimension);
 
-		// Put and verify the first range block		
-		SparseRealMatrix putOperator = lpStrategy.getPutOperator(0, rangeDimesion, signalDimension);
-		RealMatrix signal = putOperator.multiply(block);
-		assertEquals(1, (int)signal.getEntry(0, 0));
-		assertEquals(2, (int)signal.getEntry(1, 0));
-		assertEquals(0, (int)signal.getEntry(2, 0));
+		// And create another vector to store the results
+		RealMatrix result = new Array2DRowRealMatrix(signalDimension, 1);
 
-		// Put and verify the last range block
-		putOperator = lpStrategy.getPutOperator(3, rangeDimesion, signalDimension);
-		signal = putOperator.multiply(block);
-		assertEquals(0, (int)signal.getEntry(5, 0));
-		assertEquals(1, (int)signal.getEntry(6, 0));
-		assertEquals(2, (int)signal.getEntry(7, 0));
+		// Iterate over all the range partitions
+		int numRangePartitions = lpStrategy.getNumRangePartitions();
+		for (int i = 0; i < numRangePartitions; i++) {
+			// Fetch the range partition
+			SparseRealMatrix rangeFetchOperator = lpStrategy.getRangeFetchOperator(i);
+			RealMatrix rangePartition = rangeFetchOperator.multiply(signal);
+			
+			// Now restore the range partition with the put operator
+			SparseRealMatrix putOperator = lpStrategy.getPutOperator(i);
+			result = result.add(putOperator.multiply(rangePartition));
+		}
+
+		// And compare the two vectors
+		assertArrayEquals(signal.getColumn(0), result.getColumn(0), TestUtils.DELTA);
 	}
 }

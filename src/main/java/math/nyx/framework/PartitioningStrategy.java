@@ -3,17 +3,27 @@ package math.nyx.framework;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
 public interface PartitioningStrategy {
-	public int getDomainDimension(int signalDimension);
+	public PartitioningStrategy getPartitioner(int signalDimension);
 
-	public int getRangeDimension(int signalDimension);
+	public PartitioningStrategy getPartitioner(int signalDimension, int scale);
 
-	public int getNumDomainPartitions(int signalDimension);
+	public int getScale();
 
-	public int getNumRangePartitions(int signalDimension);
+	public int getSignalDimension();
+	
+	public int getScaledSignalDimension();
 
-	public SparseRealMatrix getDomainFetchOperator(int domainBlockIndex, int domainDimension, int signalDimension);
+	public int getDomainDimension();
 
-	public SparseRealMatrix getRangeFetchOperator(int rangeBlockIndex, int rangeDimension, int signalDimension);
+	public int getRangeDimension();
 
-	public SparseRealMatrix getPutOperator(int rangeBlockIndex, int rangeDimension, int signalDimension);
+	public int getNumDomainPartitions();
+
+	public int getNumRangePartitions();
+
+	public SparseRealMatrix getDomainFetchOperator(int domainBlockIndex);
+
+	public SparseRealMatrix getRangeFetchOperator(int rangeBlockIndex);
+
+	public SparseRealMatrix getPutOperator(int rangeBlockIndex);
 }
