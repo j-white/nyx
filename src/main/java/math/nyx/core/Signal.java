@@ -11,6 +11,7 @@ public class Signal implements Serializable {
 	private static final long serialVersionUID = -3505516831802019801L;
 
 	private final RealMatrix x;
+	private final int numChannels;
 
 	public Signal(int dimension) {
 		this(new Array2DRowRealMatrix(dimension, 1));
@@ -18,6 +19,7 @@ public class Signal implements Serializable {
 
 	public Signal(RealMatrix x) {
 		this.x = x;
+		this.numChannels = 1;
 	}
 
 	public RealMatrix getVector() {
@@ -32,9 +34,15 @@ public class Signal implements Serializable {
 		return x.getEntry(row, 0);
 	}
 
+	public int getNumChannels() {
+		return numChannels;
+	}
+
 	@Override
 	public String toString() {
-	    return Objects.toStringHelper(this.getClass()).add("dimension", getDimension())
+	    return Objects.toStringHelper(this.getClass())
+	    		.add("dimension", getDimension())
+	    		.add("numChannels", 1)
 	            .add("vector", x)
 	            .toString();
 	}

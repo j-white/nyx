@@ -37,10 +37,15 @@ public class ImageSignal extends Signal {
 		this.metadata = metadata;
 	}
 
+	@Override
+	public int getNumChannels() {
+		return metadata.getNumComponents();
+	}
+
 	public ImageMetadata getMetadata() {
 		return metadata;
 	}
-
+	
 	public BufferedImage getImage() {
 		BufferedImage img = new BufferedImage(metadata.getWidth(), metadata.getHeight(), metadata.getType());
 		DataBuffer dataBuffer = img.getRaster().getDataBuffer();
