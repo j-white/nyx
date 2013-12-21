@@ -29,16 +29,37 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		sqrtOfScale = (int)Math.round(Math.sqrt(getScale()));
 		originalSignalWidth = (int)Math.round(Math.sqrt(getSignalDimension()));
 		scaledSignalWidth = (int)Math.round(Math.sqrt(getScaledSignalDimension()));
-		int powerOfTwo = (int)Math.floor(Math.log(originalSignalWidth) / Math.log(2) - 1);
-		domainWidth = (originalSignalWidth / (int)Math.pow(2, powerOfTwo)) * sqrtOfScale;
+		
+		domainWidth = calculateDomainWidth(getSignalDimension()) * sqrtOfScale;
 		rangeWidth = domainWidth - (1 * sqrtOfScale);
 		
 		domainDimension = domainWidth * domainWidth;
 		rangeDimension = rangeWidth * rangeWidth;
 	}
 
+	public static int calculateDomainWidth(int signalDimension) {
+		// Find the largest square that divides the signal dimension that is
+		// less or equal to its square root
+		int k = 2;
+		int quad = (int)Math.pow(signalDimension, 0.7f);
+		int quart = (int)Math.pow(quad, 0.5f);
+		for (int i = 1; i <= quart; i++) {
+			int n = i*i;
+			if (n > quad) {
+				break;
+			}
+			if (signalDimension % n == 0) {
+				k = i;
+			}
+		}
+		return Math.max(k, 2);
+	}
+
 	@Override
 	public void checkSignalDimension(int signalDimension, int scale) {
+		if (signalDimension < 4) {
+			throw new IllegalArgumentException("Signal dimension must be greater than 4.");
+		}
 		int root = (int)Math.round(Math.sqrt(signalDimension));
 		if (root*root != signalDimension) {
 			throw new IllegalArgumentException("Signal dimension must be a square.");

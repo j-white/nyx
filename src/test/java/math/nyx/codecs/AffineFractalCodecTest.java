@@ -47,6 +47,7 @@ public class AffineFractalCodecTest {
 		int powers[] = {1, 2, 3, 4};
 		for (int power : powers) {
 			int scale = (int)Math.pow(originalSignalDimesion, power-1);
+			System.out.println("\nTesting with scale: " + scale);
 			Signal signal = affineCodec.decode(fractal, scale);
 			assertEquals(signal.getDimension(), scale * fractal.getSignalDimension());
 			for(int i = 0; i < scale * fractal.getSignalDimension(); i++) {

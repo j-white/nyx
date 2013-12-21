@@ -30,7 +30,7 @@ public class FractalCodec implements FractalEncoder {
 
 		// Break the signal into non-overlapping range blocks
 		int numRangePartitions = partitioner.getNumRangePartitions();
-		System.out.printf("Partition range %d partitions with dimension %d.\n", 
+		System.out.printf("Partition range with %d partitions of dimension %d.\n", 
 				numRangePartitions, partitioner.getRangeDimension());
 		List<SignalBlock> rangeBlocks = new ArrayList<SignalBlock>();
 		for (int i = 0; i < numRangePartitions; i++) {
@@ -91,15 +91,13 @@ public class FractalCodec implements FractalEncoder {
 
 		SparseRealMatrix D = getDecimationOperator(partitioner);
 
-		List<Transform> transforms = fractal.getTransforms();
-
 		// Iterated system
 		int numberOfIterations = 12;
 		RealMatrix x = new Array2DRowRealMatrix(scaledSignalDimension, 1);
 		for (int n = 1; n <= numberOfIterations; n++) {
 			System.out.printf("Decoding: Iteration %d of %d.\n", n, numberOfIterations);
 			RealMatrix x_n = new Array2DRowRealMatrix(scaledSignalDimension, 1);
-			for (Transform transform : transforms) {
+			for (Transform transform : fractal.getTransforms()) {
 				int rangeBlockIndex = transform.getRangeBlockIndex();
 
 				// Fetch
@@ -111,11 +109,12 @@ public class FractalCodec implements FractalEncoder {
 
 				// Apply the transform
 				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock);
-				//System.out.printf("Range block index %d\n", rangeBlockIndex);
-
+				if (n == numberOfIterations) {
+					//System.out.printf("Range block index %d: %s\n", rangeBlockIndex, transformedBlock);
+				}
+				
 				// Put
 				SparseRealMatrix P_J = partitioner.getPutOperator(rangeBlockIndex);
-				//System.out.println(P_J);
 				x_n = x_n.add(P_J.multiply(transformedBlock));
 			}
 			x = x_n;

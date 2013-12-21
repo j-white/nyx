@@ -2,6 +2,7 @@ package math.nyx.framework;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.RealMatrix;
@@ -25,13 +26,16 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 	public SquarePartitioningStrategy getPartitioner(int signalDimension, int scale) {
 		return spStrategy.getPartitioner(signalDimension, scale);
 	}
-
+	
 	@Test
 	public void getDomainAndRangeDimensions() {
 		int signalDomainRange[][] = new int[][] {
+				{4, 4, 1},
 				{16, 4, 1},
 				{36, 9, 4},
-				{64, 9, 4},
+				{64, 16, 9},
+				{100, 25, 16},
+				{65536, 1024, 961},
 		};
 		
 		for (int i = 0; i < signalDomainRange.length; i++) {
@@ -39,9 +43,10 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 			int domainDimension = signalDomainRange[i][1];
 			int rangeDimension = signalDomainRange[i][2];
 			
+			String message = String.format("Signal dimension: %d", signalDimension);
 			spStrategy = spStrategy.getPartitioner(signalDimension);
-			assertEquals(domainDimension, spStrategy.getDomainDimension());
-			assertEquals(rangeDimension, spStrategy.getRangeDimension());
+			assertEquals(message, domainDimension, spStrategy.getDomainDimension());
+			assertEquals(message, rangeDimension, spStrategy.getRangeDimension());
 		}
 	}
 

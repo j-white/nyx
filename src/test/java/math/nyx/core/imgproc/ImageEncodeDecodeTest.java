@@ -31,7 +31,7 @@ public class ImageEncodeDecodeTest {
 		g2.setColor(Color.RED);
 		g2.fillRect(0, 0, size, size);
 		g2.setColor(Color.BLACK);
-		g2.drawLine(0, 0, size, 0);
+		g2.drawLine(size, size, size, 0);
 		g2.setColor(Color.YELLOW);
 		g2.drawLine(0, size, size, size);
 		return img;
@@ -40,30 +40,32 @@ public class ImageEncodeDecodeTest {
 	@Test
 	public void encodeDecodeScaled() throws IOException {
 		int size = 16;
-		int scales[] = {1};
-		for (int scale : scales) {
-			System.out.println("\nTesting with scale: " + scale);
-			BufferedImage sourceImage = createImage(size);
-			BufferedImage sourceImageScaled = createImage(size * scale);
-			testEncodeDecodeScaled(sourceImage, sourceImageScaled, size, scale);
-		}
-	}
-
-	private void testEncodeDecodeScaled(BufferedImage sourceImage, BufferedImage sourceImageScaled, int size, int scale) {
+		BufferedImage sourceImage = createImage(size);
+		
 		// Encode the image as a signal
 		Signal sourceSignal = new ImageSignal(sourceImage);
-
+		
 		// Now encode the signal as a fractal
 		Fractal fractal = fractalEncoder.encode(sourceSignal);
 
 		// Serialize and de-serialize the fractal
 		byte[] fractalAsBytes = SerializationUtils.serialize(fractal);
 		fractal = (Fractal)SerializationUtils.deserialize(fractalAsBytes);
+		
+		int scales[] = {1, 2, 3, 4};
+		for (int scale : scales) {
+			System.out.println("\nTesting with scale: " + scale);
+			
+			BufferedImage sourceImageScaled = createImage(size * scale);
+			testEncodeDecodeScaled(fractal, sourceImageScaled, size, scale);
+		}
+	}
 
+	private void testEncodeDecodeScaled(Fractal fractal, BufferedImage sourceImageScaled, int size, int scale) {
 		// Now decode the signal from the fractal using the given scale
 		// Square the scale, since we are increasing both the width and height of the image
 		Signal decodedSignal = fractal.decode(scale*scale);
-
+		
 		// Convert the signal to and image
 		ImageMetadata imageMetadata = new ImageMetadata(size * scale, size * scale, BufferedImage.TYPE_4BYTE_ABGR, 4);
 		ImageSignal decodedImageSignal = new ImageSignal(decodedSignal, imageMetadata);
