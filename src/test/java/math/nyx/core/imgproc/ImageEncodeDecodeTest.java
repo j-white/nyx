@@ -5,13 +5,14 @@ import static org.junit.Assert.assertEquals;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 import math.nyx.core.Fractal;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
+import math.nyx.framework.Transform;
 import math.nyx.utils.TestUtils;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,24 @@ public class ImageEncodeDecodeTest {
 	}
 
 	@Test
-	public void encodeDecodeScaled() throws IOException {
+	@Ignore
+	public void encodeDecodeLargerImage() {
+		int size = 256;
+		BufferedImage sourceImage = createImage(size);
+		
+		Signal sourceSignal = new ImageSignal(sourceImage);
+		Fractal fractal = fractalEncoder.encode(sourceSignal);
+
+		// Make sure the image gets encoded "perfectly"
+		for (Transform transform : fractal.getTransforms()) {
+			assertEquals(0, transform.getDistance(), TestUtils.DELTA);
+		}
+
+		decodeAndCompare(fractal, size, 1, sourceImage);
+	}
+	
+	@Test
+	public void encodeDecodeScaled() {
 		int size = 2;
 		BufferedImage sourceImage = createImage(size);
 		
@@ -69,12 +87,12 @@ public class ImageEncodeDecodeTest {
 			System.out.println("\nTesting with scale: " + scale);
 			
 			BufferedImage sourceImageScaled = createImage(size * scale);
-			testEncodeDecodeScaled(fractal, sourceImageScaled, size, scale);
+			decodeAndCompare(fractal, size, scale, sourceImageScaled);
 		}
 	}
 
-	private void testEncodeDecodeScaled(Fractal fractal, BufferedImage sourceImageScaled, int size, int scale) throws IOException {
-		Signal expectedSignal = new ImageSignal(sourceImageScaled);
+	private void decodeAndCompare(Fractal fractal, int size, int scale, BufferedImage expectedImage) {
+		Signal expectedSignal = new ImageSignal(expectedImage);
 		//System.out.println("Expected signal: " + expectedSignal);
 		
 		// Now decode the signal from the fractal using the given scale
@@ -87,10 +105,10 @@ public class ImageEncodeDecodeTest {
 		}
 	
 		// Convert the signal to and image
-		ImageMetadata imageMetadata = new ImageMetadata(size * scale, size * scale, sourceImageScaled.getType(), expectedSignal.getNumChannels());
+		ImageMetadata imageMetadata = new ImageMetadata(size * scale, size * scale, expectedImage.getType(), expectedSignal.getNumChannels());
 		ImageSignal decodedImageSignal = new ImageSignal(decodedSignal, imageMetadata);
 		BufferedImage decodedImage = decodedImageSignal.getImage();
 
-		TestUtils.assertImageEquals(sourceImageScaled, decodedImage);
+		TestUtils.assertImageEquals(expectedImage, decodedImage);
 	}
 }

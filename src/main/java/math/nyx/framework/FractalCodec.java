@@ -85,7 +85,7 @@ public class FractalCodec implements FractalEncoder {
 
 			Assert.isTrue(bestTransform != null, "No domain blocks found.");
 			fractal.addTransform(bestTransform);
-			System.out.println(bestTransform);
+			//System.out.println(bestTransform);
 		}
 
 		return fractal;

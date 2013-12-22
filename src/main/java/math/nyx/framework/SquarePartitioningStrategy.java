@@ -42,7 +42,7 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 
 	public static int calculateDomainWidth(int signalDimension, int numSignalChannels) {
 		int channelDimension = signalDimension / numSignalChannels;
-		int quad = (int)Math.pow(signalDimension, 0.7f);
+		int quad = (int)Math.pow(signalDimension, 0.5f);
 		int quart = (int)Math.pow(quad, 0.5f);
 
 		int k = 2;
@@ -65,7 +65,7 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		}
 		int root = (int)Math.round(Math.sqrt(signalDimension));
 		if (root*root != signalDimension) {
-			throw new IllegalArgumentException("Signal dimension must be a square.");
+			throw new IllegalArgumentException("Signal dimension must be a square: " + signalDimension);
 		}
 		if (scale < 1) {
 			throw new IllegalArgumentException("Scale must be a positive integer.");
