@@ -23,8 +23,8 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 	private DecimationStrategy decStrategy;
 
 	@Override
-	public SquarePartitioningStrategy getPartitioner(int signalDimension, int scale) {
-		return spStrategy.getPartitioner(signalDimension, scale);
+	public SquarePartitioningStrategy getPartitioner(int signalDimension, int numSignalChannels, int scale) {
+		return spStrategy.getPartitioner(signalDimension, numSignalChannels, scale);
 	}
 	
 	@Test
@@ -33,9 +33,9 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 				{4, 4, 1},
 				{16, 4, 1},
 				{36, 9, 4},
-				{64, 16, 9},
-				{100, 25, 16},
-				{65536, 1024, 961},
+				{64, 9, 4},
+				{100, 9, 4},
+				{65536, 1089, 1024},
 		};
 		
 		for (int i = 0; i < signalDomainRange.length; i++) {
@@ -44,7 +44,7 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 			int rangeDimension = signalDomainRange[i][2];
 			
 			String message = String.format("Signal dimension: %d", signalDimension);
-			spStrategy = spStrategy.getPartitioner(signalDimension);
+			spStrategy = spStrategy.getPartitioner(signalDimension, 1, 1);
 			assertEquals(message, domainDimension, spStrategy.getDomainDimension());
 			assertEquals(message, rangeDimension, spStrategy.getRangeDimension());
 		}
@@ -133,7 +133,7 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 	}
 
 	private void checkEntriesInFetchOperator(int columnIndicesToCheck[][], int signalDimension) {
-		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension);
+		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension, 1, 1);
 	
 		for (int i = 0; i < columnIndicesToCheck.length; i++) {
 			int domainDimension = columnIndicesToCheck[i].length;
@@ -169,7 +169,7 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 		 */
 
 		int signalDimension = 16;
-		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension);
+		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension, 1, 1);
 		int numRangePartitions = partitioner.getNumRangePartitions();
 		for (int i = 0; i < numRangePartitions; i++) {
 			SparseRealMatrix putOperator = partitioner.getPutOperator(i);
@@ -207,7 +207,7 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 	}
 
 	private void checkEntriesInPutOperator(int rowIndicesToCheck[][], int signalDimension) {
-		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension);
+		SquarePartitioningStrategy partitioner = spStrategy.getPartitioner(signalDimension, 1, 1);
 
 		for (int i = 0; i < rowIndicesToCheck.length; i++) {
 			int rangeDimension = rowIndicesToCheck[i].length;
@@ -288,7 +288,7 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 		};
 
 		int signalDimension = 16;
-		SquarePartitioningStrategy orignalPartitioner = spStrategy.getPartitioner(signalDimension);
+		SquarePartitioningStrategy orignalPartitioner = spStrategy.getPartitioner(signalDimension, 1, 1);
 		assertEquals(16, orignalPartitioner.getScaledSignalDimension());
 		
 		assertEquals(1, orignalPartitioner.getRangeDimension());
@@ -298,7 +298,7 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 		assertEquals(9, orignalPartitioner.getNumDomainPartitions());
 
 		int scale = 4;
-		SquarePartitioningStrategy scaledPartitioner = spStrategy.getPartitioner(signalDimension, scale);
+		SquarePartitioningStrategy scaledPartitioner = spStrategy.getPartitioner(signalDimension, 1, scale);
 		assertEquals(64, scaledPartitioner.getScaledSignalDimension());
 		
 		assertEquals(4, scaledPartitioner.getRangeDimension());

@@ -79,9 +79,12 @@ public class AffineFractalCodecTest {
 		// Decode at 1x and 4x
 		Signal signal1x = affineCodec.decode(fractal, 1);
 		Signal signal4x = affineCodec.decode(fractal, 4);
+		
+		assertEquals(64, signal4x.getDimension());
 
 		// Decimate the signal decoded at 4x
-		RealMatrix D = affineCodec.getDecimationStrategy().getDecimationOperator(16, 16 * 4);
+		RealMatrix D = affineCodec.getDecimationStrategy().getDecimationOperator(signal1x.getDimension(),
+				signal4x.getDimension());
 		RealMatrix decimatedDecodedSignal = D.multiply(signal4x.getVector()).subtract(signal1x.getVector());
 		for (int i = 0; i < 16; i++) {
 			assertEquals(0, decimatedDecodedSignal.getEntry(i, 0), TestUtils.DELTA);

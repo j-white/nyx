@@ -1,6 +1,7 @@
 package math.nyx.framework;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
 
 public abstract class AbstractTransform implements Transform {
 	private static final long serialVersionUID = -7636935260663735189L;
@@ -33,12 +34,15 @@ public abstract class AbstractTransform implements Transform {
 		return distance.compareTo(o.getDistance());
 	}
 
+	protected ToStringHelper toStringHelper() {
+		return Objects.toStringHelper(this).omitNullValues()
+				.add("domainBlockIndex", domainBlockIndex)
+				.add("rangeBlockIndex", rangeBlockIndex)
+				.add("distance", distance);
+	}
+
 	@Override
-	public String toString() {
-	    return Objects.toStringHelper(this.getClass())
-	            .add("domainBlockIndex", domainBlockIndex)
-	            .add("rangeBlockIndex", rangeBlockIndex)
-	            .add("distance", distance)
-	            .toString();
+	public final String toString() {
+		return toStringHelper().toString();
 	}
 }

@@ -1,5 +1,8 @@
 package math.nyx.framework;
 
+import math.nyx.core.Fractal;
+import math.nyx.core.Signal;
+
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
@@ -13,24 +16,29 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 		rangeDimension = 0;
 	}
 
-	private LinearPartitioningStrategy(int signalDimension, int scale) {
-		super(signalDimension, scale);
+	private LinearPartitioningStrategy(int signalDimension, int numSignalChannels, int scale) {
+		super(signalDimension, numSignalChannels, scale);
 		domainDimension = calculateDomainDimension();
 		rangeDimension = calculateRangeDimension();
 	}
 
 	@Override
-	public LinearPartitioningStrategy getPartitioner(int signalDimension) {
-		return getPartitioner(signalDimension, 1);
+	public LinearPartitioningStrategy getPartitioner(Signal signal) {
+		return getPartitioner(signal.getDimension(), signal.getNumChannels(), 1);
 	}
 
 	@Override
-	public LinearPartitioningStrategy getPartitioner(int signalDimension, int scale) {
-		checkSignalDimension(signalDimension, scale);
-		return new LinearPartitioningStrategy(signalDimension, scale);
+	public LinearPartitioningStrategy getPartitioner(Fractal fractal, int scale) {
+		return getPartitioner(fractal.getSignalDimension(), fractal.getNumSignalChannels(), scale);
 	}
 
-	public void checkSignalDimension(int signalDimension, int scale) {
+	@Override
+	public LinearPartitioningStrategy getPartitioner(int signalDimension, int numSignalChannels, int scale) {
+		checkSignalDimension(signalDimension, numSignalChannels, scale);
+		return new LinearPartitioningStrategy(signalDimension, numSignalChannels, scale);
+	}
+
+	public void checkSignalDimension(int signalDimension, int numSignalChannels, int scale) {
 		if (signalDimension < 1 || signalDimension % 2 != 0) {
 			throw new IllegalArgumentException("Signal dimension must be an even positive integer.");
 		}
@@ -50,7 +58,7 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 
 		// Find the largest positive even integer bounded by M that divides the signal dimension
 		for (int k = M; k > 0; k -= 2) {
-			if (getSignalDimension() % k == 0) {
+			if ((getSignalDimension() / getNumSignalChannels()) % k == 0) {
 				return k * getScale();
 			}
 		}

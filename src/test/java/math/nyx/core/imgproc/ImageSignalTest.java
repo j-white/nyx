@@ -23,6 +23,9 @@ public class ImageSignalTest {
 	private void testImageSignalConversion(BufferedImage sourceImage) {
 		// Encode the image into a signal
 		ImageSignal signal = new ImageSignal(sourceImage);
+		
+		// Verify the number of channels
+		assertEquals(signal.getNumChannels(), sourceImage.getColorModel().getNumComponents());
 
 		// Serialize and de-serialize the signal
 		byte[] signalAsBytes = SerializationUtils.serialize(signal);

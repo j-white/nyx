@@ -9,7 +9,7 @@ import org.apache.commons.math.linear.SparseRealMatrix;
 import org.junit.Test;
 
 public abstract class AbstractPartitioningStrategyTest {
-	public abstract PartitioningStrategy getPartitioner(int signalDimension, int scale);
+	public abstract PartitioningStrategy getPartitioner(int signalDimension, int numSignalChannel, int scale);
 
 	@Test
 	public void fetchAndPutRangePartitions() {
@@ -18,7 +18,7 @@ public abstract class AbstractPartitioningStrategyTest {
 		int powers[] = {1, 2, 3, 4};
 		for (int power : powers) {
 			int scale = (int)Math.pow(signalDimension, power-1);
-			PartitioningStrategy partitioner = getPartitioner(signalDimension, scale);
+			PartitioningStrategy partitioner = getPartitioner(signalDimension, 1, scale);
 			fetchAndPutRangePartitions(partitioner);
 		}
 	}

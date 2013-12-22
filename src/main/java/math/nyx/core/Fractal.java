@@ -18,6 +18,8 @@ public class Fractal implements Serializable {
 	
 	private int signalDimension;
 
+	private int numSignalChannels = 1;
+
 	private final List<Transform> transforms = new LinkedList<Transform>();
 
 	public Signal decode() {
@@ -48,6 +50,14 @@ public class Fractal implements Serializable {
 		this.signalDimension = signalDimension;
 	}
 
+	public int getNumSignalChannels() {
+		return numSignalChannels;
+	}
+
+	public void setNumSignalChannels(int numSignalChannels) {
+		this.numSignalChannels = numSignalChannels;
+	}
+
 	public void addTransform(Transform transform) {
 		transforms.add(transform);
 	}
@@ -58,7 +68,12 @@ public class Fractal implements Serializable {
 
 	@Override
 	public String toString() {
-	    return Objects.toStringHelper(this.getClass()).add("transforms", transforms)
+	    return Objects.toStringHelper(this.getClass())
+	    		.add("codecName", getCodecName())
+	    		.add("signalDimension", getSignalDimension())
+	    		.add("numSignalChannels", getNumSignalChannels())
+	    		.add("numTransforms", getTransforms().size())
+	    		.add("transforms", getTransforms())
 	            .toString();
 	}
 }

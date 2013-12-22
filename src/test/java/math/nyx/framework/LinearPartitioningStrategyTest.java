@@ -19,13 +19,13 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 	private LinearPartitioningStrategy lpStrategy;
 
 	@Override
-	public LinearPartitioningStrategy getPartitioner(int signalDimension, int scale) {
-		return lpStrategy.getPartitioner(signalDimension, scale);
+	public LinearPartitioningStrategy getPartitioner(int signalDimension, int numSignalChannels, int scale) {
+		return lpStrategy.getPartitioner(signalDimension, numSignalChannels, scale);
 	}
 
 	@Test(expected = IllegalArgumentException.class)  
 	public void getPartitionerWithOddSignalDimension() {
-		lpStrategy = lpStrategy.getPartitioner(1);
+		lpStrategy = lpStrategy.getPartitioner(1, 1, 1);
 	}  
 
 	@Test
@@ -47,7 +47,7 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 			int domainDimension = signalDomainRange[i][1];
 			int rangeDimension = signalDomainRange[i][2];
 			
-			lpStrategy = lpStrategy.getPartitioner(signalDimension);
+			lpStrategy = lpStrategy.getPartitioner(signalDimension, 1, 1);
 			assertEquals(domainDimension, lpStrategy.getDomainDimension());
 			assertEquals(rangeDimension, lpStrategy.getRangeDimension());
 		}
@@ -56,7 +56,7 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 	@Test
 	public void fetchAndVerifyDomain() {
 		int signalDimension = 8;
-		lpStrategy = lpStrategy.getPartitioner(signalDimension);
+		lpStrategy = lpStrategy.getPartitioner(signalDimension, 1, 1);
 
 		// Generate a signal with fixed entries
 		RealMatrix signal = TestUtils.generateSignal(signalDimension);

@@ -25,8 +25,7 @@ public class FractalCodec implements FractalEncoder {
 
 	public Fractal encode(Signal signal) {
 		RealMatrix x = signal.getVector();
-		int signalDimension = signal.getDimension();
-		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(signalDimension);
+		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(signal);
 
 		// Break the signal into non-overlapping range blocks
 		int numRangePartitions = partitioner.getNumRangePartitions();
@@ -64,6 +63,7 @@ public class FractalCodec implements FractalEncoder {
 		Fractal fractal = new Fractal();
 		fractal.setCodecName(name);
 		fractal.setSignalDimension(signal.getDimension());
+		fractal.setNumSignalChannels(signal.getNumChannels());
 
 		// Now match the domain and range partitions while minimizing the distance
 		// and store the results in the fractal
@@ -76,6 +76,11 @@ public class FractalCodec implements FractalEncoder {
 				if (transform.compareTo(bestTransform) < 0) {
 					bestTransform = transform;
 				}
+
+				// If the distance is identically zero, don't try and find a "better" transform
+				if (transform.getDistance() == 0.0) {
+					break;
+				}
 			}
 
 			Assert.isTrue(bestTransform != null, "No domain blocks found.");
@@ -86,7 +91,7 @@ public class FractalCodec implements FractalEncoder {
 	}
 
 	public Signal decode(Fractal fractal, int scale) {
-		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(fractal.getSignalDimension(), scale);
+		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(fractal, scale);
 		int scaledSignalDimension = partitioner.getScaledSignalDimension();
 
 		SparseRealMatrix D = getDecimationOperator(partitioner);
@@ -110,7 +115,7 @@ public class FractalCodec implements FractalEncoder {
 				// Apply the transform
 				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock);
 				if (n == numberOfIterations) {
-					//System.out.printf("Range block index %d: %s\n", rangeBlockIndex, transformedBlock);
+					System.out.printf("Range block index %d: %s\n", rangeBlockIndex, transformedBlock);
 				}
 				
 				// Put
@@ -120,7 +125,7 @@ public class FractalCodec implements FractalEncoder {
 			x = x_n;
 		}
 
-		return new Signal(x);
+		return new Signal(fractal, x);
 	}
 
 	private SparseRealMatrix getDecimationOperator(PartitioningStrategy partitioner) {

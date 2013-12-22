@@ -1,5 +1,8 @@
 package math.nyx.framework;
 
+import math.nyx.core.Fractal;
+import math.nyx.core.Signal;
+
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
@@ -23,32 +26,32 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		sqrtOfScale = 0;
 	}
 
-	private SquarePartitioningStrategy(int signalDimension, int scale) {
-		super(signalDimension, scale);
+	private SquarePartitioningStrategy(int signalDimension, int numSignalChannels, int scale) {
+		super(signalDimension, numSignalChannels, scale);
 		
 		sqrtOfScale = (int)Math.round(Math.sqrt(getScale()));
 		originalSignalWidth = (int)Math.round(Math.sqrt(getSignalDimension()));
 		scaledSignalWidth = (int)Math.round(Math.sqrt(getScaledSignalDimension()));
 		
-		domainWidth = calculateDomainWidth(getSignalDimension()) * sqrtOfScale;
+		domainWidth = calculateDomainWidth(getSignalDimension(), getNumSignalChannels()) * sqrtOfScale;
 		rangeWidth = domainWidth - (1 * sqrtOfScale);
 		
 		domainDimension = domainWidth * domainWidth;
 		rangeDimension = rangeWidth * rangeWidth;
 	}
 
-	public static int calculateDomainWidth(int signalDimension) {
-		// Find the largest square that divides the signal dimension that is
-		// less or equal to its square root
-		int k = 2;
+	public static int calculateDomainWidth(int signalDimension, int numSignalChannels) {
+		int channelDimension = signalDimension / numSignalChannels;
 		int quad = (int)Math.pow(signalDimension, 0.7f);
 		int quart = (int)Math.pow(quad, 0.5f);
-		for (int i = 1; i <= quart; i++) {
-			int n = i*i;
+
+		int k = 2;
+		for (int i = 2; i <= quart; i++) {
+			int n = (i-1)*(i-1);
 			if (n > quad) {
 				break;
 			}
-			if (signalDimension % n == 0) {
+			if (channelDimension % n == 0) {
 				k = i;
 			}
 		}
@@ -56,7 +59,7 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	}
 
 	@Override
-	public void checkSignalDimension(int signalDimension, int scale) {
+	public void checkSignalDimension(int signalDimension, int numSignalChannels, int scale) {
 		if (signalDimension < 4) {
 			throw new IllegalArgumentException("Signal dimension must be greater than 4.");
 		}
@@ -67,6 +70,9 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		if (scale < 1) {
 			throw new IllegalArgumentException("Scale must be a positive integer.");
 		}
+		if (signalDimension % numSignalChannels != 0) {
+			throw new IllegalArgumentException("The number of channels must divide the signal dimension.");
+		}
 		root = (int)Math.round(Math.sqrt(scale));
 		if (root*root != scale) {
 			throw new IllegalArgumentException("Scale must be a square.");
@@ -74,14 +80,19 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	}
 
 	@Override
-	public SquarePartitioningStrategy getPartitioner(int signalDimension) {
-		return getPartitioner(signalDimension, 1);
+	public SquarePartitioningStrategy getPartitioner(Signal signal) {
+		return getPartitioner(signal.getDimension(), signal.getNumChannels(), 1);
 	}
 
 	@Override
-	public SquarePartitioningStrategy getPartitioner(int signalDimension, int scale) {
-		checkSignalDimension(signalDimension, scale);
-		return new SquarePartitioningStrategy(signalDimension, scale);
+	public SquarePartitioningStrategy getPartitioner(Fractal fractal, int scale) {
+		return getPartitioner(fractal.getSignalDimension(), fractal.getNumSignalChannels(), scale);
+	}
+
+	@Override
+	public SquarePartitioningStrategy getPartitioner(int signalDimension, int numSignalChannels, int scale) {
+		checkSignalDimension(signalDimension, numSignalChannels, scale);
+		return new SquarePartitioningStrategy(signalDimension, numSignalChannels, scale);
 	}
 
 	@Override

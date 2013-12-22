@@ -7,7 +7,7 @@ import org.apache.commons.math.linear.SparseRealMatrix;
 
 import math.nyx.framework.AbstractTransform;
 
-import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
 
 public class AffineTransform extends AbstractTransform {
 	private static final long serialVersionUID = 4115274904771797361L;
@@ -49,10 +49,9 @@ public class AffineTransform extends AbstractTransform {
 	}
 
 	@Override
-	public String toString() {
-	    return Objects.toStringHelper(this.getClass())
+	protected ToStringHelper toStringHelper() {
+		return super.toStringHelper()
 	            .add("scale", scale)
-	            .add("offset", offset)
-	            .toString();
+	            .add("offset", offset);
 	}
 }

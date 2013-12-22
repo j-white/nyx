@@ -9,15 +9,19 @@ public abstract class AbstractPartitioningStrategy implements PartitioningStrate
 
 	private final int signalDimension;
 
+	private final int numSignalChannels;
+
 	private final int scale;
 
 	public AbstractPartitioningStrategy() {
 		signalDimension = 0;
+		numSignalChannels = 0;
 		scale = 0;
 	}
 
-	public AbstractPartitioningStrategy(int signalDimension, int scale) {
+	public AbstractPartitioningStrategy(int signalDimension, int numSignalChannels, int scale) {
 		this.signalDimension = signalDimension;
+		this.numSignalChannels = numSignalChannels;
 		this.scale = scale;
 	}
 
@@ -29,12 +33,16 @@ public abstract class AbstractPartitioningStrategy implements PartitioningStrate
 		return signalDimension;
 	}
 
+	public int getNumSignalChannels() {
+		return numSignalChannels;
+	}
+
 	@Override
 	public int getScaledSignalDimension() {
 		return signalDimension * scale;
 	}
 
-	public abstract void checkSignalDimension(int signalDimension, int scale);
+	public abstract void checkSignalDimension(int signalDimension, int numSignalChannels, int scale);
 
 	public abstract int[] getRangeIndices(int rangeBlockIndex);
 

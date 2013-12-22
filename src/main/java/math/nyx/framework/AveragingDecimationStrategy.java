@@ -6,7 +6,7 @@ import org.apache.commons.math.linear.SparseRealMatrix;
 public class AveragingDecimationStrategy implements DecimationStrategy {
 	@Override
 	public SparseRealMatrix getDecimationOperator(int rangeDimension, int domainDimension) {
-		final int decimationRatio = Math.round((float)domainDimension / rangeDimension);
+		final int decimationRatio = (int)Math.floor((float)domainDimension / rangeDimension);
 
 		SparseRealMatrix D = new OpenMapRealMatrix(rangeDimension, domainDimension);
 		for (int i = 0; i < rangeDimension; i++) {

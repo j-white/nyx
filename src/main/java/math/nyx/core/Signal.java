@@ -22,6 +22,11 @@ public class Signal implements Serializable {
 		this.numChannels = 1;
 	}
 
+	public Signal(Fractal fractal, RealMatrix decodedVector) {
+		this.x = decodedVector;
+		this.numChannels = fractal.getNumSignalChannels();
+	}
+
 	public RealMatrix getVector() {
 		return x;
 	}
@@ -42,8 +47,8 @@ public class Signal implements Serializable {
 	public String toString() {
 	    return Objects.toStringHelper(this.getClass())
 	    		.add("dimension", getDimension())
-	    		.add("numChannels", 1)
-	            .add("vector", x)
+	    		.add("numChannels", getNumChannels())
+	            .add("vector", getVector())
 	            .toString();
 	}
 }
