@@ -329,7 +329,25 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 			
 			message = String.format("Scaled domain partition at index %d", i);
 			RealMatrix domainPartitionInScaled = scaledPartitioner.getDomainFetchOperator(i).multiply(scaledSignal);
+			//System.out.println(Arrays.toString(expectedScaledDomains[i]));
+			//System.out.println(Arrays.toString(domainPartitionInScaled.getColumn(0)));
 			assertArrayEquals(message, expectedScaledDomains[i], domainPartitionInScaled.getColumn(0), TestUtils.DELTA);
 		}
+	}
+	
+	@Test
+	public void getBlockOffset() {
+		int signalDimension = 65536;
+		int blockWidth = 32;
+		SquarePartitioningStrategy partitioner = getPartitioner(signalDimension, 1, 1);
+		assertEquals(blockWidth*blockWidth, partitioner.getRangeDimension());
+		
+		// Non-overlapping
+		assertEquals(0, partitioner.getBlockOffset(0, blockWidth, blockWidth, false));
+		assertEquals(blockWidth, partitioner.getBlockOffset(1, blockWidth, blockWidth, false));
+		
+		// Overlapping
+		assertEquals(0, partitioner.getBlockOffset(0, blockWidth, blockWidth, true));
+		assertEquals(1, partitioner.getBlockOffset(1, blockWidth, blockWidth, true));
 	}
 }

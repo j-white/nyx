@@ -23,6 +23,13 @@ public abstract class AbstractPartitioningStrategyTest {
 		}
 	}
 	
+	@Test
+	public void fetchAndPutRangePartitionsOfLargeSignal() {
+		int signalDimension = 65536;
+		PartitioningStrategy partitioner = getPartitioner(signalDimension, 1, 1);
+		fetchAndPutRangePartitions(partitioner);
+	}
+
 	private void fetchAndPutRangePartitions(PartitioningStrategy partitioner) {
 		// Generate a vector with fixed entries
 		RealMatrix signal = TestUtils.generateSignal(partitioner.getScaledSignalDimension());

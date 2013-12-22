@@ -104,6 +104,8 @@ public class Nyx {
 		    	ex.printStackTrace();
 		    }
 		}
+		
+		System.out.println(fractal);
 
 	    // Decode at varying scales
 	    int scales[] = {1, 2, 3, 4};

@@ -49,16 +49,16 @@ public class ImageEncodeDecodeTest {
 
 	@Test
 	public void encodeDecodeScaled() throws IOException {
-		int size = 4;
+		int size = 2;
 		BufferedImage sourceImage = createImage(size);
 		
 		// Encode the image as a signal
 		Signal sourceSignal = new ImageSignal(sourceImage);
-		System.out.println("Source signal: " + sourceSignal);
+		//System.out.println("Source signal: " + sourceSignal);
 		
 		// Now encode the signal as a fractal
 		Fractal fractal = fractalEncoder.encode(sourceSignal);
-		System.out.println("Fractal: "  + fractal);
+		//System.out.println("Fractal: "  + fractal);
 
 		// Serialize and de-serialize the fractal
 		byte[] fractalAsBytes = SerializationUtils.serialize(fractal);
@@ -75,12 +75,12 @@ public class ImageEncodeDecodeTest {
 
 	private void testEncodeDecodeScaled(Fractal fractal, BufferedImage sourceImageScaled, int size, int scale) throws IOException {
 		Signal expectedSignal = new ImageSignal(sourceImageScaled);
-		System.out.println("Expected signal: " + expectedSignal);
+		//System.out.println("Expected signal: " + expectedSignal);
 		
 		// Now decode the signal from the fractal using the given scale
 		// Square the scale, since we are increasing both the width and height of the image
 		Signal decodedSignal = fractal.decode(scale*scale);
-		System.out.println("Decoded signal: " + decodedSignal);
+		//System.out.println("Decoded signal: " + decodedSignal);
 		
 		for (int k = 0; k < expectedSignal.getDimension(); k++) {
 			assertEquals(expectedSignal.getEntry(k), decodedSignal.getEntry(k), TestUtils.DELTA);

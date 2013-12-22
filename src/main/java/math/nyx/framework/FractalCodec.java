@@ -85,6 +85,7 @@ public class FractalCodec implements FractalEncoder {
 
 			Assert.isTrue(bestTransform != null, "No domain blocks found.");
 			fractal.addTransform(bestTransform);
+			System.out.println(bestTransform);
 		}
 
 		return fractal;
@@ -120,7 +121,7 @@ public class FractalCodec implements FractalEncoder {
 					System.out.printf("Range block index %d: %s\n", rangeBlockIndex, transformedBlock);
 				}
 				*/
-
+				
 				// Put
 				SparseRealMatrix P_J = partitioner.getPutOperator(rangeBlockIndex);
 				x_n = x_n.add(P_J.multiply(transformedBlock));

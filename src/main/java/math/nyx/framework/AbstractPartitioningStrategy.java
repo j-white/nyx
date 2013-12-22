@@ -59,6 +59,7 @@ public abstract class AbstractPartitioningStrategy implements PartitioningStrate
 	@Override
 	public SparseRealMatrix getPutOperator(int rangeBlockIndex) {
 		int rangeIndices[] = getRangeIndices(rangeBlockIndex);
+		//System.out.printf("Range indices for block %d: %s\n", rangeBlockIndex, Arrays.toString(rangeIndices));
 		SparseRealMatrix P_J = new OpenMapRealMatrix(getScaledSignalDimension(), getRangeDimension());
 		for (int k = 0; k < getRangeDimension(); k++) {
 			P_J.setEntry(rangeIndices[k], k, 1);

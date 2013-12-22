@@ -26,7 +26,7 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 	@Test(expected = IllegalArgumentException.class)  
 	public void getPartitionerWithOddSignalDimension() {
 		lpStrategy = lpStrategy.getPartitioner(1, 1, 1);
-	}  
+	}
 
 	@Test
 	public void getDomainAndRangeDimensions() {

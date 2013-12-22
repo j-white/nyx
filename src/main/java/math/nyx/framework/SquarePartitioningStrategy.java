@@ -118,39 +118,62 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 
 	@Override
 	public SparseRealMatrix getDomainFetchOperator(int domainBlockIndex) {
-		int numDomainsPerRow = originalSignalWidth - (domainWidth / sqrtOfScale) + 1;
-		int numDomainsPerColumn = numDomainsPerRow;
+		int domainIndexOffset = getBlockOffset(domainBlockIndex, domainWidth, domainWidth, true);
 
-		int domainColumnIndex = domainBlockIndex % numDomainsPerRow;
-		int domainRowIndex = (int)Math.floor((float)domainBlockIndex / numDomainsPerColumn);
-
-		int columnIndexOffset = domainColumnIndex * sqrtOfScale + (domainRowIndex * sqrtOfScale * scaledSignalWidth);
-
-		//System.out.printf("Domains per row: %d, Domains per column: %d\n", numDomainsPerRow, numDomainsPerColumn);
-		//System.out.printf("Idx: %d, Row: %d,  Column %d, Offset: %d\n", domainBlockIndex, domainRowIndex, domainColumnIndex, columnIndexOffset);
 		SparseRealMatrix F_I = new OpenMapRealMatrix(domainDimension, getScaledSignalDimension());
 		for (int k = 0; k < domainDimension; k++) {
-			int columnIndex = ((int)Math.floor((float)k / domainWidth) * scaledSignalWidth) + (k % domainWidth);
-			F_I.setEntry(k, columnIndex + columnIndexOffset, 1);
+			int domainIndex = ((k / domainWidth) * scaledSignalWidth) + (k % domainWidth);
+			F_I.setEntry(k, domainIndex + domainIndexOffset, 1);
 		}
 		return F_I;
 	}
 
 	@Override
 	public int[] getRangeIndices(int rangeBlockIndex) {
-		int numRangesPerRow = scaledSignalWidth / rangeWidth;
-		int numRangePerColumn = numRangesPerRow;
-
-		int rangeColumnIndex = rangeBlockIndex % numRangesPerRow;
-		int rangeRowIndex = (int)Math.floor((float)rangeBlockIndex / numRangePerColumn);
-
-		int rowIndexOffset = rangeColumnIndex * sqrtOfScale + (rangeRowIndex * sqrtOfScale * scaledSignalWidth);
+		int rangeIndexOffset = getBlockOffset(rangeBlockIndex, rangeWidth, rangeWidth, false);
 
 		int rangeIndices[] = new int[rangeDimension];
 		for (int k = 0; k < rangeDimension; k++) {
-			int rowIndex = ((int)Math.floor((float)k / rangeWidth) * scaledSignalWidth) + (k % rangeWidth);
-			rangeIndices[k] = rowIndex + rowIndexOffset;
+			int rangeIndex = ((k / rangeWidth) * scaledSignalWidth) + (k % rangeWidth);
+			rangeIndices[k] = rangeIndex + rangeIndexOffset;
 		}
+
 		return rangeIndices;
+	}
+
+	protected int getBlockOffset(int index, int blockWidth, int blockHeight, boolean overlapping) {
+		// Assuming that the signal width is equal to the signal height
+		int spaceWidth = scaledSignalWidth;
+		int spaceHeight = spaceWidth;
+
+		int numBlocksPerRow;
+		int numBlocksPerColumn;
+		
+		if (!overlapping) {
+			numBlocksPerRow = spaceWidth / blockWidth;
+			numBlocksPerColumn = spaceHeight / blockHeight; 
+		} else {
+			numBlocksPerRow = (spaceWidth / sqrtOfScale) - (blockWidth / sqrtOfScale) + 1;
+			numBlocksPerColumn = (spaceHeight / sqrtOfScale) - (blockHeight / sqrtOfScale) + 1;
+		}
+
+		int rowIndex = index / numBlocksPerRow;
+		int columnIndex = index % numBlocksPerColumn;
+		int offset;
+
+		if (!overlapping) {
+			offset = (rowIndex * (numBlocksPerRow * blockWidth * blockHeight)) + (columnIndex * blockWidth);
+		} else {
+			offset = (rowIndex * spaceWidth) + columnIndex;
+			offset *= sqrtOfScale;
+		}
+		
+		/*
+		System.out.printf("\nIndex: %d Width: %d Height: %d Overlapping: %s\n", index, blockWidth, blockHeight, overlapping);
+		System.out.printf("Blocks/row: %d Blocks/column: %d\n", numBlocksPerRow, numBlocksPerColumn);
+		System.out.printf("Row: %d,  Column %d, Offset: %d\n", rowIndex, columnIndex, offset);
+		*/
+		
+		return offset;
 	}
 }
