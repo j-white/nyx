@@ -53,7 +53,7 @@ public class ImageSignal extends Signal {
 
 		int numChannels = metadata.getNumComponents();
 		int numEntriesPerChannel = Math.round((float)dataBuffer.getSize() / numChannels);
-
+		
 		switch(dataBuffer.getDataType()) {
 		case DataBuffer.TYPE_BYTE:
 			{

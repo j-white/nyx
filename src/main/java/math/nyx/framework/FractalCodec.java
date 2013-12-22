@@ -114,10 +114,13 @@ public class FractalCodec implements FractalEncoder {
 
 				// Apply the transform
 				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock);
+
+				/*
 				if (n == numberOfIterations) {
 					System.out.printf("Range block index %d: %s\n", rangeBlockIndex, transformedBlock);
 				}
-				
+				*/
+
 				// Put
 				SparseRealMatrix P_J = partitioner.getPutOperator(rangeBlockIndex);
 				x_n = x_n.add(P_J.multiply(transformedBlock));
