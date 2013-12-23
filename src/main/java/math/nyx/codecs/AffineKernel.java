@@ -3,8 +3,8 @@ package math.nyx.codecs;
 import org.apache.commons.math.linear.RealMatrix;
 import org.springframework.util.Assert;
 
-import math.nyx.core.SignalBlock;
 import math.nyx.framework.Kernel;
+import math.nyx.framework.SignalBlock;
 
 
 public class AffineKernel implements Kernel {

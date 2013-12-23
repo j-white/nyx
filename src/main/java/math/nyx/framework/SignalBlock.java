@@ -1,4 +1,4 @@
-package math.nyx.core;
+package math.nyx.framework;
 
 import org.apache.commons.math.linear.RealMatrix;
 

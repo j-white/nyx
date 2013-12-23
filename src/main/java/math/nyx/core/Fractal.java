@@ -7,7 +7,6 @@ import java.util.List;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import math.nyx.framework.FractalCodec;
-import math.nyx.framework.Transform;
 
 import com.google.common.base.Objects;
 

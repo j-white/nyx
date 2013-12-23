@@ -9,13 +9,12 @@ import org.apache.commons.math.linear.SparseRealMatrix;
 import org.springframework.util.Assert;
 
 import math.nyx.core.Fractal;
-import math.nyx.core.SignalBlock;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
+import math.nyx.core.Transform;
 import math.nyx.framework.DecimationStrategy;
 import math.nyx.framework.Kernel;
 import math.nyx.framework.PartitioningStrategy;
-import math.nyx.framework.Transform;
 
 public class FractalCodec implements FractalEncoder {
 	private Kernel kernel;

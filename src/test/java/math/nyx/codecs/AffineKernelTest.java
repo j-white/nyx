@@ -1,7 +1,7 @@
 package math.nyx.codecs;
 
 import static org.junit.Assert.assertEquals;
-import math.nyx.core.SignalBlock;
+import math.nyx.framework.SignalBlock;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.RealMatrix;

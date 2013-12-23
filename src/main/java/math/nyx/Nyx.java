@@ -22,8 +22,8 @@ import org.springframework.core.io.Resource;
 import math.nyx.core.Fractal;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
-import math.nyx.core.imgproc.ImageMetadata;
-import math.nyx.core.imgproc.ImageSignal;
+import math.nyx.image.ImageMetadata;
+import math.nyx.image.ImageSignal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;

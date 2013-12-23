@@ -7,7 +7,7 @@ import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
-import math.nyx.framework.AbstractTransform;
+import math.nyx.core.AbstractTransform;
 
 import com.google.common.base.Objects.ToStringHelper;
 

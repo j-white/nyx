@@ -1,4 +1,4 @@
-package math.nyx.core.imgproc;
+package math.nyx.image;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;

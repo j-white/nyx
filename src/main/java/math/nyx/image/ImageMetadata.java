@@ -1,4 +1,4 @@
-package math.nyx.core.imgproc;
+package math.nyx.image;
 
 import java.io.Serializable;
 

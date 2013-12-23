@@ -1,4 +1,4 @@
-package math.nyx.core.imgproc;
+package math.nyx.image;
 
 import static org.junit.Assert.assertEquals;
 
@@ -8,6 +8,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+
+import math.nyx.image.ImageSignal;
 
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;

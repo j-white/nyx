@@ -1,4 +1,4 @@
-package math.nyx.framework;
+package math.nyx.core;
 
 import java.io.Serializable;
 

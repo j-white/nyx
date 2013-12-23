@@ -1,4 +1,4 @@
-package math.nyx.core.imgproc;
+package math.nyx.image;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,7 +9,9 @@ import java.awt.image.BufferedImage;
 import math.nyx.core.Fractal;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
-import math.nyx.framework.Transform;
+import math.nyx.core.Transform;
+import math.nyx.image.ImageMetadata;
+import math.nyx.image.ImageSignal;
 import math.nyx.utils.TestUtils;
 
 import org.junit.Ignore;
