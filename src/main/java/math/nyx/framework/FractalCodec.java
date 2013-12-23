@@ -2,11 +2,15 @@ package math.nyx.framework;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
-import org.springframework.util.Assert;
 
 import math.nyx.core.Fractal;
 import math.nyx.core.FractalEncoder;
@@ -28,7 +32,7 @@ public class FractalCodec implements FractalEncoder {
 
 		// Break the signal into non-overlapping range blocks
 		int numRangePartitions = partitioner.getNumRangePartitions();
-		System.out.printf("Partition range with %d partitions of dimension %d.\n", 
+		System.out.printf("Partitioning range with %d partitions of dimension %d.\n", 
 				numRangePartitions, partitioner.getRangeDimension());
 		List<SignalBlock> rangeBlocks = new ArrayList<SignalBlock>();
 		for (int i = 0; i < numRangePartitions; i++) {
@@ -45,6 +49,8 @@ public class FractalCodec implements FractalEncoder {
 
 		// Break the signal into overlapping domain blocks
 		int numDomainPartitions = partitioner.getNumDomainPartitions();
+		System.out.printf("Partitioning domain with %d partitions of dimension %d.\n", 
+				numDomainPartitions, partitioner.getDomainDimension());
 		List<SignalBlock> decimatedDomainBlocks = new ArrayList<SignalBlock>();
 		for (int i = 0; i < numDomainPartitions; i++) {
 			// Fetch the domain block at index i
@@ -66,9 +72,43 @@ public class FractalCodec implements FractalEncoder {
 
 		// Now match the domain and range partitions while minimizing the distance
 		// and store the results in the fractal
-		int k = 0;
-		for (SignalBlock rangeBlock : rangeBlocks) {
-			System.out.printf("Encoding range block %d of %d\n", ++k, rangeBlocks.size());
+		System.out.println("Encoding range blocks...");
+		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	    List<Future<Transform>> futures = new ArrayList<Future<Transform>>();
+	    for (SignalBlock rangeBlock : rangeBlocks) {
+	    	Callable<Transform> worker = new Worker(rangeBlock, kernel, decimatedDomainBlocks);
+	    	Future<Transform> future = executor.submit(worker);
+	    	futures.add(future);
+	    }
+	    
+	    int k = 0;
+	    for (Future<Transform> future : futures) {
+	    	try {
+				fractal.addTransform(future.get());
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			} catch (ExecutionException e) {
+				throw new RuntimeException(e);
+			}
+	    	System.out.printf("Succesfully encoded %d/%d range blocks\n", ++k, rangeBlocks.size());
+	    }
+
+		return fractal;
+	}
+
+	private static class Worker implements Callable<Transform> {
+		private final SignalBlock rangeBlock;
+		private final Kernel kernel;
+		private final List<SignalBlock> decimatedDomainBlocks;
+
+		public Worker(SignalBlock rangeBlock, Kernel kernel, List<SignalBlock> decimatedDomainBlocks) {
+			this.rangeBlock = rangeBlock;
+			this.kernel = kernel;
+			this.decimatedDomainBlocks = decimatedDomainBlocks;
+		}
+
+		@Override
+		public Transform call() throws Exception {
 			Transform bestTransform = null;
 			for (SignalBlock domainBlock : decimatedDomainBlocks) {
 				Transform transform = kernel.encode(domainBlock, rangeBlock);
@@ -81,15 +121,10 @@ public class FractalCodec implements FractalEncoder {
 					break;
 				}
 			}
-
-			Assert.isTrue(bestTransform != null, "No domain blocks found.");
-			fractal.addTransform(bestTransform);
-			//System.out.println(bestTransform);
+			return bestTransform;
 		}
-
-		return fractal;
 	}
-
+	
 	public Signal decode(Fractal fractal, int scale) {
 		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(fractal, scale);
 		int scaledSignalDimension = partitioner.getScaledSignalDimension();
