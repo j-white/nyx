@@ -93,6 +93,8 @@ public class FractalCodec implements FractalEncoder {
 	    	System.out.printf("Succesfully encoded %d/%d range blocks\n", ++k, rangeBlocks.size());
 	    }
 
+	    executor.shutdown();
+	    
 		return fractal;
 	}
 
