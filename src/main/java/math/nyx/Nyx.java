@@ -66,7 +66,7 @@ public class Nyx {
 	}
 
 	private void main() {
-		final String imageName = "lena-gray.jpg";
+		final String imageName = "lena-gray.png";
 		Fractal fractal = null;
 
     	// Read the image from disk
@@ -92,6 +92,7 @@ public class Nyx {
 			fractal = fractalEncoder.encode(sourceSignal);
 
 			// Serialize the fractal
+			/*
 		    try (
 				OutputStream file = new FileOutputStream(String.format("%s-fractal.nyx", imageName));
 				OutputStream buffer = new BufferedOutputStream(file);
@@ -103,9 +104,10 @@ public class Nyx {
 		    	System.err.println("Failed to save fractal to disk.");
 		    	ex.printStackTrace();
 		    }
+		    */
 		}
 		
-		System.out.println("Encoded fractal: " + fractal);
+		//System.out.println("Encoded fractal: " + fractal);
 
 	    // Decode at varying scales
 	    int scales[] = {1, 2, 3, 4};

@@ -51,6 +51,22 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 	}
 
 	@Test
+	public void getNumDomainAndRangePartitions() {
+		int signalWidth = 256;
+		spStrategy = spStrategy.getPartitioner(signalWidth*signalWidth, 1, 1);
+		
+		int domainWidth = (int)Math.sqrt(spStrategy.getDomainDimension());
+		int rangeWidth = (int)Math.sqrt(spStrategy.getRangeDimension());
+		
+		
+		int p = signalWidth / rangeWidth;
+		assertEquals(p*p, spStrategy.getNumRangePartitions());
+		
+		int q = signalWidth - domainWidth + 1;
+		assertEquals(q*q, spStrategy.getNumDomainPartitions());
+	}
+	
+	@Test
 	@Ignore
 	public void getFetchOperator() {
 		/*

@@ -108,7 +108,7 @@ public class ImageSignal extends Signal {
 						int u = j;
 						int v = k++;
 						//System.out.println("u: " + u + " v: " + v);
-						x.setEntry(v, 0, pixels[u]);
+						x.setEntry(v, 0, pixels[u] & 0xFF);
 					}
 				}
 			}

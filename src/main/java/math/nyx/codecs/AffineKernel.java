@@ -60,12 +60,10 @@ public class AffineKernel implements Kernel {
 			o = one_over_n * (sum_bis - s*sum_ais);
 		}
 
-		/*
-		boolean allowNegativeValues = true;
+		boolean allowNegativeValues = false;
 		if (s < 0 && allowNegativeValues == false) {
 			s = 0;
 		}
-		*/
 
 		double u = (s*sum_squared_ais) - (2*sum_ais_times_bis) + (2*o*sum_ais);
 		double v = (n*o) - (2*sum_bis);

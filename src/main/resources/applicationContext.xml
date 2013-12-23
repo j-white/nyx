@@ -16,10 +16,12 @@
 	
 	<bean id="averagingDecimationStrategy" class="math.nyx.framework.AveragingDecimationStrategy"/>
 
+	<bean id="squareDecimationStrategy" class="math.nyx.framework.SquareDecimationStrategy"/>
+
 	<bean id="affineFractalCodec" class="math.nyx.framework.FractalCodec">
 		<property name="name" value="affineFractalCodec" />
 		<property name="kernel" ref="affineKernel" />
 		<property name="partitioningStrategy" ref="squarePartitioningStrategy" />
-		<property name="decimationStrategy" ref="averagingDecimationStrategy" />
+		<property name="decimationStrategy" ref="squareDecimationStrategy" />
 	</bean>
 </beans>

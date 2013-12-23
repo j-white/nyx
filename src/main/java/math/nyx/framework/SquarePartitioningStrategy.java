@@ -9,8 +9,8 @@ import org.apache.commons.math.linear.SparseRealMatrix;
 public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	private final int originalSignalWidth;
 	private final int scaledSignalWidth;
-	private final int domainWidth;
-	private final int rangeWidth;
+	private int domainWidth;
+	private int rangeWidth;
 	private final int domainDimension;
 	private final int rangeDimension;
 	private final int sqrtOfScale;
@@ -34,7 +34,12 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		scaledSignalWidth = (int)Math.round(Math.sqrt(getScaledSignalDimension()));
 		
 		domainWidth = calculateDomainWidth(getSignalDimension(), getNumSignalChannels()) * sqrtOfScale;
-		rangeWidth = domainWidth - (1 * sqrtOfScale);
+		rangeWidth = domainWidth - sqrtOfScale;
+		
+		if (signalDimension == 256*256) {
+			rangeWidth = 8 * sqrtOfScale;
+			domainWidth = 2*rangeWidth;
+		}
 		
 		domainDimension = domainWidth * domainWidth;
 		rangeDimension = rangeWidth * rangeWidth;

@@ -18,15 +18,19 @@ public class AveragingDecimationStrategyTest {
 	@Autowired
 	private AveragingDecimationStrategy adStrategy;
 
+	private SparseRealMatrix getDecimator(int rangeDimension, int domainDimension) {
+		return adStrategy.getDecimationOperator(rangeDimension, domainDimension);
+	}
+
 	@Test
 	public void getDecimationOperator() {
 		// Generate
 		RealMatrix signal = TestUtils.generateSignal(4);
 
 		// Decimate
-		SparseRealMatrix decimationOperator = adStrategy.getDecimationOperator(2, 4);
-		RealMatrix decimated = decimationOperator.multiply(signal);
-		
+		SparseRealMatrix decimator = getDecimator(2, 4);
+		RealMatrix decimated = decimator.multiply(signal);
+
 		// Verify
 		assertEquals((1.0 + 2.0)/2.0, decimated.getEntry(0, 0), TestUtils.DELTA);
 		assertEquals((3.0 + 4.0)/2.0, decimated.getEntry(1, 0), TestUtils.DELTA);

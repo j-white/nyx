@@ -91,7 +91,7 @@ public class FractalCodec implements FractalEncoder {
 			} catch (ExecutionException e) {
 				throw new RuntimeException(e);
 			}
-	    	System.out.printf("Succesfully encoded %d/%d (%.2f%%) range blocks\n", ++k, rangeBlocks.size(), ((float)k/rangeBlocks.size()) * 100);
+	    	System.out.printf("Successfully encoded %d/%d (%.2f%%) range blocks\n", ++k, rangeBlocks.size(), ((float)k/rangeBlocks.size()) * 100);
 	    }
 
 	    executor.shutdown();
@@ -124,6 +124,8 @@ public class FractalCodec implements FractalEncoder {
 					break;
 				}
 			}
+			
+			//System.out.printf("Range at %d encoded with: %s\nBlock: %s", rangeBlock.getIndex(), bestTransform, rangeBlock);
 			return bestTransform;
 		}
 	}
