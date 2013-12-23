@@ -5,7 +5,9 @@ import math.nyx.utils.TestUtils;
 import org.apache.commons.math.linear.RealMatrix;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 public class AffineTransformTest {
 	@Test
@@ -24,5 +26,20 @@ public class AffineTransformTest {
 		RealMatrix x = TestUtils.generateSignal(expected.length);
 		RealMatrix y = AffineTransform.permute(x, symmetry);
 		assertArrayEquals(expected, y.getColumn(0), TestUtils.DELTA);
+	}
+
+	@Test
+	public void compareTo() {
+		AffineTransform t1 = new AffineTransform(0, 0, 1, 0, 0);
+		AffineTransform t2 = new AffineTransform(0, 0, 2, 0, 0);
+		AffineTransform t3 = new AffineTransform(0, 0, 3, 0, 0);
+		
+		assertEquals(0, t1.compareTo(t1));
+		assertTrue(t1.compareTo(t2) < 0);
+		assertTrue(t1.compareTo(t3) < 0);
+		assertTrue(t2.compareTo(t3) < 0);
+		assertTrue(t2.compareTo(t1) > 0);
+		assertTrue(t3.compareTo(t1) > 0);
+		assertTrue(t3.compareTo(t2) > 0);
 	}
 }

@@ -61,7 +61,18 @@ public class AffineTransform extends AbstractTransform {
 		}
 
 		// Apply the transform
-		return (K_scale.multiply(domain)).add(K_offset);
+		RealMatrix range = (K_scale.multiply(domain)).add(K_offset);
+		
+		// TODO: Find a better way to apply these bounds. Normalize the signals in [0, 1]?
+		double data[][] = range.getData();
+		for (int i = 0; i < data.length; i++) {
+			if (data[i][0] < -128.0) {
+				data[i][0] = -128.0;
+			} else if (data[i][0] > 128.0) {
+				data[i][0] = 128.0;
+			}
+		}
+		return range;
 	}
 
 	public static RealMatrix permute(RealMatrix vector, Symmetry symmetry) {

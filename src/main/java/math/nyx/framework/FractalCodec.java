@@ -38,7 +38,8 @@ public class FractalCodec implements FractalEncoder {
 		for (int i = 0; i < numRangePartitions; i++) {
 			// Fetch the range block at index i
 			SparseRealMatrix F_I = partitioner.getRangeFetchOperator(i);
-			RealMatrix rangeBlock = F_I.multiply(x);			
+			RealMatrix rangeBlock = F_I.multiply(x);	
+			//System.out.println("Range block: " + rangeBlock);
 
 			// Store the results
 			rangeBlocks.add(new SignalBlock(i, rangeBlock));
@@ -90,7 +91,7 @@ public class FractalCodec implements FractalEncoder {
 			} catch (ExecutionException e) {
 				throw new RuntimeException(e);
 			}
-	    	System.out.printf("Succesfully encoded %d/%d range blocks\n", ++k, rangeBlocks.size());
+	    	System.out.printf("Succesfully encoded %d/%d (%.2f%%) range blocks\n", ++k, rangeBlocks.size(), ((float)k/rangeBlocks.size()) * 100);
 	    }
 
 	    executor.shutdown();
@@ -134,7 +135,7 @@ public class FractalCodec implements FractalEncoder {
 		SparseRealMatrix D = getDecimationOperator(partitioner);
 
 		// Iterated system
-		int numberOfIterations = 12;
+		int numberOfIterations = 20;
 		RealMatrix x = new Array2DRowRealMatrix(scaledSignalDimension, 1);
 		for (int n = 1; n <= numberOfIterations; n++) {
 			System.out.printf("Decoding: Iteration %d of %d.\n", n, numberOfIterations);

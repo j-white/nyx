@@ -66,7 +66,7 @@ public class Nyx {
 	}
 
 	private void main() {
-		final String imageName = "fractal-gray.jpg";
+		final String imageName = "lena-gray.jpg";
 		Fractal fractal = null;
 
     	// Read the image from disk
