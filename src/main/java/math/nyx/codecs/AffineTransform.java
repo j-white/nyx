@@ -1,5 +1,7 @@
 package math.nyx.codecs;
 
+import java.util.Iterator;
+
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
@@ -13,11 +15,20 @@ public class AffineTransform extends AbstractTransform {
 	private static final long serialVersionUID = 4115274904771797361L;
 	private final double scale;
 	private final double offset;
-	
+	private final Symmetry symmetry;
+
 	public AffineTransform(int domainBlockIndex, int rangeBlockIndex, double distance, double scale, double offset) {
 		super(domainBlockIndex, rangeBlockIndex, distance);
 		this.scale = scale;
 		this.offset = offset;
+		this.symmetry = Symmetry.ORIGINAL;
+	}
+
+	public AffineTransform(int domainBlockIndex, int rangeBlockIndex, double distance, double scale, double offset, Symmetry symmetry) {
+		super(domainBlockIndex, rangeBlockIndex, distance);
+		this.scale = scale;
+		this.offset = offset;
+		this.symmetry = symmetry;
 	}
 
 	public double getScale() {
@@ -28,7 +39,12 @@ public class AffineTransform extends AbstractTransform {
 		return offset;
 	}
 
+	public Symmetry getSymmetry() {
+		return symmetry;
+	}
+
 	public RealMatrix apply(RealMatrix domain) {
+		domain = permute(domain, symmetry);
 		int rangeDimension = domain.getRowDimension();
 		SparseRealMatrix K_scale = new OpenMapRealMatrix(rangeDimension, rangeDimension);
 		RealMatrix K_offset = new Array2DRowRealMatrix(rangeDimension, 1);
@@ -48,10 +64,22 @@ public class AffineTransform extends AbstractTransform {
 		return (K_scale.multiply(domain)).add(K_offset);
 	}
 
+	public static RealMatrix permute(RealMatrix vector, Symmetry symmetry) {
+		if (symmetry == Symmetry.ORIGINAL) return vector;
+		Iterator<Double> it = new SymmetryIterator(vector.getColumn(0), symmetry);
+		int k = 0;
+		RealMatrix permutedVector = new Array2DRowRealMatrix(vector.getRowDimension(), 1);
+		while (it.hasNext()) {
+			permutedVector.setEntry(k++, 0, it.next());
+		}
+		return permutedVector;
+	}
+
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper()
 	            .add("scale", scale)
-	            .add("offset", offset);
+	            .add("offset", offset)
+	            .add("symmetry", symmetry);
 	}
 }

@@ -33,10 +33,9 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 		int signalDomainRange[][] = new int[][] {
 				{4, 4, 1},
 				{16, 4, 1},
-				{36, 4, 1},
-				{64, 4, 1},
-				{100, 9, 4},
-				{65536, 81, 64},
+				{256, 4, 1},
+				{1024, 9, 4},
+				{65536, 25, 16},
 		};
 		
 		for (int i = 0; i < signalDomainRange.length; i++) {
@@ -341,7 +340,7 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 	@Test
 	public void getBlockOffset() {
 		int signalDimension = 65536;
-		int blockWidth = 8;
+		int blockWidth = 4;
 		SquarePartitioningStrategy partitioner = getPartitioner(signalDimension, 1, 1);
 		assertEquals(blockWidth*blockWidth, partitioner.getRangeDimension());
 		

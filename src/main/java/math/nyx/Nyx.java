@@ -105,7 +105,7 @@ public class Nyx {
 		    }
 		}
 		
-		System.out.println(fractal);
+		System.out.println("Encoded fractal: " + fractal);
 
 	    // Decode at varying scales
 	    int scales[] = {1, 2, 3, 4};

@@ -42,13 +42,13 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 
 	public static int calculateDomainWidth(int signalDimension, int numSignalChannels) {
 		int channelDimension = signalDimension / numSignalChannels;
-		int quad = (int)Math.pow(signalDimension, 0.5f);
-		int quart = (int)Math.pow(quad, 0.5f);
+		int a = (int)Math.pow(signalDimension, 0.4f);
+		int b = (int)Math.pow(a, 0.4f);
 
 		int k = 2;
-		for (int i = 2; i <= quart; i++) {
+		for (int i = 2; i <= b; i++) {
 			int n = (i-1)*(i-1);
-			if (n > quad) {
+			if (n > a) {
 				break;
 			}
 			if (channelDimension % n == 0) {
