@@ -7,7 +7,6 @@ import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +32,11 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 		int signalDomainRange[][] = new int[][] {
 				{4, 4, 1},
 				{16, 4, 1},
-				{256, 4, 1},
-				{1024, 9, 4},
-				{65536, 25, 16},
+				{36, 4, 1},
+				{64, 16, 4},
+				{256, 16, 4},
+				{1024, 64, 16},
+				{65536, 256, 64},
 		};
 		
 		for (int i = 0; i < signalDomainRange.length; i++) {
@@ -67,7 +68,6 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 	}
 	
 	@Test
-	@Ignore
 	public void getFetchOperator() {
 		/*
 		   A 4x4 gray-scale image:
@@ -96,39 +96,7 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 			1  | 0 0 0 1 0 0 0 0 ... 0 |       P[1, 3] = 1
 			2  | 0 0 0 0 0 0 1 0 ... 0 |       P[2, 6] = 1
 			3  | 0 0 0 0 0 0 0 1 ... 0 |       P[3, 7] = 1
-
-		   A 6x6 gray-scale image:
-			1  2  3  4  5  6
-			7  8  9  10 11 12
-			13 14 15 16 17 18
-			19 20 21 22 23 24
-			25 26 27 28 29 30
-			31 32 33 34 35 36
-
-          domainBlockIndex: 0, domainDimension: 9, signalDimension: 36 should look like:
-            #    0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ... 35 #
-			0  | 1 0 0 0 0 0 0 0 0 0 0  0  0  0  0  0  ... 0  |       P[0,  0] = 1
-			1  | 0 1 0 0 0 0 0 0 0 0 0  0  0  0  0  0  ... 0  |       P[1,  1] = 1
-			2  | 0 0 1 0 0 0 0 0 0 0 0  0  0  0  0  0  ... 0  |       P[2,  2] = 1
-			3  | 0 0 0 0 0 0 1 0 0 0 0  0  0  0  0  0  ... 0  |       P[3,  6] = 1
-			4  | 0 0 0 0 0 0 0 1 0 0 0  0  0  0  0  0  ... 0  |       P[4,  7] = 1
-			5  | 0 0 0 0 0 0 0 0 1 0 0  0  0  0  0  0  ... 0  |       P[5,  8] = 1
-			6  | 0 0 0 0 0 0 0 0 0 0 0  0  1  0  0  0  ... 0  |       P[6, 12] = 1
-			7  | 0 0 0 0 0 0 0 0 0 0 0  0  0  1  0  0  ... 0  |       P[7, 13] = 1
-            8  | 0 0 0 0 0 0 0 0 0 0 0  0  0  0  1  0  ... 0  |       P[8, 14] = 1
-
-          domainBlockIndex: 12, domainDimension: 9, signalDimension: 36 should look like:
-            #    0 ... 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 ... 35 #
-			0  | 0 ... 1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  ... 0  |       P[0, 18] = 1
-			1  | 0 ... 0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  ... 0  |       P[1, 19] = 1
-			2  | 0 ... 0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  ... 0  |       P[2, 20] = 1
-			3  | 0 ... 0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  ... 0  |       P[3, 24] = 1
-			4  | 0 ... 0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  ... 0  |       P[4, 25] = 1
-			5  | 0 ... 0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  ... 0  |       P[5, 26] = 1
-			6  | 0 ... 0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  ... 0  |       P[6, 30] = 1
-			7  | 0 ... 0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  ... 0  |       P[7, 31] = 1
-            8  | 0 ... 0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  ... 0  |       P[8, 32] = 1
-		 */
+        */
 
 		// Verify the indices for fetch operator of a 4x4 image
 		int columnIndicesToCheck[][] = new int[][] {
@@ -136,17 +104,39 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 				{1, 2, 5, 6},
 				{2, 3, 6, 7}
 		};
-		checkEntriesInFetchOperator(columnIndicesToCheck, 16);
+		checkEntriesInFetchOperator(columnIndicesToCheck, 16);		
+		
+		/*
+		   A 8x8 gray-scale image:
+			1  2  3  4  5  6  7  8
+			9  10 11 12 13 14 15 16
+			17 18 19 20 21 22 23 24
+			25 26 27 28 29 30 31 32
+			33 34 35 36 37 38 39 40
+			41 42 43 44 45 46 47 48
+			49 50 51 52 53 54 55 56
+			57 58 59 60 61 62 63 64
 
-		// Verify the indices for fetch operator of a 6x6 image
+
+          domainBlockIndex: 0, domainDimension: 16, signalDimension: 64 should look like:
+            #    0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ... 35 #
+			0  | 1 0 0 0 0 0 0 0 0 0 0  0  0  0  0  0  ... 0  |       P[0,  0] = 1
+			1  | 0 1 0 0 0 0 0 0 0 0 0  0  0  0  0  0  ... 0  |       P[1,  1] = 1
+			2  | 0 0 1 0 0 0 0 0 0 0 0  0  0  0  0  0  ... 0  |       P[2,  2] = 1
+			3  | 0 0 0 1 0 0 0 0 0 0 0  0  0  0  0  0  ... 0  |       P[3,  3] = 1
+			4  | 0 0 0 0 0 0 0 0 1 0 0  0  0  0  0  0  ... 0  |       P[4,  8] = 1
+			5  | 0 0 0 0 0 0 0 0 0 1 0  0  0  0  0  0  ... 0  |       P[5,  9] = 1
+			6  | 0 0 0 0 0 0 0 0 0 0 1  0  0  0  0  0  ... 0  |       P[6, 10] = 1
+			7  | 0 0 0 0 0 0 0 0 0 0 0  1  0  0  0  0  ... 0  |       P[7, 11] = 1
+      
+          and so on...
+		 */
+
+		// Verify the indices for fetch operator of a 8x8 image
 		columnIndicesToCheck = new int[][] {
-				{0, 1, 2, 6, 7, 8, 12, 13, 14},
-				{}, {}, {}, 
-				{}, {}, {}, {},
-				{}, {}, {}, {},
-				{18, 19, 20, 24, 25, 26, 30, 31, 32}
+				{0, 1, 2, 3, 8, 9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27},
 		};
-		checkEntriesInFetchOperator(columnIndicesToCheck, 36);
+		checkEntriesInFetchOperator(columnIndicesToCheck, 64);
 	}
 
 	private void checkEntriesInFetchOperator(int columnIndicesToCheck[][], int signalDimension) {
@@ -168,7 +158,6 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 	}
 
 	@Test
-	@Ignore
 	public void getPutOperator() {
 		/*
 		   A 4x4 gray-scale image:
@@ -195,33 +184,37 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 		}
 
 		/*
-		   A 6x6 gray-scale image:
-			1  2  3  4  5  6
-			7  8  9  10 11 12
-			13 14 15 16 17 18
-			19 20 21 22 23 24
-			25 26 27 28 29 30
-			31 32 33 34 35 36
+		   A 8x8 gray-scale image:
+			1  2  3  4  5  6  7  8
+			9  10 11 12 13 14 15 16
+			17 18 19 20 21 22 23 24
+			25 26 27 28 29 30 31 32
+			33 34 35 36 37 38 39 40
+			41 42 43 44 45 46 47 48
+			49 50 51 52 53 54 55 56
+			57 58 59 60 61 62 63 64
 
-		  rangeBlockIndex: 0, rangeDimension: 4, signalDimension: 16 should look like:
+		  rangeBlockIndex: 0, rangeDimension: 4, signalDimension: 64 should look like:
 		  	#    0 1 2 3 #
 			0  | 1 0 0 0 |       P[0, 0] = 1
 			1  | 0 1 0 0 |       P[1, 1] = 1
-			2  | 0 0 0 0 |       P[6, 2] = 1
-			3  | 0 0 0 0 |       P[7, 3] = 1
+			2  | 0 0 0 0 |       P[8, 2] = 1
+			3  | 0 0 0 0 |       P[9, 3] = 1
 			4  | 0 0 0 0 |
 			5  | 0 0 0 0 |
-			6  | 0 0 1 0 |
-			7  | 0 0 0 1 |
-			8  | 0 0 0 0 |
+			6  | 0 0 0 0 |
+			7  | 0 0 0 0 |
+			8  | 0 0 1 0 |
+			9  | 0 0 0 1 |
+			10 | 0 0 0 0 |
 			.       ...   
 			35 | 0 0 0 0 |
 		 */
-		// Verify the indices for fetch operator of a 6x6 image
+		// Verify the indices for fetch operator of a 8x8 image
 		int rowIndicesToCheck[][] = new int[][] {
-				{0, 1, 6, 7}
+				{0, 1, 8, 9}
 		};
-		checkEntriesInPutOperator(rowIndicesToCheck, 36);
+		checkEntriesInPutOperator(rowIndicesToCheck, 64);
 	}
 
 	private void checkEntriesInPutOperator(int rowIndicesToCheck[][], int signalDimension) {
@@ -356,15 +349,17 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 	@Test
 	public void getBlockOffset() {
 		int signalDimension = 65536;
-		int blockWidth = 4;
+	
 		SquarePartitioningStrategy partitioner = getPartitioner(signalDimension, 1, 1);
-		assertEquals(blockWidth*blockWidth, partitioner.getRangeDimension());
-		
-		// Non-overlapping
+		int rangeDimension = partitioner.getRangeDimension();
+		int blockWidth = (int)Math.sqrt(rangeDimension);
+		assertEquals("Range dimension must be a square.", rangeDimension, blockWidth*blockWidth);
+
+		// Non-overlapping partitions should have offsets that increase by the block width
 		assertEquals(0, partitioner.getBlockOffset(0, blockWidth, blockWidth, false));
 		assertEquals(blockWidth, partitioner.getBlockOffset(1, blockWidth, blockWidth, false));
 		
-		// Overlapping
+		// Overlapping partitions should have offsets that increase by 1
 		assertEquals(0, partitioner.getBlockOffset(0, blockWidth, blockWidth, true));
 		assertEquals(1, partitioner.getBlockOffset(1, blockWidth, blockWidth, true));
 	}

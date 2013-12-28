@@ -11,7 +11,6 @@ import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -59,7 +58,6 @@ public class AffineFractalCodecTest {
 	}
 
 	@Test
-	@Ignore
 	public void decodeAndDecimate() {
 		RealMatrix x = new Array2DRowRealMatrix(16, 1);
 		x.setColumn(0, new double[]{
@@ -95,7 +93,7 @@ public class AffineFractalCodecTest {
 	@Test
 	public void encodeDecodeConstantSignal() {
 		int signalDimension = 4;
-		final double c = -29.0;
+		final double c = 29.0;
 
 		// Build a signal with constant entries
 		RealMatrix x = new Array2DRowRealMatrix(signalDimension, 1);

@@ -30,34 +30,28 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		originalSignalWidth = (int)Math.round(Math.sqrt(getSignalDimension()));
 		scaledSignalWidth = (int)Math.round(Math.sqrt(getScaledSignalDimension()));
 		
-		domainWidth = calculateDomainWidth(getSignalDimension(), getNumSignalChannels()) * sqrtOfScale;
-		rangeWidth = domainWidth - sqrtOfScale;
-		
-		if (signalDimension == 256*256) {
-			rangeWidth = 8 * sqrtOfScale;
-			domainWidth = 2*rangeWidth;
-		}
-		
+		rangeWidth = calculateRangeWidth(getSignalDimension(), getNumSignalChannels()) * sqrtOfScale;
+		domainWidth = 2*rangeWidth;
+
 		domainDimension = domainWidth * domainWidth;
 		rangeDimension = rangeWidth * rangeWidth;
 	}
 
-	public static int calculateDomainWidth(int signalDimension, int numSignalChannels) {
+	private int calculateRangeWidth(int signalDimension, int numSignalChannels) {
 		int channelDimension = signalDimension / numSignalChannels;
-		int a = (int)Math.pow(signalDimension, 0.4f);
-		int b = (int)Math.pow(a, 0.4f);
+		int sqrtOfChannelDimension = (int)Math.sqrt(channelDimension);
+		int upperBound = 2 * (int)Math.log(sqrtOfChannelDimension);
 
-		int k = 2;
-		for (int i = 2; i <= b; i++) {
-			int n = (i-1)*(i-1);
-			if (n > a) {
-				break;
-			}
-			if (channelDimension % n == 0) {
+		// Find the largest even square that divides the sqrt of the channel dimension
+		int k = 1;
+		for (int i = 1; i < upperBound; i++) {
+			int n = 2*i;
+			if (sqrtOfChannelDimension % n == 0) {
 				k = i;
 			}
 		}
-		return Math.max(k, 2);
+
+		return Math.max(k, 1);
 	}
 
 	@Override

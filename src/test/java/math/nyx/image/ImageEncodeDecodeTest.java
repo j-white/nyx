@@ -9,12 +9,10 @@ import java.awt.image.BufferedImage;
 import math.nyx.core.Fractal;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
-import math.nyx.core.Transform;
 import math.nyx.image.ImageMetadata;
 import math.nyx.image.ImageSignal;
 import math.nyx.utils.TestUtils;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,23 +48,6 @@ public class ImageEncodeDecodeTest {
 		return img;
 	}
 
-	@Test
-	@Ignore
-	public void encodeDecodeLargerImage() {
-		int size = 256;
-		BufferedImage sourceImage = createImage(size);
-		
-		Signal sourceSignal = new ImageSignal(sourceImage);
-		Fractal fractal = fractalEncoder.encode(sourceSignal);
-
-		// Make sure the image gets encoded "perfectly"
-		for (Transform transform : fractal.getTransforms()) {
-			assertEquals(0, transform.getDistance(), TestUtils.DELTA);
-		}
-
-		decodeAndCompare(fractal, size, 1, sourceImage);
-	}
-	
 	@Test
 	public void encodeDecodeScaled() {
 		int size = 2;

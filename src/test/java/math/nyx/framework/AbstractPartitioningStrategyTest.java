@@ -6,7 +6,6 @@ import math.nyx.utils.TestUtils;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public abstract class AbstractPartitioningStrategyTest {
@@ -22,14 +21,6 @@ public abstract class AbstractPartitioningStrategyTest {
 			PartitioningStrategy partitioner = getPartitioner(signalDimension, 1, scale);
 			fetchAndPutRangePartitions(partitioner);
 		}
-	}
-	
-	@Test
-	@Ignore
-	public void fetchAndPutRangePartitionsOfLargeSignal() {
-		int signalDimension = 65536;
-		PartitioningStrategy partitioner = getPartitioner(signalDimension, 1, 1);
-		fetchAndPutRangePartitions(partitioner);
 	}
 
 	private void fetchAndPutRangePartitions(PartitioningStrategy partitioner) {
