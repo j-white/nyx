@@ -125,19 +125,24 @@ public class FractalCodec implements FractalEncoder {
 				}
 			}
 			
-			//System.out.printf("Range at %d encoded with: %s\nBlock: %s", rangeBlock.getIndex(), bestTransform, rangeBlock);
+			/*if (rangeBlock.getIndex() == 864) {
+				System.out.printf("Range at %d encoded with: %s\nBlock: %s", rangeBlock.getIndex(), bestTransform, rangeBlock);
+			}*/
 			return bestTransform;
 		}
 	}
 	
 	public Signal decode(Fractal fractal, int scale) {
+		return decode(fractal, scale, 20);
+	}
+
+	public Signal decode(Fractal fractal, int scale, int numberOfIterations) {
 		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(fractal, scale);
 		int scaledSignalDimension = partitioner.getScaledSignalDimension();
 
 		SparseRealMatrix D = getDecimationOperator(partitioner);
 
 		// Iterated system
-		int numberOfIterations = 20;
 		RealMatrix x = new Array2DRowRealMatrix(scaledSignalDimension, 1);
 		for (int n = 1; n <= numberOfIterations; n++) {
 			System.out.printf("Decoding: Iteration %d of %d.\n", n, numberOfIterations);
@@ -167,7 +172,12 @@ public class FractalCodec implements FractalEncoder {
 			}
 			x = x_n;
 		}
-
+		
+		/*int id = 32 * 28;
+		SparseRealMatrix F_I = partitioner.getRangeFetchOperator(id);
+		System.out.println("Range block " + id + " decoded: " + F_I.multiply(x));
+		System.exit(1);*/
+		
 		return new Signal(fractal, x);
 	}
 

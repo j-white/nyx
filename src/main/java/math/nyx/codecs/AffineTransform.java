@@ -63,6 +63,7 @@ public class AffineTransform extends AbstractTransform {
 		// Apply the transform
 		RealMatrix range = (K_scale.multiply(permutedDomain)).add(K_offset);
 		
+		/*
 		// TODO: Find a better way to apply these bounds. Normalize the signals in [0, 1]?
 		double minVal = 0;
 		double maxVal = 256;
@@ -73,7 +74,7 @@ public class AffineTransform extends AbstractTransform {
 			} else if (data[i][0] > maxVal) {
 				data[i][0] = maxVal;
 			}
-		}
+		}*/
 
 		return range;
 	}
