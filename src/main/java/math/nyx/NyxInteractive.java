@@ -83,6 +83,8 @@ class VisualTransform {
 		this.transform = transform;
 		this.signal = signal;
 		this.imageWidth = imageWidth;
+		
+		//TODO: Dynamically determine the partitioning strategy type
 		SquarePartitioningStrategy partitioningStrategy = new SquarePartitioningStrategy();
 		this.partitioner = partitioningStrategy.getPartitioner(signal);
 		this.rangeShape = getShapeForRangeBlock(transform.getRangeBlockIndex());
@@ -222,7 +224,6 @@ class InteractiveFractal extends JPanel implements MouseListener, MouseMotionLis
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		g2.drawImage(image, 0, 0, null);
-	
 
 		if (selectedVisualTransform != null) {
 			g2.setColor(Color.BLUE);

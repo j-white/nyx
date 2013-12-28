@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import math.nyx.framework.FractalCodec;
-
 import com.google.common.base.Objects;
 
 public class Fractal implements Serializable {
@@ -27,7 +25,7 @@ public class Fractal implements Serializable {
 
 	public Signal decode(int scale) {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
-		FractalCodec codec = (FractalCodec)ctx.getBean(codecName);
+		FractalDecoder codec = (FractalDecoder)ctx.getBean(codecName);
 		Signal signal = codec.decode(this, scale);
 		ctx.close();
 		return signal;

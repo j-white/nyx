@@ -13,6 +13,7 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
 import math.nyx.core.Fractal;
+import math.nyx.core.FractalDecoder;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
 import math.nyx.core.Transform;
@@ -20,7 +21,7 @@ import math.nyx.framework.DecimationStrategy;
 import math.nyx.framework.Kernel;
 import math.nyx.framework.PartitioningStrategy;
 
-public class FractalCodec implements FractalEncoder {
+public class FractalCodec implements FractalEncoder, FractalDecoder {
 	private Kernel kernel;
 	private PartitioningStrategy partitioningStrategy;
 	private DecimationStrategy decimationStrategy;
