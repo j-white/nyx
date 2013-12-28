@@ -21,7 +21,7 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 	private SquarePartitioningStrategy spStrategy;
 
 	@Autowired
-	private DecimationStrategy decStrategy;
+	private SquareDecimationStrategy decStrategy;
 
 	@Override
 	public SquarePartitioningStrategy getPartitioner(int signalDimension, int numSignalChannels, int scale) {

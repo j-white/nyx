@@ -102,7 +102,7 @@ public class ImageSignalTest {
 
 	@Test
 	public void testJPG() throws IOException {
-		Resource imgFile = new ClassPathResource("math/nyx/resources/lena_128.jpg");
+		Resource imgFile = new ClassPathResource("math/nyx/resources/lena-128.jpg");
 		BufferedImage img = ImageIO.read(imgFile.getInputStream());
 
 		testImageSignalConversion(img);

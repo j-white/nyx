@@ -3,9 +3,6 @@ package math.nyx.framework;
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 
-import org.apache.commons.math.linear.OpenMapRealMatrix;
-import org.apache.commons.math.linear.SparseRealMatrix;
-
 public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	private final int originalSignalWidth;
 	private final int scaledSignalWidth;
@@ -122,15 +119,16 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	}
 
 	@Override
-	public SparseRealMatrix getDomainFetchOperator(int domainBlockIndex) {
+	public int[] getDomainIndices(int domainBlockIndex) {
 		int domainIndexOffset = getBlockOffset(domainBlockIndex, domainWidth, domainWidth, true);
 
-		SparseRealMatrix F_I = new OpenMapRealMatrix(domainDimension, getScaledSignalDimension());
+		int domainIndices[] = new int[domainDimension];
 		for (int k = 0; k < domainDimension; k++) {
 			int domainIndex = ((k / domainWidth) * scaledSignalWidth) + (k % domainWidth);
-			F_I.setEntry(k, domainIndex + domainIndexOffset, 1);
+			domainIndices[k] = domainIndex + domainIndexOffset;
 		}
-		return F_I;
+
+		return domainIndices;
 	}
 
 	@Override

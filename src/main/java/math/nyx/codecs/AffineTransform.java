@@ -3,9 +3,7 @@ package math.nyx.codecs;
 import java.util.Iterator;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
-import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
-import org.apache.commons.math.linear.SparseRealMatrix;
 
 import math.nyx.core.AbstractTransform;
 
@@ -46,8 +44,8 @@ public class AffineTransform extends AbstractTransform {
 	public RealMatrix apply(final RealMatrix domain) {
 		RealMatrix permutedDomain = permute(domain, symmetry);
 		int rangeDimension = permutedDomain.getRowDimension();
-		SparseRealMatrix K_scale = new OpenMapRealMatrix(rangeDimension, rangeDimension);
-		RealMatrix K_offset = new Array2DRowRealMatrix(rangeDimension, 1);
+		Array2DRowRealMatrix K_scale = new Array2DRowRealMatrix(rangeDimension, rangeDimension);
+		Array2DRowRealMatrix K_offset = new Array2DRowRealMatrix(rangeDimension, 1);
 
 		// Build the transform
 		for (int i = 0; i < rangeDimension; i++) {
@@ -61,20 +59,19 @@ public class AffineTransform extends AbstractTransform {
 		}
 
 		// Apply the transform
-		RealMatrix range = (K_scale.multiply(permutedDomain)).add(K_offset);
+		Array2DRowRealMatrix range = (Array2DRowRealMatrix) (K_scale.multiply(permutedDomain)).add(K_offset);
 		
-		/*
 		// TODO: Find a better way to apply these bounds. Normalize the signals in [0, 1]?
 		double minVal = 0;
 		double maxVal = 256;
-		double data[][] = range.getData();
+		double data[][] = range.getDataRef();
 		for (int i = 0; i < data.length; i++) {
 			if (data[i][0] < minVal) {
 				data[i][0] = minVal;
 			} else if (data[i][0] > maxVal) {
 				data[i][0] = maxVal;
 			}
-		}*/
+		}
 
 		return range;
 	}

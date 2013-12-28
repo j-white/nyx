@@ -44,7 +44,15 @@ public abstract class AbstractPartitioningStrategy implements PartitioningStrate
 
 	public abstract void checkSignalDimension(int signalDimension, int numSignalChannels, int scale);
 
-	public abstract int[] getRangeIndices(int rangeBlockIndex);
+	@Override
+	public SparseRealMatrix getDomainFetchOperator(int domainBlockIndex) {
+		int domainIndices[] = getDomainIndices(domainBlockIndex);
+		SparseRealMatrix F_I = new OpenMapRealMatrix(getDomainDimension(), getScaledSignalDimension());
+		for (int k = 0; k < getDomainDimension(); k++) {
+			F_I.setEntry(k, domainIndices[k], 1);
+		}
+		return F_I;
+	}
 
 	@Override
 	public SparseRealMatrix getRangeFetchOperator(int rangeBlockIndex) {

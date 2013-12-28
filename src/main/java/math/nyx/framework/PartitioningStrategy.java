@@ -31,4 +31,8 @@ public interface PartitioningStrategy {
 	public SparseRealMatrix getRangeFetchOperator(int rangeBlockIndex);
 
 	public SparseRealMatrix getPutOperator(int rangeBlockIndex);
+
+	public int[] getDomainIndices(int domainBlockIndex);
+
+	public int[] getRangeIndices(int rangeBlockIndex);
 }
