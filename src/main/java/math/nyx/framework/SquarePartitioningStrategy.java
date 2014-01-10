@@ -57,7 +57,7 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	@Override
 	public void checkSignalDimension(int signalDimension, int numSignalChannels, int scale) {
 		if (signalDimension < 4) {
-			throw new IllegalArgumentException("Signal dimension must be greater than 4.");
+			throw new IllegalArgumentException("Signal dimension must be greater or equal to 4.");
 		}
 		int root = (int)Math.round(Math.sqrt(signalDimension));
 		if (root*root != signalDimension) {
@@ -172,5 +172,13 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		*/
 		
 		return offset;
+	}
+
+	@Override
+	public int getPaddedDimension(Signal signal) {
+		// Pad the signal to the closest square >= 4
+		int root = (int)Math.ceil((Math.sqrt(signal.getDimension())));
+		root = Math.max(root, 2);
+		return root*root;
 	}
 }

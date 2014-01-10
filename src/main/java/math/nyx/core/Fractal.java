@@ -12,8 +12,10 @@ public class Fractal implements Serializable {
 	private static final long serialVersionUID = -3691227743645881425L;
 
 	private String codecName;
-	
+
 	private int signalDimension;
+
+	private int signalPad;
 
 	private int numSignalChannels = 1;
 
@@ -45,6 +47,14 @@ public class Fractal implements Serializable {
 
 	public void setSignalDimension(int signalDimension) {
 		this.signalDimension = signalDimension;
+	}
+
+	public int getSignalPad() {
+		return signalPad;
+	}
+
+	public void setSignalPad(int signalPad) {
+		this.signalPad = signalPad;
 	}
 
 	public int getNumSignalChannels() {

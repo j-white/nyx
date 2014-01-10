@@ -104,4 +104,14 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 		}
 		return rangeIndices;
 	}
+
+	@Override
+	public int getPaddedDimension(Signal signal) {
+		// If the signal dimension is odd, pad it to the next (even) integer
+		if (signal.getDimension() % 2 == 1) {
+			return signal.getDimension() + 1;
+		} else {
+			return signal.getDimension();
+		}
+	}
 }

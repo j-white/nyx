@@ -28,6 +28,11 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	private String name;
 
 	public Fractal encode(Signal signal) {
+		// Pad the signal to a size that is supported by the partitioning strategy
+		int paddedDimension = partitioningStrategy.getPaddedDimension(signal);
+		signal.pad(paddedDimension);
+		
+		// Now fetch the underlying vector and the partitioner
 		RealMatrix x = signal.getVector();
 		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(signal);
 
@@ -70,6 +75,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		Fractal fractal = new Fractal();
 		fractal.setCodecName(name);
 		fractal.setSignalDimension(signal.getDimension());
+		fractal.setSignalPad(signal.getPad());
 		fractal.setNumSignalChannels(signal.getNumChannels());
 
 		// Now match the domain and range partitions while minimizing the distance
