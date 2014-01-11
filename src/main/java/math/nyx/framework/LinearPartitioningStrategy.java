@@ -87,22 +87,19 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 		return getScaledSignalDimension() / getRangeDimension();
 	}
 
+
 	@Override
-	public int[] getDomainIndices(int domainBlockIndex) {
-		int domainIndices[] = new int[domainDimension];
+	public void getDomainIndices(int domainBlockIndex, int domainIndices[]) {
 		for (int k = 0; k < domainDimension; k++) {
 			domainIndices[k] = domainBlockIndex * getScale() + k;
 		}
-		return domainIndices;
 	}
 
 	@Override
-	public int[] getRangeIndices(int rangeBlockIndex) {
-		int rangeIndices[] = new int[rangeDimension];
+	public void getRangeIndices(int rangeBlockIndex, int rangeIndices[]) {
 		for (int k = 0; k < rangeDimension; k++) {
 			rangeIndices[k] = rangeDimension*rangeBlockIndex + k;
 		}
-		return rangeIndices;
 	}
 
 	@Override

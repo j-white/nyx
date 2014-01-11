@@ -37,4 +37,8 @@ public interface PartitioningStrategy {
 	public int[] getDomainIndices(int domainBlockIndex);
 
 	public int[] getRangeIndices(int rangeBlockIndex);
+
+	public void getDomainIndices(int domainBlockIndex, int domainIndices[]);
+	
+	public void getRangeIndices(int rangeBlockIndex, int rangeIndices[]);
 }

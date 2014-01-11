@@ -109,30 +109,21 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	}
 
 	@Override
-	public int[] getDomainIndices(int domainBlockIndex) {
+	public void getDomainIndices(int domainBlockIndex, int domainIndices[]) {
 		int domainIndexOffset = getBlockOffset(domainBlockIndex, domainWidth, domainWidth, true);
-
-		int domainIndices[] = new int[domainDimension];
 		for (int k = 0; k < domainDimension; k++) {
 			int domainIndex = ((k / domainWidth) * scaledSignalWidth) + (k % domainWidth);
 			domainIndices[k] = domainIndex + domainIndexOffset;
 		}
-
-		return domainIndices;
 	}
 
 	@Override
-	public int[] getRangeIndices(int rangeBlockIndex) {
+	public void getRangeIndices(int rangeBlockIndex, int rangeIndices[]) {
 		int rangeIndexOffset = getBlockOffset(rangeBlockIndex, rangeWidth, rangeWidth, false);
-
-		int rangeIndices[] = new int[rangeDimension];
 		for (int k = 0; k < rangeDimension; k++) {
 			int rangeIndex = ((k / rangeWidth) * scaledSignalWidth) + (k % rangeWidth);
 			rangeIndices[k] = rangeIndex + rangeIndexOffset;
 		}
-
-		//System.out.println(Arrays.toString(rangeIndices));
-		return rangeIndices;
 	}
 
 	protected int getBlockOffset(int index, int blockWidth, int blockHeight, boolean overlapping) {

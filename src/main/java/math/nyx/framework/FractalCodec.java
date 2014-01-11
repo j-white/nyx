@@ -150,12 +150,16 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		SparseRealMatrix D = getDecimationOperator(partitioner);
 		boolean optimized = true;
 		RealMatrix domainBlock = null;
-		double domainBlockRef[][] = null;
 
 		// Iterated system
 		Array2DRowRealMatrix x = new Array2DRowRealMatrix(scaledSignalDimension, 1);
-		double xRef[][] = x.getDataRef();
 		
+		// For optimized routine
+		double domainBlockRef[][] = null;
+		double xRef[][] = x.getDataRef();
+		int domainIndices[] = new int[partitioner.getDomainDimension()];
+		int rangeIndices[] = new int[partitioner.getRangeDimension()];
+
 		for (int n = 1; n <= numberOfIterations; n++) {
 			System.out.printf("Decoding: Iteration %d of %d.\n", n, numberOfIterations);
 			Array2DRowRealMatrix x_n = new Array2DRowRealMatrix(scaledSignalDimension, 1);
@@ -173,7 +177,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 						domainBlockRef = block.getDataRef();
 					}
 
-					int domainIndices[] = partitioner.getDomainIndices(transform.getDomainBlockIndex());
+					partitioner.getDomainIndices(transform.getDomainBlockIndex(), domainIndices);
 					for (int i = 0; i < domainIndices.length; i++) {
 						domainBlockRef[i][0] = xRef[domainIndices[i]][0];
 					}
@@ -196,7 +200,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 					SparseRealMatrix P_J = partitioner.getPutOperator(rangeBlockIndex);
 					x_n = (Array2DRowRealMatrix) x_n.add(P_J.multiply(transformedBlock));
 				} else {
-					int rangeIndices[] = partitioner.getRangeIndices(rangeBlockIndex);
+					partitioner.getRangeIndices(rangeBlockIndex, rangeIndices);
 					for (int i = 0; i < rangeIndices.length; i++) {
 						x_n.addToEntry(rangeIndices[i], 0, transformedBlock.getEntry(i, 0));
 					}
