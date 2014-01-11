@@ -44,7 +44,7 @@ public class Nyx {
 	}
 
 	private void main() {
-		final String imageName = "fractal-gray.jpg";
+		final String imageName = "lena-gray.png";
 		Fractal fractal = null;
 
     	// Read the image from disk
@@ -86,7 +86,7 @@ public class Nyx {
 		//System.out.println("Encoded fractal: " + fractal);
 
 	    // Decode at varying scales
-	    int scales[] = {1, 2, 3, 4};
+	    int scales[] = {1, 16};
 	    for (int scale : scales) {
 			System.out.printf("\nDecoding at %dx ...\n", scale);
 			

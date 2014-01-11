@@ -140,7 +140,24 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	}
 	
 	public Signal decode(Fractal fractal, int scale) {
-		return decode(fractal, scale, 20);
+		return decode(fractal, scale, 12);
+	}
+
+	private double calcPsnr(RealMatrix a, RealMatrix b, int signalMax) {
+		double rms = 0.0;
+		double A[][] = a.getData();
+		double B[][] = b.getData();
+		
+		int N  = a.getRowDimension();
+		int M = a.getColumnDimension();
+
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				rms += Math.sqrt(Math.pow(A[i][j],  2) + Math.pow(B[i][j],  2));
+			}
+		}
+
+		return 20 * Math.log10(signalMax / rms);
 	}
 
 	public Signal decode(Fractal fractal, int scale, int numberOfIterations) {
@@ -148,18 +165,37 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		int scaledSignalDimension = partitioner.getScaledSignalDimension();
 
 		SparseRealMatrix D = getDecimationOperator(partitioner);
+		boolean optimized = true;
+		RealMatrix domainBlock = null;
+		double domainBlockRef[][] = null;
 
 		// Iterated system
-		RealMatrix x = new Array2DRowRealMatrix(scaledSignalDimension, 1);
+		//double psnr_in_db = 0.0f;
+		Array2DRowRealMatrix x = new Array2DRowRealMatrix(scaledSignalDimension, 1);
+		double xRef[][] = x.getDataRef();
+		
 		for (int n = 1; n <= numberOfIterations; n++) {
 			System.out.printf("Decoding: Iteration %d of %d.\n", n, numberOfIterations);
-			RealMatrix x_n = new Array2DRowRealMatrix(scaledSignalDimension, 1);
+			Array2DRowRealMatrix x_n = new Array2DRowRealMatrix(scaledSignalDimension, 1);
 			for (Transform transform : fractal.getTransforms()) {
 				int rangeBlockIndex = transform.getRangeBlockIndex();
 
 				// Fetch
-				SparseRealMatrix F_I = partitioner.getDomainFetchOperator(transform.getDomainBlockIndex());
-				RealMatrix domainBlock = F_I.multiply(x);
+				if (!optimized) {
+					SparseRealMatrix F_I = partitioner.getDomainFetchOperator(transform.getDomainBlockIndex());
+					domainBlock = F_I.multiply(x);
+				} else {
+					if (domainBlock == null) {
+						Array2DRowRealMatrix block = new Array2DRowRealMatrix(partitioner.getDomainDimension(), 1);
+						domainBlock = block;
+						domainBlockRef = block.getDataRef();
+					}
+
+					int domainIndices[] = partitioner.getDomainIndices(transform.getDomainBlockIndex());
+					for (int i = 0; i < domainIndices.length; i++) {
+						domainBlockRef[i][0] = xRef[domainIndices[i]][0];
+					}
+				}
 
 				// Decimate
 				RealMatrix decimatedDomainBlock = D.multiply(domainBlock);
@@ -174,10 +210,20 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 				*/
 				
 				// Put
-				SparseRealMatrix P_J = partitioner.getPutOperator(rangeBlockIndex);
-				x_n = x_n.add(P_J.multiply(transformedBlock));
+				if (!optimized) {
+					SparseRealMatrix P_J = partitioner.getPutOperator(rangeBlockIndex);
+					x_n = (Array2DRowRealMatrix) x_n.add(P_J.multiply(transformedBlock));
+				} else {
+					int rangeIndices[] = partitioner.getRangeIndices(rangeBlockIndex);
+					for (int i = 0; i < rangeIndices.length; i++) {
+						x_n.addToEntry(rangeIndices[i], 0, transformedBlock.getEntry(i, 0));
+					}
+				}
 			}
+			
+			//psnr_in_db  = calcPsnr(x, x_n, 255);
 			x = x_n;
+			xRef = x.getDataRef();
 		}
 		
 		/*int id = 32 * 28;
@@ -200,7 +246,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	public Kernel getKernel() {
 		return kernel;
 	}
-	
+
 	public void setPartitioningStrategy(PartitioningStrategy partitioningStrategy) {
 		this.partitioningStrategy = partitioningStrategy;
 	}

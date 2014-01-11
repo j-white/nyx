@@ -30,23 +30,22 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		originalSignalWidth = (int)Math.round(Math.sqrt(getSignalDimension()));
 		scaledSignalWidth = (int)Math.round(Math.sqrt(getScaledSignalDimension()));
 		
-		rangeWidth = calculateRangeWidth(getSignalDimension(), getNumSignalChannels()) * sqrtOfScale;
+		rangeWidth = calculateRangeWidth(getSignalDimension()) * sqrtOfScale;
 		domainWidth = 2*rangeWidth;
 
 		domainDimension = domainWidth * domainWidth;
 		rangeDimension = rangeWidth * rangeWidth;
 	}
 
-	private int calculateRangeWidth(int signalDimension, int numSignalChannels) {
-		int channelDimension = signalDimension / numSignalChannels;
-		int sqrtOfChannelDimension = (int)Math.sqrt(channelDimension);
-		int upperBound = 2 * (int)Math.log(sqrtOfChannelDimension);
+	private int calculateRangeWidth(int signalDimension) {
+		int sqrtOfSignalDimension = (int)Math.sqrt(signalDimension);
+		int upperBound = 2 * (int)Math.log(sqrtOfSignalDimension);
 
 		// Find the largest even square that divides the sqrt of the channel dimension
 		int k = 1;
 		for (int i = 1; i < upperBound; i++) {
 			int n = 2*i;
-			if (sqrtOfChannelDimension % n == 0) {
+			if (sqrtOfSignalDimension % n == 0) {
 				k = i;
 			}
 		}
@@ -65,9 +64,6 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		}
 		if (scale < 1) {
 			throw new IllegalArgumentException("Scale must be a positive integer.");
-		}
-		if (signalDimension % numSignalChannels != 0) {
-			throw new IllegalArgumentException("The number of channels must divide the signal dimension.");
 		}
 		root = (int)Math.round(Math.sqrt(scale));
 		if (root*root != scale) {
@@ -135,6 +131,7 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 			rangeIndices[k] = rangeIndex + rangeIndexOffset;
 		}
 
+		//System.out.println(Arrays.toString(rangeIndices));
 		return rangeIndices;
 	}
 
@@ -176,9 +173,11 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 
 	@Override
 	public int getPaddedDimension(Signal signal) {
-		// Pad the signal to the closest square >= 4
-		int root = (int)Math.ceil((Math.sqrt(signal.getDimension())));
-		root = Math.max(root, 2);
-		return root*root;
+		// Pad the signal to the closest integer of the form (2^k)^2
+		double root = Math.sqrt(signal.getDimension());
+		int k = (int)Math.ceil(Math.log(root) / Math.log(2));
+		k = Math.max(k, 2);
+		int power_of_two = (int)Math.pow(2, k);
+		return power_of_two * power_of_two;
 	}
 }
