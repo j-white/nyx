@@ -143,23 +143,6 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		return decode(fractal, scale, 12);
 	}
 
-	private double calcPsnr(RealMatrix a, RealMatrix b, int signalMax) {
-		double rms = 0.0;
-		double A[][] = a.getData();
-		double B[][] = b.getData();
-		
-		int N  = a.getRowDimension();
-		int M = a.getColumnDimension();
-
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				rms += Math.sqrt(Math.pow(A[i][j],  2) + Math.pow(B[i][j],  2));
-			}
-		}
-
-		return 20 * Math.log10(signalMax / rms);
-	}
-
 	public Signal decode(Fractal fractal, int scale, int numberOfIterations) {
 		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(fractal, scale);
 		int scaledSignalDimension = partitioner.getScaledSignalDimension();
@@ -170,7 +153,6 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		double domainBlockRef[][] = null;
 
 		// Iterated system
-		//double psnr_in_db = 0.0f;
 		Array2DRowRealMatrix x = new Array2DRowRealMatrix(scaledSignalDimension, 1);
 		double xRef[][] = x.getDataRef();
 		
@@ -220,8 +202,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 					}
 				}
 			}
-			
-			//psnr_in_db  = calcPsnr(x, x_n, 255);
+
 			x = x_n;
 			xRef = x.getDataRef();
 		}

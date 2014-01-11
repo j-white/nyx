@@ -18,10 +18,7 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import math.nyx.codecs.AffineTransform;
-import math.nyx.codecs.Symmetry;
 import math.nyx.core.Fractal;
-import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
 import math.nyx.core.Transform;
 import math.nyx.framework.FractalCodec;

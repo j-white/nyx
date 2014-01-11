@@ -64,7 +64,7 @@ public class ImageEncodeDecodeTest {
 		// Serialize and de-serialize the fractal
 		byte[] fractalAsBytes = SerializationUtils.serialize(fractal);
 		fractal = (Fractal)SerializationUtils.deserialize(fractalAsBytes);
-		
+
 		int scales[] = {1, 2, 3, 4, 5, 6, 7, 8};
 		for (int scale : scales) {
 			System.out.println("\nTesting with scale: " + scale);
@@ -84,7 +84,8 @@ public class ImageEncodeDecodeTest {
 		//System.out.println("Decoded signal: " + decodedSignal);
 		
 		for (int k = 0; k < expectedSignal.getDimension(); k++) {
-			assertEquals(expectedSignal.getEntry(k), decodedSignal.getEntry(k), TestUtils.DELTA);
+			String msg = String.format("Error decoding message at scale %d", scale);
+			assertEquals(msg, expectedSignal.getEntry(k), decodedSignal.getEntry(k), TestUtils.DELTA);
 		}
 	
 		// Convert the signal to and image

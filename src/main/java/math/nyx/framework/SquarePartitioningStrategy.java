@@ -173,11 +173,9 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 
 	@Override
 	public int getPaddedDimension(Signal signal) {
-		// Pad the signal to the closest integer of the form (2^k)^2
-		double root = Math.sqrt(signal.getDimension());
-		int k = (int)Math.ceil(Math.log(root) / Math.log(2));
+		// Pad the signal to the closest integer of the form k^2
+		int k = (int)Math.ceil(Math.sqrt(signal.getDimension()));
 		k = Math.max(k, 2);
-		int power_of_two = (int)Math.pow(2, k);
-		return power_of_two * power_of_two;
+		return k * k;
 	}
 }
