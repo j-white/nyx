@@ -16,6 +16,7 @@ import math.nyx.utils.TestUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.SerializationUtils;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -24,6 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
 public class ImageEncodeDecodeTest {
 	@Autowired
+	@Qualifier("imageCodec")
 	private FractalEncoder fractalEncoder;
 
 	private BufferedImage createImage(int size) {

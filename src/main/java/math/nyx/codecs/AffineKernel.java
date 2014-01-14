@@ -6,23 +6,10 @@ import org.springframework.util.Assert;
 import math.nyx.framework.Kernel;
 import math.nyx.framework.SignalBlock;
 
-
 public class AffineKernel implements Kernel {
 	@Override
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock) {
-		AffineTransform bestTransform = null;
-		for (Symmetry symmetry : Symmetry.values()) {
-			AffineTransform transform = encode(domainBlock, rangeBlock, symmetry);
-			if (transform.compareTo(bestTransform) < 0) {
-				bestTransform = transform;
-			}
-			
-			// If the distance is identically zero, don't try and find a "better" transform
-			if (transform.getDistance() == 0.0) {
-				break;
-			}
-		}
-		return bestTransform;
+		return encode(domainBlock, rangeBlock, true);
 	}
 
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, Symmetry symmetry) {
@@ -70,5 +57,27 @@ public class AffineKernel implements Kernel {
 		double R = one_over_n * (sum_squared_bis + s*u + o*v);
 		return new AffineTransform(domainBlock.getIndex(), rangeBlock.getIndex(),
 				Math.sqrt(Math.abs(R)), s, o, symmetry);
+	}
+
+	@Override
+	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock,
+			boolean permute) {
+		if (permute) {
+			AffineTransform bestTransform = null;
+			for (Symmetry symmetry : Symmetry.values()) {
+				AffineTransform transform = encode(domainBlock, rangeBlock, symmetry);
+				if (transform.compareTo(bestTransform) < 0) {
+					bestTransform = transform;
+				}
+				
+				// If the distance is identically zero, don't try and find a "better" transform
+				if (transform.getDistance() == 0.0) {
+					break;
+				}
+			}
+			return bestTransform;
+		} else {
+			return encode(domainBlock, rangeBlock, Symmetry.ORIGINAL);
+		}
 	}
 }

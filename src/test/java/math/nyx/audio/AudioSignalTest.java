@@ -21,9 +21,9 @@ import org.springframework.util.SerializationUtils;
 public class AudioSignalTest {
 	private void testAudioSignalConversion(Resource audioFile) throws IOException, UnsupportedAudioFileException {
 		// Encode the audio into a signal
-		AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile.getInputStream());
-		AudioSignal signal = new AudioSignal(audioStream);
-		
+		AudioSignal signal = new AudioSignal(audioFile.getInputStream());
+		AudioInputStream audioStream = signal.getAudioStream();
+
 		// Serialize and de-serialize the signal
 		byte[] signalAsBytes = SerializationUtils.serialize(signal);
 		signal = (AudioSignal)SerializationUtils.deserialize(signalAsBytes);

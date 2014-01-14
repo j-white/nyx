@@ -1,9 +1,16 @@
 package math.nyx.audio;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
+import javax.sound.sampled.AudioFileFormat.Type;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import math.nyx.core.Signal;
 
@@ -29,6 +36,10 @@ public class AudioSignal extends Signal {
 		this.metadata = metadata;
 	}
 
+	public AudioSignal(InputStream is) throws IOException, UnsupportedAudioFileException {
+		this(AudioSystem.getAudioInputStream(is));
+	}
+
 	public AudioInputStream getAudioStream() {
 		RealMatrix x = getVector();
 		int size = x.getRowDimension();
@@ -42,6 +53,10 @@ public class AudioSignal extends Signal {
 		return new AudioInputStream(bis, metadata.getFormat(), metadata.getFrameLength());
 	}
 
+	public AudioMetadata getMetadata() {
+		return metadata;
+	}
+
 	private static RealMatrix audioStreamToVector(AudioInputStream audioIs) throws IOException  {
 		int size = audioIs.available();
 		byte[] b = new byte[size];
@@ -53,5 +68,21 @@ public class AudioSignal extends Signal {
 		}
 
 		return x;
+	}
+
+	public static void writeToFile(AudioSignal originalSignal, Signal decodedSignal, int scale, File file) throws IOException {
+		AudioFormat audioFormat = originalSignal.getMetadata().getFormat(scale);
+		long frameLength = originalSignal.getMetadata().getFrameLength() * scale;
+		AudioMetadata audioMetadata = new AudioMetadata(audioFormat, frameLength);
+		
+		System.out.printf("Size: %d Size scaled: %d Metadata: %s", originalSignal.getDimension(), decodedSignal.getDimension(), audioMetadata);
+
+		AudioSignal decodedAudioSignal = new AudioSignal(decodedSignal, audioMetadata);
+		FileOutputStream fos = new FileOutputStream(file);
+		try{
+			AudioSystem.write(decodedAudioSignal.getAudioStream(), Type.WAVE, fos);
+		} finally {
+			fos.close();
+		}
 	}
 }

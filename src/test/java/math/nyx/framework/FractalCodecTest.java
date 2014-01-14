@@ -9,6 +9,7 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -16,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
 public class FractalCodecTest {
 	@Autowired
+	@Qualifier("imageCodec")
 	private FractalCodec fractalCodec;
 
 	public static Signal generateConstantSignal(final int dimension, final double value) {

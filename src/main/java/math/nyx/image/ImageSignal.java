@@ -5,6 +5,11 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DataBufferUShort;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
@@ -37,6 +42,10 @@ public class ImageSignal extends Signal {
 		this.metadata = metadata;
 	}
 
+	public ImageSignal(InputStream is) throws IOException {
+		this(ImageIO.read(is));
+	}
+
 	@Override
 	public int getNumChannels() {
 		return metadata.getNumComponents();
@@ -45,7 +54,7 @@ public class ImageSignal extends Signal {
 	public ImageMetadata getMetadata() {
 		return metadata;
 	}
-	
+
 	public BufferedImage getImage() {
 		BufferedImage img = new BufferedImage(metadata.getWidth(), metadata.getHeight(), metadata.getType());
 		DataBuffer dataBuffer = img.getRaster().getDataBuffer();
@@ -134,5 +143,18 @@ public class ImageSignal extends Signal {
 		}
 		
 		return x;
+	}
+
+	public static void writeToFile(ImageSignal originalSignal, Signal decodedSignal, int scale, File file) throws IOException {
+		ImageMetadata originalImageMetadata = originalSignal.getMetadata();
+		int originalWidth = originalImageMetadata.getWidth();
+		int originalHeight = originalImageMetadata.getHeight();
+		int originalType = originalImageMetadata.getType();
+		int orginalNumComponents = originalImageMetadata.getNumComponents();
+
+		ImageMetadata imageMetadata = new ImageMetadata(originalWidth * scale, originalHeight * scale,
+														originalType, orginalNumComponents);
+		ImageSignal decodedImageSignal = new ImageSignal(decodedSignal, imageMetadata);
+		ImageIO.write(decodedImageSignal.getImage(), "png", file);
 	}
 }

@@ -12,6 +12,8 @@ import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
+import com.google.common.base.Objects;
+
 import math.nyx.core.Fractal;
 import math.nyx.core.FractalDecoder;
 import math.nyx.core.FractalEncoder;
@@ -26,6 +28,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	private PartitioningStrategy partitioningStrategy;
 	private DecimationStrategy decimationStrategy;
 	private String name;
+	private boolean permute;
 
 	public Fractal encode(Signal signal) {
 		// Pad the signal to a size that is supported by the partitioning strategy
@@ -84,7 +87,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	    List<Future<Transform>> futures = new ArrayList<Future<Transform>>();
 	    for (SignalBlock rangeBlock : rangeBlocks) {
-	    	Callable<Transform> worker = new Worker(rangeBlock, kernel, decimatedDomainBlocks);
+	    	Callable<Transform> worker = new Worker(rangeBlock, kernel, decimatedDomainBlocks, permute);
 	    	Future<Transform> future = executor.submit(worker);
 	    	futures.add(future);
 	    }
@@ -110,18 +113,21 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		private final SignalBlock rangeBlock;
 		private final Kernel kernel;
 		private final List<SignalBlock> decimatedDomainBlocks;
+		private final boolean permute;
 
-		public Worker(SignalBlock rangeBlock, Kernel kernel, List<SignalBlock> decimatedDomainBlocks) {
+		public Worker(SignalBlock rangeBlock, Kernel kernel, List<SignalBlock> decimatedDomainBlocks, boolean permute) {
 			this.rangeBlock = rangeBlock;
 			this.kernel = kernel;
 			this.decimatedDomainBlocks = decimatedDomainBlocks;
+			this.permute = permute;
 		}
 
 		@Override
 		public Transform call() throws Exception {
 			Transform bestTransform = null;
 			for (SignalBlock domainBlock : decimatedDomainBlocks) {
-				Transform transform = kernel.encode(domainBlock, rangeBlock);
+				// TODO: permute flag should be elsewhere
+				Transform transform = kernel.encode(domainBlock, rangeBlock, permute);
 				if (transform.compareTo(bestTransform) < 0) {
 					bestTransform = transform;
 				}
@@ -254,5 +260,19 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 
 	public String getName() {
 		return name;
+	}
+
+	public void setPermute(boolean permute) {
+		this.permute = permute;
+	}
+
+	public boolean getPermute() {
+		return permute;
+	}
+	
+	public String toString() {
+	    return Objects.toStringHelper(this.getClass())
+	    		.add("name", getName())
+	            .toString();
 	}
 }

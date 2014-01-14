@@ -21,7 +21,6 @@ import javax.swing.JPanel;
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 import math.nyx.core.Transform;
-import math.nyx.framework.FractalCodec;
 import math.nyx.framework.PartitioningStrategy;
 import math.nyx.framework.SquarePartitioningStrategy;
 import math.nyx.image.ImageMetadata;
@@ -32,7 +31,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -41,8 +39,8 @@ public class NyxInteractive extends JFrame {
 	private static final long serialVersionUID = 5018791893607216653L;
 	private static Log LOG = LogFactory.getLog(NyxInteractive.class);
 	
-	@Autowired
-	private FractalCodec fractalCodec;
+	//@Autowired
+	//private FractalCodec fractalCodec;
 	
 	private ApplicationContext context;
 

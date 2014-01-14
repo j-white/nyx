@@ -18,10 +18,20 @@
 
 	<bean id="squareDecimationStrategy" class="math.nyx.framework.SquareDecimationStrategy"/>
 
-	<bean id="affineFractalCodec" class="math.nyx.framework.FractalCodec">
-		<property name="name" value="affineFractalCodec" />
+	<bean id="imageCodec" class="math.nyx.framework.FractalCodec">
+		<property name="name" value="imageCodec" />
 		<property name="kernel" ref="affineKernel" />
 		<property name="partitioningStrategy" ref="squarePartitioningStrategy" />
 		<property name="decimationStrategy" ref="squareDecimationStrategy" />
 	</bean>
+
+	<bean id="audioCodec" class="math.nyx.framework.FractalCodec">
+		<property name="name" value="audioCodec" />
+		<property name="kernel" ref="affineKernel" />
+		<property name="partitioningStrategy" ref="linearPartitioningStrategy" />
+		<property name="decimationStrategy" ref="averagingDecimationStrategy" />
+	</bean>
+
+	<bean id="fractalFactory" class="math.nyx.core.FractalFactory"></bean>
+
 </beans>

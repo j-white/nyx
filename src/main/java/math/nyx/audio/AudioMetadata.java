@@ -6,6 +6,8 @@ import java.util.Map;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioFormat.Encoding;
 
+import com.google.common.base.Objects;
+
 public class AudioMetadata implements Serializable {
 	private static final long serialVersionUID = 6282613034251062575L;
 
@@ -35,11 +37,23 @@ public class AudioMetadata implements Serializable {
 	}
 
 	public AudioFormat getFormat() {
-		return new AudioFormat(new Encoding(formatEncodingAsStr), formatSampleRate, formatSampleSizeInBits, formatChannels,
-				formatFrameSize, formatFrameRate, formatIsBigEndian, formatProperties);
+		return getFormat(1);
 	}
 
+	public AudioFormat getFormat(int scale) {
+		return new AudioFormat(new Encoding(formatEncodingAsStr), formatSampleRate, formatSampleSizeInBits * scale, formatChannels,
+				formatFrameSize, formatFrameRate, formatIsBigEndian, formatProperties);
+	}
+	
 	public long getFrameLength() {
 		return frameLength;
+	}
+
+	@Override
+	public String toString() {
+	    return Objects.toStringHelper(this.getClass())
+	    		.add("format", getFormat())
+	    		.add("frameLength", getFrameLength())
+	            .toString();
 	}
 }

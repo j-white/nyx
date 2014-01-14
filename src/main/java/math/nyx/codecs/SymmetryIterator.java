@@ -5,11 +5,12 @@ import java.util.Iterator;
 import org.springframework.util.Assert;
 
 public class SymmetryIterator implements Iterator<Double> {
-	double data[];
-	int a, b, c, d;
+	private double data[];
 	final int n, N;
-	int i, j, k;
-	Symmetry symmetry;
+	private Symmetry symmetry;
+	
+	private int a, b;
+	private int i, j, k;
 
 	/*
 	 * Determines which cell to pull from the vector based on the symmetry
@@ -36,9 +37,6 @@ public class SymmetryIterator implements Iterator<Double> {
 			j = 0;
 			i++;
 		}
-
-		c = i;
-		d = j;
 
 		switch (symmetry) {
 		case ORIGINAL:

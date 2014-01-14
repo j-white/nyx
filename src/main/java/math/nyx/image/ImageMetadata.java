@@ -2,6 +2,8 @@ package math.nyx.image;
 
 import java.io.Serializable;
 
+import com.google.common.base.Objects;
+
 public class ImageMetadata implements Serializable {
 	private static final long serialVersionUID = -6662522469914219075L;
 	private final int width;
@@ -30,5 +32,15 @@ public class ImageMetadata implements Serializable {
 
 	public int getNumComponents() {
 		return numComponents;
+	}
+
+	@Override
+	public String toString() {
+	    return Objects.toStringHelper(this.getClass())
+	    		.add("width", getWidth())
+	    		.add("heigth", getHeight())
+	    		.add("type", getType())
+	    		.add("numComponents", getNumComponents())
+	            .toString();
 	}
 }
