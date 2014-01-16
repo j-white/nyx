@@ -1,6 +1,8 @@
 package math.nyx.codecs;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
@@ -93,5 +95,10 @@ public class AffineTransform extends AbstractTransform {
 	            .add("scale", scale)
 	            .add("offset", offset)
 	            .add("symmetry", symmetry);
+	}
+
+	@Override
+	public Map<String, Double> getKernelParameters() {
+		return new HashMap<String, Double>();
 	}
 }

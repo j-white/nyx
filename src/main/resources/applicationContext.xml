@@ -33,5 +33,9 @@
 	</bean>
 
 	<bean id="fractalFactory" class="math.nyx.core.FractalFactory"></bean>
+	
+	<bean id="signalFactory" class="math.nyx.core.SignalFactory"></bean>
+	
+	<bean id="nyx" class="math.nyx.Nyx"/>
 
 </beans>

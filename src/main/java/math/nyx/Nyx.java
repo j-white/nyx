@@ -1,108 +1,136 @@
 package math.nyx;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import math.nyx.core.Fractal;
-import math.nyx.core.FractalEncoder;
 import math.nyx.core.FractalFactory;
 import math.nyx.core.Signal;
-import math.nyx.image.ImageSignal;
-import math.nyx.utils.Utils;
+import math.nyx.core.SignalFactory;
+import math.nyx.core.Transform;
+import math.nyx.framework.AffineFractalCodec;
+import math.nyx.framework.FractalCodec;
+import math.nyx.framework.PartitioningStrategy;
+import math.nyx.report.FractalCodecReport;
 
+import org.apache.commons.math.linear.RealMatrix;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
- 
+import org.springframework.util.SerializationUtils;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Stopwatch;
+
 public class Nyx {
+	private static Logger logger = LogManager.getLogger("Nyx");
+
+	@Autowired
+	public SignalFactory signalFactory;
+
 	@Autowired
 	private FractalFactory fractalFactory;
- 
-	private ApplicationContext context;
 
-	public static void main(String[] args) {
-		Nyx nyx = new Nyx();
-		nyx.main();
-	}
+	@SuppressWarnings("unused")
+	public FractalCodecReport encodeDecode(File signalSource, Set<Integer> scales, File outputDirectory, Boolean forceEncode) {
+		logger.info("Encoding \"{}\" into a signal.", signalSource.getAbsolutePath());
+		Signal sourceSignal = signalFactory.getSignalFor(signalSource);
 
-	public Nyx() {
-		context = new ClassPathXmlApplicationContext("applicationContext.xml");
-		AutowireCapableBeanFactory nyxFactory = context.getAutowireCapableBeanFactory();
-		nyxFactory.autowireBean(this);
-	}
+		File fractalFile = new File(outputDirectory, String.format("%s-fractal.nyx", signalSource.getName()));
+		
 
-	private void main() {
-		final String fileName = "lena-gray.png";
-		Fractal fractal = null;
+		Stopwatch encodingStopwatch = Stopwatch.createStarted();
+		Fractal fractal = encode(sourceSignal, fractalFile, !forceEncode);
+		encodingStopwatch.stop();
 
-		// Retrieve the signal from the file	
-		Signal sourceSignal = null;
-		Resource fileAsResource = new ClassPathResource("math/nyx/resources/" + fileName);
-		try {
-			sourceSignal = new ImageSignal(fileAsResource.getInputStream());
-			//sourceSignal = new AudioSignal(fileAsResource.getInputStream());
-		} catch (IOException ex) {
-			System.err.println("Failed to read signal from disk.");
-			ex.printStackTrace();
-			System.exit(1);
+		// Decode as 1x
+		logger.info("Decoding {} at 1x.", fractal);
+		Stopwatch decodingStopwatch = Stopwatch.createStarted();
+		Signal decodedSignal = decode(fractal, 1, signalSource);
+		decodingStopwatch.stop();
+
+		// Fractal details
+		FractalCodec codec = fractal.getCodec();
+		PartitioningStrategy partitioner = fractal.getPartitioner();
+
+		Map<String, Object> stats = new HashMap<String, Object>();
+		stats.put("secondsToEncode", encodingStopwatch.elapsed(TimeUnit.SECONDS));
+		stats.put("secondsToDecode", decodingStopwatch.elapsed(TimeUnit.SECONDS));
+		stats.put("PSNR", sourceSignal.getPSNR(decodedSignal));
+
+		stats.put("signalSourceSizeInBytes", signalSource.length());
+		stats.put("signalSizeInBytes", SerializationUtils.serialize(sourceSignal).length);
+		stats.put("fractalSizeInBytes", SerializationUtils.serialize(fractal).length);
+
+		stats.put("signalDimension", decodedSignal.getDimension());
+		stats.put("rangeDimension", partitioner.getRangeDimension());
+		stats.put("numRangePartitions", partitioner.getNumRangePartitions());
+		stats.put("domainDimension", partitioner.getDomainDimension());
+		stats.put("sizeOfDomainPool", partitioner.getNumDomainPartitions());
+		stats.put("numDomainPartitions",  partitioner.getNumDomainPartitions());
+		stats.put("numTransforms", fractal.getTransforms().size());
+
+		if (codec instanceof AffineFractalCodec) {
+			AffineFractalCodec affineCodec = (AffineFractalCodec)codec;
+			
+			RealMatrix L = affineCodec.getLMatrix();
+			RealMatrix t = affineCodec.getTMatrix();
 		}
 
-		// Try and load the fractal from disk before encoding
-		try {
-			fractal = Utils.loadFractalFromDisk(fileName);
-		} catch (IOException pass) {
-			// Encode the signal into a fractal
-			FractalEncoder fractalEncoder = fractalFactory.getEncoderFor(sourceSignal);
-			
-			System.out.printf("Encoding signal of dimension %d with %s.\n",
-					sourceSignal.getDimension(), fractalEncoder);
-			fractal = fractalEncoder.encode(sourceSignal);
+		RealMatrix D = codec.getDecimationOperator(partitioner);
+		
+		for (Transform t : fractal.getTransforms()) {
+			int d_i = t.getDomainBlockIndex();
+			int r_i = t.getRangeBlockIndex();
+			double distance = t.getDistance();
+			String kernelParameters = Joiner.on(" ").withKeyValueSeparator(":").join(t.getKernelParameters());
 
-			// Serialize the fractal
-		    try (
-				OutputStream file = new FileOutputStream(String.format("%s-fractal.nyx", fileName));
-				OutputStream buffer = new BufferedOutputStream(file);
-				ObjectOutput output = new ObjectOutputStream(buffer);
-		    ){
-		    	output.writeObject(fractal);
-			}
-		    catch(IOException ex){
-		    	System.err.println("Failed to save fractal to disk.");
-		    	ex.printStackTrace();
-		    	System.exit(1);
+			RealMatrix F_d_i = partitioner.getDomainFetchOperator(d_i);
+			RealMatrix P_r_i = partitioner.getPutOperator(r_i);
+		}
+
+		// Decode at additional scales
+		for (int scale : scales) {
+			File signalFile = new File(outputDirectory, String.format("decoded-%dx-%s", scale, signalSource.getName()));
+			decode(fractal, scale, signalFile);
+		}
+
+		return new FractalCodecReport();
+	}
+
+	public Fractal encode(Signal signal, File fractalOnDisk, boolean useExisting) {
+		Fractal fractal = null;
+		if (useExisting) {
+			try {
+				fractal = Fractal.load(fractalOnDisk);
+				logger.info("Using existing fractal from disk: {} .", fractalOnDisk);
+			} catch (IOException pass) { }
+		}
+
+		FractalCodec codec = fractalFactory.getCodecFor(signal);
+		if (fractal == null) {
+			logger.info("Encoding fractal for {} .", signal);
+			fractal = codec.encode(signal);
+
+			// Persist
+		    try {
+		    	fractal.write(fractalOnDisk);
+			} catch(IOException ex) {
+		    	logger.error("Failed to save fractal to disk.", ex);
 		    }
 		}
-		
-		//System.out.println("Encoded fractal: " + fractal);
 
-	    // Decode at varying scales
-	    int scales[] = {1, 2, 3, 4, 5, 6, 7, 8, 16};
-	    for (int scale : scales) {
-			System.out.printf("\nDecoding at %dx ...\n", scale);
-			
-			// Decode the fractal to a signal
-			// FIXME: Should be not need to change based on the signal type
-			Signal decodedSignal = fractal.decode(scale * scale);
+		return fractal;
+	}
 
-			// Write the signal o disk
-			File outputfile = new File(String.format("decoded-%dx-%s", scale, fileName));
-			try {
-				ImageSignal.writeToFile((ImageSignal)sourceSignal, decodedSignal, scale, outputfile);
-				//AudioSignal.writeToFile((AudioSignal)sourceSignal, decodedSignal, scale, outputfile);
-			} catch (IOException ex) {
-				System.out.println("Failed to write the signal to disk.");
-				ex.printStackTrace();
-				System.exit(1);
-			}
-	    }
+	public Signal decode(Fractal fractal, int scale, File signalOnDisk) {
+		logger.info("Decoding {} at {}x.", fractal, scale);
+		Signal decodedSignal = fractal.decode(scale);
+		decodedSignal.write(signalOnDisk);
+		return decodedSignal;
 	}
 }

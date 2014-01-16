@@ -225,7 +225,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		return new Signal(fractal, x);
 	}
 
-	private SparseRealMatrix getDecimationOperator(PartitioningStrategy partitioner) {
+	public SparseRealMatrix getDecimationOperator(PartitioningStrategy partitioner) {
 		return decimationStrategy.getDecimationOperator(partitioner.getRangeDimension(),
 				partitioner.getDomainDimension());
 	}

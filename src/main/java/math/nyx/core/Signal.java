@@ -1,5 +1,6 @@
 package math.nyx.core;
 
+import java.io.File;
 import java.io.Serializable;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
@@ -102,5 +103,13 @@ public class Signal implements Serializable {
 	    		.add("numChannels", getNumChannels())
 	            .add("vector", getVector())
 	            .toString();
+	}
+
+	public void write(File file) {
+		// TODO Auto-generated method stub
+	}
+
+	public double getPSNR(Signal signal) {
+		return 0.0;
 	}
 }

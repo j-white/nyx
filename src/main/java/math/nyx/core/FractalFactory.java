@@ -15,12 +15,16 @@ public class FractalFactory {
 	@Qualifier("audioCodec")
 	FractalCodec audioCodec;
 
-	public FractalEncoder getEncoderFor(Signal signal) {
+	public FractalCodec getEncoderFor(Signal signal) {
 		// TODO: Dynamically discover the best type
 		if (signal instanceof AudioSignal) {
 			return audioCodec;
 		} else {
 			return imageCodec;
 		}
+	}
+	
+	public FractalCodec getCodecFor(Signal signal) {
+		return getEncoderFor(signal);
 	}
 }

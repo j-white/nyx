@@ -1,4 +1,4 @@
-package math.nyx;
+package math.nyx.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,24 +19,18 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import math.nyx.codecs.AffineTransform;
-import math.nyx.codecs.Symmetry;
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 import math.nyx.core.Transform;
-import math.nyx.framework.FractalCodec;
 import math.nyx.framework.PartitioningStrategy;
 import math.nyx.framework.SquarePartitioningStrategy;
 import math.nyx.image.ImageMetadata;
 import math.nyx.image.ImageSignal;
-import math.nyx.utils.Utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -43,13 +38,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class NyxInteractive extends JFrame {
 	private static final long serialVersionUID = 5018791893607216653L;
 	private static Log LOG = LogFactory.getLog(NyxInteractive.class);
-	
+
+	private ApplicationContext context;
+/*
 	@Autowired
 	@Qualifier("imageCodec")
 	FractalCodec imageCodec;
-	
-	private ApplicationContext context;
-
 
 	private Fractal getFractal(double t) {
 		int signalDimension = 4*4*4;
@@ -98,7 +92,7 @@ public class NyxInteractive extends JFrame {
 
 		return fractal;
 	}
-	
+*/
 	public NyxInteractive() {
 		super("Nyx: Fractal Image Encoding");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -108,16 +102,15 @@ public class NyxInteractive extends JFrame {
 	}
 
 	private void main() {
-		/*Fractal fractal = null;
+		Fractal fractal = null;
 		final String imageName = "lena-gray.png";
 		try {
-			fractal = Utils.loadFractalFromDisk(imageName);
+			fractal = Fractal.load(new File(String.format("%s-fractal.nyx", imageName)));
 		} catch (IOException ex) {
 			LOG.error(String.format("Failed to open input file: %s. Exiting.", ex));
 			return;
 		}
-		*/
-		Fractal fractal = getFractal(1);
+		//Fractal fractal = getFractal(1);
 
 		// Decode
 		Signal decodedSignal = fractal.decode(1024); //fractal.decode(16384);
