@@ -18,9 +18,12 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import math.nyx.codecs.AffineTransform;
+import math.nyx.codecs.Symmetry;
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 import math.nyx.core.Transform;
+import math.nyx.framework.FractalCodec;
 import math.nyx.framework.PartitioningStrategy;
 import math.nyx.framework.SquarePartitioningStrategy;
 import math.nyx.image.ImageMetadata;
@@ -31,6 +34,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -39,48 +44,60 @@ public class NyxInteractive extends JFrame {
 	private static final long serialVersionUID = 5018791893607216653L;
 	private static Log LOG = LogFactory.getLog(NyxInteractive.class);
 	
-	//@Autowired
-	//private FractalCodec fractalCodec;
+	@Autowired
+	@Qualifier("imageCodec")
+	FractalCodec imageCodec;
 	
 	private ApplicationContext context;
 
-	/*
+
 	private Fractal getFractal(double t) {
-		int T = (int)t;
-		int signalDimension = 512*512;
+		int signalDimension = 4*4*4;
 		int numSignalChannels = 1;
 		
 		Fractal fractal = new Fractal();
 		fractal.setSignalDimension(signalDimension);
-		fractal.setCodecName(fractalCodec.getName());
+		fractal.setCodecName(imageCodec.getName());
 		
-		PartitioningStrategy partitioner = fractalCodec.getPartitioningStrategy().getPartitioner(signalDimension, numSignalChannels, 1);
+		PartitioningStrategy partitioner = imageCodec.getPartitioningStrategy().getPartitioner(signalDimension, numSignalChannels, 1);
 		
 		int D = partitioner.getNumDomainPartitions();
 		int R = partitioner.getNumRangePartitions();
+		System.out.println("Num domains: " + D);
+		System.out.println("Num ranges: " + R);
+
+		int xx = 1, yy = 4, zz = 7;
 		
-		Symmetry symmetries[] = Symmetry.values();
+		// Four corners
+		fractal.addTransform(new AffineTransform(xx, 0, 0.0, 0.5, 30, Symmetry.ORIGINAL));
+		fractal.addTransform(new AffineTransform(xx, 3, 0.0, 0.5, 30, Symmetry.ORIGINAL));
+		fractal.addTransform(new AffineTransform(xx, 12, 0.0, 0.5, 30, Symmetry.ORIGINAL));
+		fractal.addTransform(new AffineTransform(xx, 15, 0.0, 0.5, 30, Symmetry.ORIGINAL));
 
-		for (int r_i = 0; r_i < R; r_i++)  {
-			//double x = Math.random();
-			double x = (double)r_i / R;
-			double y = Math.cos(x);
+		// Middle blocks
+		fractal.addTransform(new AffineTransform(yy, 5, 0.0, 0.4, 25, Symmetry.FLIP));
+		fractal.addTransform(new AffineTransform(yy+1, 10, 0.0, 0.4, 25, Symmetry.FLIP));
+		fractal.addTransform(new AffineTransform(yy+2, 6, 0.0, 0.4, 25, Symmetry.FLIP));
+		fractal.addTransform(new AffineTransform(yy+3, 9, 0.0, 0.4, 25, Symmetry.FLIP));
 
-			int d_i = (int)(x * D) % ((T+1) * 100);
-			double distance = 0;
-			double scale = 1 - y;
-			double offset = x * 20 + 60; // + 10*T;
-
-			Symmetry symmetry = symmetries[r_i % symmetries.length];
-
-			AffineTransform aft = new AffineTransform(d_i, r_i, distance, scale, offset, symmetry);
-			System.out.println(aft);
-			fractal.addTransform(aft);
-		}
+		// Top
+		fractal.addTransform(new AffineTransform(zz, 1, 0.0, 0.5, 30, Symmetry.ROTATE_90_FLIP));
+		fractal.addTransform(new AffineTransform(zz, 2, 0.0, 0.5, 30, Symmetry.ROTATE_90_FLIP));
+		
+		// Left
+		fractal.addTransform(new AffineTransform(zz, 4, 0.0, 0.5, 30, Symmetry.ROTATE_180));
+		fractal.addTransform(new AffineTransform(zz, 8, 0.0, 0.5, 30, Symmetry.ROTATE_180));
+		
+		// Right
+		fractal.addTransform(new AffineTransform(zz, 7, 0.0, 0.5, 30, Symmetry.ORIGINAL));
+		fractal.addTransform(new AffineTransform(zz, 11, 0.0, 0.5, 30, Symmetry.ORIGINAL));
+		
+		// Bottom
+		fractal.addTransform(new AffineTransform(zz, 13, 0.0, 0.5, 30, Symmetry.ORIGINAL));
+		fractal.addTransform(new AffineTransform(zz, 14, 0.0, 0.5, 30, Symmetry.ORIGINAL));
 
 		return fractal;
 	}
-	*/
 	
 	public NyxInteractive() {
 		super("Nyx: Fractal Image Encoding");
@@ -91,7 +108,7 @@ public class NyxInteractive extends JFrame {
 	}
 
 	private void main() {
-		Fractal fractal = null;
+		/*Fractal fractal = null;
 		final String imageName = "lena-gray.png";
 		try {
 			fractal = Utils.loadFractalFromDisk(imageName);
@@ -99,9 +116,11 @@ public class NyxInteractive extends JFrame {
 			LOG.error(String.format("Failed to open input file: %s. Exiting.", ex));
 			return;
 		}
+		*/
+		Fractal fractal = getFractal(1);
 
 		// Decode
-		Signal decodedSignal = fractal.decode();
+		Signal decodedSignal = fractal.decode(1024); //fractal.decode(16384);
 		
 		// Assume the signal is a square gray-scale image
 		int imageWidth = (int)Math.sqrt(decodedSignal.getDimension());
