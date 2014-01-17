@@ -19,8 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
 public class AffineKernelTest {
-	@Autowired
-	private AffineKernel affineKernel;
+	private AffineKernel affineKernel = new AffineKernel();
 
 	@Autowired
 	private SquareDecimationStrategy decimationStrategy;
