@@ -5,6 +5,7 @@
 \usepackage{enumerate}
 \usepackage{fancyhdr}
 \usepackage{mathrsfs}
+\usepackage{graphicx}
 \usepackage[margin=3cm]{geometry}
 \setlength{\parindent}{0.0in}
 \setlength{\parskip}{0.05in}
@@ -18,51 +19,35 @@
 
 \begin{document}
 
-\section{Results}
+\section{Source}
 
-**Original** 
+\begin{center}
+\includegraphics[width=250px]{${report.sourceFile.name}}
+\end{center}
 
-512 x 512 pixels (Grayscale)
+Signal type: ${report.signalType}
 
-\vspace{5 mm}
-
-**Decoded**
-
-512 x 512 pixels with PSNR = 24.26 db
-
-\vspace{5 mm}
-
-**Scaled**
-
-1024 x 1024 pixels
+Signal dimension: ${report.signalDimension}
 
 \section{Encoding/Decoding Summary}
 
-Seconds to encode: 244s
+Seconds to encode: ${report.secondsToEncode}s
 
 Seconds to decode at 1x: 2525s
 
 Seconds to decode at 4x: 234234s
 
-Size of signal in bytes: 234234234
+Size of signal in bytes: ${report.sizeOfSignalInBytes}
 
-Size of fractal in bytes: 234234
+Size of fractal in bytes: ${report.sizeOfFractalInBytes}
 
 \section{Fractal Summary}
 
-Signal dimension: 262144
+Range dimension: ${report.rangeDimension}
 
-Range dimension: 64
+Domain dimension: ${report.domainDimension}
 
-Domain dimension: 128
-
-Number of transforms: 4096
-
-\vspace{5 mm}
-
-Lipshitchz factor: 0.2545
-
-Fractal dimension: 1.2
+Number of transforms: ${report.numTransforms}
 
 \section{Fractal Details}
 
@@ -122,22 +107,7 @@ $Tx = Lx + t$ where
 \begin{align*}
  D = 
  \begin{bmatrix}
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
-  1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16
+  ${helper.matrixToTex(report.decimationOperator)}
  \end{bmatrix}
 \end{align*}
 

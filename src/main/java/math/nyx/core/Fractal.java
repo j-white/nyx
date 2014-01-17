@@ -24,6 +24,7 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.util.SerializationUtils;
 
 import com.google.common.base.Objects;
 
@@ -169,6 +170,10 @@ public class Fractal implements Serializable {
 			logger.error("Could not create signal from vector.", ex);
 			throw new RuntimeException("Could not create signal from vector.", ex);
 		}
+	}
+
+	public long getSizeInBytes() {
+		return SerializationUtils.serialize(this).length;
 	}
 
 	@Override

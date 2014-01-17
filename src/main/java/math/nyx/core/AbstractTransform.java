@@ -1,6 +1,5 @@
 package math.nyx.core;
 
-
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 

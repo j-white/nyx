@@ -49,6 +49,7 @@ public class Nyx {
 		// Save everything we have so far in the report
 		FractalCodecReport report = new FractalCodecReport();
 		report.setSourceFile(sourceFile);
+		report.setSourceSignal(sourceSignal);
 		report.setFractal(fractal);
 		report.setSecondsToEncode(encodingStopwatch.elapsed(TimeUnit.SECONDS));
 

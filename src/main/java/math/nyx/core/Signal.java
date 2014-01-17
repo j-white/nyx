@@ -33,6 +33,9 @@ public abstract class Signal implements Serializable {
 		this.numChannels = fractal.getNumSignalChannels();
 	}
 
+	/** Used to identify the type of the signal in a report. */
+	public abstract String getType();
+
 	public abstract SignalMetadata getMetadata();
 
 	public abstract double getMinVal();

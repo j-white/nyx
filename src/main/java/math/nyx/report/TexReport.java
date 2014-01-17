@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.math.linear.RealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +32,7 @@ public abstract class TexReport {
 		Template template = cfg.getTemplate(getTemplate());
 		Map<String, Object> input = new HashMap<String, Object>();
 		input.put("report", this);
+		input.put("helper", new TexHelper());
 
 	    try (
 	    	Writer fileWriter = new FileWriter(file);
@@ -39,5 +41,30 @@ public abstract class TexReport {
 	    } catch (TemplateException ex) {
 	    	logger.error("Template error.", ex);
         }
+	}
+
+	public static class TexHelper {
+		public String matrixToTex(RealMatrix m) {
+			StringBuilder sb = new StringBuilder();
+			int N = m.getRowDimension();
+			int M = m.getColumnDimension();
+			
+			N = Math.min(24, N);
+			M = Math.min(24, M);
+			
+			for (int i = 0; i < N; i++) {
+				for (int j = 0; j < M; j++) {
+					sb.append(m.getEntry(i, j));
+					if (j < (M-1)) {
+						sb.append(" & ");
+					}
+				}
+				if (i < (N-1)) {
+					sb.append(" \\\\\n");
+				}
+			}
+
+			return sb.toString();
+		}
 	}
 }

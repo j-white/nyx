@@ -20,6 +20,8 @@ import org.apache.commons.math.linear.RealMatrix;
 public class AudioSignal extends Signal {
 	private static final long serialVersionUID = 2184407289543087741L;
 
+	public static final String TYPE = "Audio";
+
 	private final AudioMetadata metadata;
 
 	public AudioSignal(Fractal fractal, RealMatrix decodedVector, AudioMetadata metadata) {
@@ -58,6 +60,10 @@ public class AudioSignal extends Signal {
 		return new AudioInputStream(bis, metadata.getFormat(), metadata.getFrameLength());
 	}
 
+	public String getType() {
+		return TYPE;
+	}
+
 	public AudioMetadata getMetadata() {
 		return metadata;
 	}
@@ -76,16 +82,6 @@ public class AudioSignal extends Signal {
 	}
 
 	@Override
-	public void write(File file) throws IOException {
-		FileOutputStream fos = new FileOutputStream(file);
-		try{
-			AudioSystem.write(getAudioStream(), Type.WAVE, fos);
-		} finally {
-			fos.close();
-		}
-	}
-
-	@Override
 	public double getMinVal() {
 		return 0;
 	}
@@ -93,5 +89,15 @@ public class AudioSignal extends Signal {
 	@Override
 	public double getMaxVal() {
 		return Double.MAX_VALUE;
+	}
+
+	@Override
+	public void write(File file) throws IOException {
+		FileOutputStream fos = new FileOutputStream(file);
+		try {
+			AudioSystem.write(getAudioStream(), Type.WAVE, fos);
+		} finally {
+			fos.close();
+		}
 	}
 }

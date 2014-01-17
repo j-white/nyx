@@ -2,6 +2,7 @@ package math.nyx;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import math.nyx.image.ImageSignal;
 import math.nyx.report.FractalCodecReport;
 import math.nyx.report.FractalCodecReport.DecodeReport;
 
@@ -61,6 +63,12 @@ public class NyxRunnerTest {
 
 		// Generate the report via the main function
 		FractalCodecReport report = getReportFor(sourceFile);
+	
+		// Verify basic properties
+		assertEquals(sourceFile, report.getSourceFile());
+		assertEquals(ImageSignal.TYPE, report.getSignalType());
+		assertEquals(32*32, report.getSignalDimension());
+		assertTrue(report.getSizeOfSignalInBytes() > 0);
 
 		// We should have two decode reports with scales 1 and 4
 		List<DecodeReport> decodeReports = report.getDecodeReports();

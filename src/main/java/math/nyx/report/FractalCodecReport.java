@@ -8,6 +8,7 @@ import java.util.Map;
 
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
+import math.nyx.core.Transform;
 import math.nyx.report.FractalCodecReport.DecodeReport;
 
 import org.apache.commons.math.linear.RealMatrix;
@@ -19,34 +20,95 @@ import org.apache.commons.math.linear.RealMatrix;
 public class FractalCodecReport extends TexReport {
 	public static final String TEMPLATE = "fractalCodecReport.tex.tpl";
 
+	@Override
+	public String getTemplate() {
+		return TEMPLATE;
+	}
+
 	/* Source and signal summary */
 
-	private URL sourceUrl;
+	private File sourceFile;
 
-	private String signalType;
+	private Signal sourceSignal;
 
-	private int signalDimension;
-	
-	private long sizeOfSignalInBytes;
+	public void setSourceFile(File sourceFile) {
+		this.sourceFile = sourceFile;
+	}
+
+	public void setSourceSignal(Signal sourceSignal) {
+		this.sourceSignal = sourceSignal;
+	}
+
+	public File getSourceFile() {
+		return sourceFile;
+	}
+
+	public Signal getSourceSignal() {
+		return sourceSignal;
+	}
+
+	public String getSignalType() {
+		return sourceSignal.getType();
+	}
+
+	public int getSignalDimension() {
+		return sourceSignal.getDimension();
+	}
+
+	public long getSizeOfSignalInBytes() {
+		return sourceSignal.getSizeInBytes();
+	}
 
 	/* Encoding summary */
 
-	private String codecType;
+	private Fractal fractal;
 
-	private int secondsToEncode;
+	private long secondsToEncode;
 
-	private long sizeOfFractalInBytes;
-	
-	private int rangeDimension;
-	
-	private int numRangePartitions;
-	
-	private int domainDimension;
-	
-	private int numDomainPartitions;
+	public void setFractal(Fractal fractal) {
+		this.fractal = fractal;
+	}
 
-	private int numTransforms;
-	
+	public void setSecondsToEncode(long secondsToEncode) {
+		this.secondsToEncode = secondsToEncode;
+	}
+
+	public Fractal getFractal() {
+		return fractal;
+	}
+
+	public long getSecondsToEncode() {
+		return secondsToEncode;
+	}
+
+	public long getSizeOfFractalInBytes() {
+		return fractal.getSizeInBytes();
+	}
+
+	public String getCodecName() {
+		return fractal.getCodecName();
+	}
+
+	public int getRangeDimension() {
+		return fractal.getPartitioner().getRangeDimension();
+	}
+
+	public int getDomainDimension() {
+		return fractal.getPartitioner().getDomainDimension();
+	}
+
+	public int getNumRangePartitions() {
+		return fractal.getPartitioner().getNumRangePartitions();
+	}
+
+	public int getNumDomainPartitions() {
+		return fractal.getPartitioner().getNumDomainPartitions();
+	}
+
+	public int getNumTransforms() {
+		return fractal.getTransforms().size();
+	}
+
 	/* Operators */
 	
 	private Map<Integer, Integer> rangeToDomainMap;
@@ -54,19 +116,18 @@ public class FractalCodecReport extends TexReport {
 	private List<RealMatrix> rangeFetchOperators;
 	
 	private Map<Integer, RealMatrix> domainFetchOperators;
-
-	private RealMatrix decimationOperator;
-	
-	private Map<Integer, Kernel> kernels;
 	
 	private List<RealMatrix> putOperators;
 
-	private static class Kernel {
-		String type;
-		
-		Map<String, Double> parameters;
+	public RealMatrix getDecimationOperator() {
+		return fractal.getCodec().getDecimationOperator(fractal.getPartitioner());
 	}
-	
+
+	public List<Transform> getTransforms() {
+		// Joiner.on(" ").withKeyValueSeparator(":").join(t.getKernelParameters());
+		return fractal.getTransforms();
+	}
+
 	/* Decoded summary */
 
 	private List<DecodeReport> decodeReports = new ArrayList<DecodeReport>();
@@ -114,79 +175,15 @@ public class FractalCodecReport extends TexReport {
 		}
 	}
 
-	private void wow() {
-		/*
-		// Fractal details
-		FractalCodec codec = fractal.getCodec();
-		PartitioningStrategy partitioner = fractal.getPartitioner();
-
-		Map<String, Object> stats = new HashMap<String, Object>();
-		stats.put("secondsToEncode", );
-		stats.put("secondsToDecode", decodingStopwatch.elapsed(TimeUnit.SECONDS));
-		stats.put("PSNR", sourceSignal.getPSNR(decodedSignal));
-
-		stats.put("signalSourceSizeInBytes", sourceFile.length());
-		stats.put("signalSizeInBytes", SerializationUtils.serialize(sourceSignal).length);
-		stats.put("fractalSizeInBytes", SerializationUtils.serialize(fractal).length);
-
-		stats.put("signalDimension", decodedSignal.getDimension());
-		stats.put("rangeDimension", partitioner.getRangeDimension());
-		stats.put("numRangePartitions", partitioner.getNumRangePartitions());
-		stats.put("domainDimension", partitioner.getDomainDimension());
-		stats.put("sizeOfDomainPool", partitioner.getNumDomainPartitions());
-		stats.put("numDomainPartitions",  partitioner.getNumDomainPartitions());
-		stats.put("numTransforms", fractal.getTransforms().size());
-
-		if (codec instanceof AffineFractalCodec) {
-			AffineFractalCodec affineCodec = (AffineFractalCodec)codec;
-			
-			RealMatrix L = affineCodec.getLMatrix();
-			RealMatrix t = affineCodec.getTMatrix();
-		}
-
-		RealMatrix D = codec.getDecimationOperator(partitioner);
-		
-		for (Transform t : fractal.getTransforms()) {
-			int d_i = t.getDomainBlockIndex();
-			int r_i = t.getRangeBlockIndex();
-			double distance = t.getDistance();
-			String kernelParameters = Joiner.on(" ").withKeyValueSeparator(":").join(t.getKernelParameters());
-
-			RealMatrix F_d_i = partitioner.getDomainFetchOperator(d_i);
-			RealMatrix P_r_i = partitioner.getPutOperator(r_i);
-		}
-
-		// Decode at additional scales
-		for (int scale : scales) {
-			
-			decode(fractal, scale, signalFile);
-		}
-		*/
-	}
-
-	public List<DecodeReport> getDecodeReports() {
-		return decodeReports;
-	}
-
 	public void addDecodeReport(DecodeReport decodeReport) {
 		decodeReports.add(decodeReport);
 	}
 
-	public void setSourceFile(File sourceFile) {
-		// TODO Auto-generated method stub
-		
-	}
-	public void setFractal(Fractal fractal) {
-		// TODO Auto-generated method stub
-		
-	}
-	public void setSecondsToEncode(long elapsed) {
-		// TODO Auto-generated method stub
-		
+	public void setDecodeReports(List<DecodeReport> decodeReports) {
+		this.decodeReports = decodeReports;
 	}
 
-	@Override
-	public String getTemplate() {
-		return TEMPLATE;
+	public List<DecodeReport> getDecodeReports() {
+		return decodeReports;
 	}
 }

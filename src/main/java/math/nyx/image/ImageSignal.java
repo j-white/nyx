@@ -26,6 +26,9 @@ import math.nyx.core.Signal;
  */
 public class ImageSignal extends Signal {
 	private static final long serialVersionUID = -1875089091108123392L;
+
+	public static final String TYPE = "Image";
+
 	private final ImageMetadata metadata;
 
 	public ImageSignal(Fractal fractal, RealMatrix decodedVector, ImageMetadata metadata) {
@@ -55,6 +58,10 @@ public class ImageSignal extends Signal {
 
 	public ImageSignal(InputStream is) throws IOException {
 		this(ImageIO.read(is));
+	}
+
+	public String getType() {
+		return TYPE;
 	}
 
 	@Override
