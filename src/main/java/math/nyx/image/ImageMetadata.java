@@ -36,7 +36,8 @@ public class ImageMetadata implements SignalMetadata {
 
 	@Override
 	public ImageMetadata scale(int scale) {
-		return this;
+		int sqrtOfScale = (int)Math.sqrt(scale);
+		return new ImageMetadata(width * sqrtOfScale, height * sqrtOfScale, type, numComponents);
 	}
 
 	@Override

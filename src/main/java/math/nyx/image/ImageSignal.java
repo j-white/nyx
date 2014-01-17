@@ -156,22 +156,8 @@ public class ImageSignal extends Signal {
 		return x;
 	}
 
-	public static void writeToFile(ImageSignal originalSignal, Signal decodedSignal, int scale, File file) throws IOException {
-		ImageMetadata originalImageMetadata = originalSignal.getMetadata();
-		int originalWidth = originalImageMetadata.getWidth();
-		int originalHeight = originalImageMetadata.getHeight();
-		int originalType = originalImageMetadata.getType();
-		int orginalNumComponents = originalImageMetadata.getNumComponents();
-
-		ImageMetadata imageMetadata = new ImageMetadata(originalWidth * scale, originalHeight * scale,
-														originalType, orginalNumComponents);
-		ImageSignal decodedImageSignal = new ImageSignal(decodedSignal, imageMetadata);
-		ImageIO.write(decodedImageSignal.getImage(), "png", file);
-	}
-
 	@Override
-	public void write(File file) {
-		// TODO Auto-generated method stub
-		
+	public void write(File file) throws IOException {
+		ImageIO.write(getImage(), "png", file);
 	}
 }

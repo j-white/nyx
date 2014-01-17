@@ -75,7 +75,6 @@ public class NyxRunnerTest {
 		// The size of the decoded signal should be non-zero
 		assertNotEquals(0, decodeReport.getDecodedSignal().getSizeInBytes());
 
-		/*
 		// We should be able to read the decoded image
 		File decodedFile = decodeReport.getDestFile();
 		BufferedImage decodedImage = ImageIO.read(decodedFile);
@@ -86,7 +85,6 @@ public class NyxRunnerTest {
 		assertEquals(originalImage.getHeight(), decodedImage.getHeight());
 		assertEquals(originalImage.getTransparency(), decodedImage.getTransparency());
 		assertEquals(originalImage.getType(), decodedImage.getType());
-		*/
 	}
 
 	/**
