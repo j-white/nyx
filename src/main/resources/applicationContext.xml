@@ -15,12 +15,14 @@
 	<bean id="fractalFactory" class="math.nyx.core.FractalFactory"></bean>
 
 	<!-- Linear -->
-	<bean id="linearPartitioningStrategy" class="math.nyx.framework.linear.LinearPartitioningStrategy"/>
+	<bean id="linearPartitioningStrategyFactory"
+				class="math.nyx.framework.linear.LinearPartitioningStrategyFactory"/>
 	
 	<bean id="averagingDecimationStrategy" class="math.nyx.framework.linear.AveragingDecimationStrategy"/>
 
 	<!-- Square -->
-	<bean id="squarePartitioningStrategy" class="math.nyx.framework.square.SquarePartitioningStrategy"/>
+	<bean id="squarePartitioningStrategyFactory"
+				class="math.nyx.framework.square.SquarePartitioningStrategyFactory"/>
 
 	<bean id="squareDecimationStrategy" class="math.nyx.framework.square.SquareDecimationStrategy"/>
 
@@ -38,14 +40,14 @@
 	<bean id="imageCodec" class="math.nyx.framework.FractalCodec">
 		<property name="name" value="imageCodec" />
 		<property name="kernel" ref="affineKernelWithoutPermutations" />
-		<property name="partitioningStrategy" ref="linearPartitioningStrategy" />
+		<property name="partitioningStrategyFactory" ref="linearPartitioningStrategyFactory" />
 		<property name="decimationStrategy" ref="averagingDecimationStrategy" />
 	</bean>
 
 	<bean id="audioCodec" class="math.nyx.framework.FractalCodec">
 		<property name="name" value="audioCodec" />
 		<property name="kernel" ref="affineKernelWithoutPermutations" />
-		<property name="partitioningStrategy" ref="linearPartitioningStrategy" />
+		<property name="partitioningStrategyFactory" ref="linearPartitioningStrategyFactory" />
 		<property name="decimationStrategy" ref="averagingDecimationStrategy" />
 	</bean>
 

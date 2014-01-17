@@ -30,7 +30,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	private static Logger logger = LogManager.getLogger("Nyx");
 
 	private Kernel kernel;
-	private PartitioningStrategy partitioningStrategy;
+	private PartitioningStrategyFactory partitioningStrategyFactory;
 	private DecimationStrategy decimationStrategy;
 	private String name;
 	
@@ -39,13 +39,11 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	private int decodeIterations = DECODE_ITERATIONS;
 
 	public Fractal encode(Signal signal) {
-		// Pad the signal to a size that is supported by the partitioning strategy
-		int paddedDimension = partitioningStrategy.getPaddedDimension(signal);
-		signal.pad(paddedDimension);
+		// Fetch the partitioner, this will pad the signal if necessary
+		PartitioningStrategy partitioner = partitioningStrategyFactory.getPartitioner(signal);
 
-		// Now fetch the underlying vector and the partitioner
+		// Now fetch the underlying vector
 		RealMatrix x = signal.getVector();
-		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(signal);
 
 		// Break the signal into non-overlapping range blocks
 		int numRangePartitions = partitioner.getNumRangePartitions();
@@ -156,7 +154,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	}
 
 	public Signal decode(Fractal fractal, int scale, int numberOfIterations) {
-		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(fractal.getSignal(), scale);
+		PartitioningStrategy partitioner = partitioningStrategyFactory.getPartitioner(fractal.getSignal(), scale);
 		int scaledSignalDimension = partitioner.getScaledSignalDimension();
 
 		SparseRealMatrix D = getDecimationOperator(partitioner);
@@ -246,12 +244,12 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		return kernel;
 	}
 
-	public void setPartitioningStrategy(PartitioningStrategy partitioningStrategy) {
-		this.partitioningStrategy = partitioningStrategy;
+	public void setPartitioningStrategyFactory(PartitioningStrategyFactory partitioningStrategyFactory) {
+		this.partitioningStrategyFactory = partitioningStrategyFactory;
 	}
 
-	public PartitioningStrategy getPartitioningStrategy() {
-		return partitioningStrategy;
+	public PartitioningStrategyFactory getPartitioningStrategyFactory() {
+		return partitioningStrategyFactory;
 	}
 
 	public void setDecimationStrategy(DecimationStrategy decimationStrategy) {

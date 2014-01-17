@@ -23,7 +23,6 @@ import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 import math.nyx.core.Transform;
 import math.nyx.framework.PartitioningStrategy;
-import math.nyx.framework.square.SquarePartitioningStrategy;
 import math.nyx.image.ImageMetadata;
 import math.nyx.image.ImageSignal;
 
@@ -144,14 +143,11 @@ class VisualTransform {
 	final Shape domainShape;
 	private final PartitioningStrategy partitioner;
 
-	public VisualTransform(Transform transform, Signal signal, int imageWidth) {
+	public VisualTransform(Transform transform, Signal signal, int imageWidth, PartitioningStrategy partitioner) {
 		this.transform = transform;
 		this.signal = signal;
 		this.imageWidth = imageWidth;
-		
-		//TODO: Dynamically determine the partitioning strategy type
-		SquarePartitioningStrategy partitioningStrategy = new SquarePartitioningStrategy();
-		this.partitioner = partitioningStrategy.getPartitioner(signal);
+		this.partitioner = partitioner;
 		this.rangeShape = getShapeForRangeBlock(transform.getRangeBlockIndex());
 		this.domainShape = getShapeForDomainBlock(transform.getDomainBlockIndex());
 	}
@@ -275,7 +271,7 @@ class InteractiveFractal extends JPanel implements MouseListener, MouseMotionLis
 	private void setFractal(Fractal fractal) {
 		visualTransforms.clear();
 		for (Transform transform : fractal.getTransforms()) {
-			visualTransforms.add(new VisualTransform(transform, signal, image.getWidth()));
+			visualTransforms.add(new VisualTransform(transform, signal, image.getWidth(), fractal.getPartitioner()));
 		}
 	}
 

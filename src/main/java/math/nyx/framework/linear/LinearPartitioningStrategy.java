@@ -10,35 +10,18 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 	private final int domainDimension;
 	private final int rangeDimension;
 
-	public LinearPartitioningStrategy() {
-		// Default constructor
-		domainDimension = 0;
-		rangeDimension = 0;
-		signalDimension = 0;
-		scale = 0;
-		ratio = 0;
-	}
-
-	private LinearPartitioningStrategy(Signal signal, int scale) {
+	public LinearPartitioningStrategy(Signal signal, int scale) {
 		super(signal, scale);
+
+		if(!isCompatible(signal, scale)) {
+			signal.pad(getPaddedDimension(signal));
+		}
+
 		this.scale = scale;
 		this.ratio = (int)((float)signal.getScaledDimension(scale) / signal.getDimension());
 		signalDimension = signal.getDimension();
 		domainDimension = calculateDomainDimension();
 		rangeDimension = calculateRangeDimension();
-	}
-
-	@Override
-	public LinearPartitioningStrategy getPartitioner(Signal signal) {
-		return getPartitioner(signal, 1);
-	}
-
-	@Override
-	public LinearPartitioningStrategy getPartitioner(Signal signal, int scale) {
-		if(!isCompatible(signal, scale)) {
-			throw new IllegalArgumentException("Signal is not compatible with partitioning strategy.");
-		}
-		return new LinearPartitioningStrategy(signal, scale);
 	}
 
 	@Override
@@ -109,7 +92,6 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 		}
 	}
 
-	@Override
 	public int getPaddedDimension(Signal signal) {
 		// If the signal dimension is odd, pad it to the next (even) integer
 		if (signal.getDimension() % 2 == 1) {

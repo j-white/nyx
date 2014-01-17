@@ -19,16 +19,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
 public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategyTest {
 	@Autowired
-	private LinearPartitioningStrategy lpStrategy;
+	private LinearPartitioningStrategyFactory lpFactory;
 
 	@Override
-	public LinearPartitioningStrategy getPartitioner(Signal signal, int scale) {
-		return lpStrategy.getPartitioner(signal, scale);
+	public LinearPartitioningStrategyFactory getPartioningStrategyFactory() {
+		return lpFactory;
 	}
 
-	@Test(expected = IllegalArgumentException.class)  
-	public void getPartitionerWithOddSignalDimension() {
-		lpStrategy = lpStrategy.getPartitioner(new ImageSignal(1));
+	private LinearPartitioningStrategy getPartitionerForSignalOfSize(int signalDimension) {
+		return lpFactory.getPartitioner(new ImageSignal(signalDimension));
 	}
 
 	@Test
@@ -49,8 +48,8 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 			int signalDimension = signalDomainRange[i][0];
 			int domainDimension = signalDomainRange[i][1];
 			int rangeDimension = signalDomainRange[i][2];
-			
-			lpStrategy = lpStrategy.getPartitioner(new ImageSignal(signalDimension));
+
+			LinearPartitioningStrategy lpStrategy = getPartitionerForSignalOfSize(signalDimension);
 			assertEquals(domainDimension, lpStrategy.getDomainDimension());
 			assertEquals(rangeDimension, lpStrategy.getRangeDimension());
 		}
@@ -59,7 +58,7 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 	@Test
 	public void fetchAndVerifyDomain() {
 		int signalDimension = 8;
-		lpStrategy = lpStrategy.getPartitioner(new ImageSignal(signalDimension));
+		LinearPartitioningStrategy lpStrategy = getPartitionerForSignalOfSize(signalDimension);
 
 		// Generate a signal with fixed entries
 		RealMatrix signal = TestUtils.generateSignal(signalDimension);
@@ -81,7 +80,7 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 	public void scaledDomainAndRangePartitions() {
 		int signalDimension = 4;
 		Signal signal = new ImageSignal(signalDimension);
-		LinearPartitioningStrategy orignalPartitioner = lpStrategy.getPartitioner(signal);
+		LinearPartitioningStrategy orignalPartitioner = lpFactory.getPartitioner(signal);
 		assertEquals(4, orignalPartitioner.getScaledSignalDimension());
 
 		assertEquals(1, orignalPartitioner.getRangeDimension());
@@ -91,7 +90,7 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 		assertEquals(3, orignalPartitioner.getNumDomainPartitions());
 		
 		int scale = 2;
-		LinearPartitioningStrategy scaledPartitioner = lpStrategy.getPartitioner(signal, scale);
+		LinearPartitioningStrategy scaledPartitioner = lpFactory.getPartitioner(signal, scale);
 		assertEquals(16, scaledPartitioner.getScaledSignalDimension());
 
 		assertEquals(4, scaledPartitioner.getRangeDimension());

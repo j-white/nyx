@@ -5,12 +5,6 @@ import math.nyx.core.Signal;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
 public interface PartitioningStrategy {
-	public int getPaddedDimension(Signal signal);
-
-	public PartitioningStrategy getPartitioner(Signal signal);
-
-	public PartitioningStrategy getPartitioner(Signal signal, int scale);
-
 	public boolean isCompatible(Signal signal, int scale);
 
 	public Signal getSignal();

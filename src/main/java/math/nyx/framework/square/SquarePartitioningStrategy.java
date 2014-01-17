@@ -13,20 +13,13 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	private final int domainDimension;
 	private final int rangeDimension;
 
-	public SquarePartitioningStrategy() {
-		// Default constructor
-		scale = 0;
-		signalDimension = 0;
-		originalSignalWidth = 0;
-		scaledSignalWidth = 0;
-		domainWidth = 0;
-		rangeWidth = 0;
-		domainDimension = 0;
-		rangeDimension = 0;
-	}
-
-	private SquarePartitioningStrategy(Signal signal, int scale) {
+	public SquarePartitioningStrategy(Signal signal, int scale) {
 		super(signal, scale);
+		
+		if(!isCompatible(signal, scale)) {
+			signal.pad(getPaddedDimension(signal));
+		}
+
 		this.scale = scale;
 		signalDimension = signal.getDimension();
 
@@ -69,19 +62,6 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	public SquarePartitioningStrategy getPartitioner(Signal signal) {
-		return getPartitioner(signal, 1);
-	}
-
-	@Override
-	public SquarePartitioningStrategy getPartitioner(Signal signal, int scale) {
-		if(!isCompatible(signal, scale)) {
-			throw new IllegalArgumentException("Signal is not compatible with partitioning strategy.");
-		}
-		return new SquarePartitioningStrategy(signal, scale);
 	}
 
 	@Override
@@ -159,10 +139,10 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		return offset;
 	}
 
-	@Override
 	public int getPaddedDimension(Signal signal) {
 		// Pad the signal to the closest integer of the form k^2
 		int k = (int)Math.ceil(Math.sqrt(signal.getDimension()));
+		// Make sure k >= 2
 		k = Math.max(k, 2);
 		return k * k;
 	}

@@ -30,6 +30,7 @@ import com.google.common.base.Objects;
 
 public class Fractal implements Serializable {
 	private static final long serialVersionUID = -3691227743645881425L;
+
 	private static Logger logger = LogManager.getLogger("Nyx");
 
 	private String codecName;
@@ -66,7 +67,7 @@ public class Fractal implements Serializable {
 	}
 
 	public PartitioningStrategy getPartitioner(int scale) {
-		return getCodec().getPartitioningStrategy().getPartitioner(signal, scale);
+		return getCodec().getPartitioningStrategyFactory().getPartitioner(signal, scale);
 	}
 
 	public void setCodecName(String codecName) {
