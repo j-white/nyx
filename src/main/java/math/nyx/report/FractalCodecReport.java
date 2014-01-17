@@ -124,7 +124,6 @@ public class FractalCodecReport extends TexReport {
 	}
 
 	public List<Transform> getTransforms() {
-		// Joiner.on(" ").withKeyValueSeparator(":").join(t.getKernelParameters());
 		return fractal.getTransforms();
 	}
 

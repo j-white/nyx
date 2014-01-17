@@ -119,7 +119,9 @@ $Tx = Lx + t$ where
     \begin{tabular}{| l | l | l | l |}
     \hline
     Range \# & Domain \# &  Distance & Kernel \\ \hline
-    0 & 1 & 0.00223 & $b_0 = 0.5$, $b_1 = 0.1$, orientation = flipped \\ \hline
+<#list report.transforms as t>
+    ${t.rangeBlockIndex} & ${t.domainBlockIndex} & ${t.distance} & ${helper.mapToString(t.kernelParameters)} \\ \hline
+</#list>
     \end{tabular}
 \end{center}
 

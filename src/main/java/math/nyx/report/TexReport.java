@@ -12,6 +12,8 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.base.Joiner;
+
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -65,6 +67,10 @@ public abstract class TexReport {
 			}
 
 			return sb.toString();
+		}
+
+		public String mapToString(Map<String, Object> map) {
+			return Joiner.on(" ").withKeyValueSeparator(":").join(map);
 		}
 	}
 }

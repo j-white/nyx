@@ -88,11 +88,11 @@ public class AffineTransform extends AbstractTransform {
 	}
 
 	@Override
-	public Map<String, Double> getKernelParameters() {
-		Map<String, Double> params = new HashMap<String, Double>();
-		params.put("scale", scale);
-		params.put("offset", offset);
-		params.put("symmetry", (double)symmetry.ordinal());
+	public Map<String, Object> getKernelParameters() {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("scale", String.format("%.4f", scale));
+		params.put("offset", String.format("%.4f", offset));
+		params.put("symmetry", symmetry);
 		return params;
 	}
 
