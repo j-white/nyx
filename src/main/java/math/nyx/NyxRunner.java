@@ -39,7 +39,7 @@ public class NyxRunner {
     private List<String> fileNames = new ArrayList<String>(0);
 
 	@Option(name="-f", usage="force encode")
-	private Boolean forceEncode = true;
+	private Boolean forceEncode = false;
 
 	@Option(name="-o", usage="path to output folder")
     private String pathToOutputFolder;

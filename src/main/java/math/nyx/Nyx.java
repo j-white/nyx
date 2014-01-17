@@ -55,7 +55,7 @@ public class Nyx {
 		// Decode at the various scales
 		for (int scale : scales) {
 			File destFile = new File(outputDirectory, String.format("decoded-%dx-%s", scale, sourceFile.getName()));
-			logger.info("Decoding {} to {} at {}x.", fractal, destFile, scale);
+			logger.info("Decoding fractal at {}x.", scale);
 
 			Stopwatch decodingStopwatch = Stopwatch.createStarted();
 			Signal decodedSignal = decode(fractal, scale, destFile);

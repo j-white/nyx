@@ -17,7 +17,8 @@ import org.apache.commons.math.linear.RealMatrix;
  */
 @SuppressWarnings("unused")
 public class FractalCodecReport extends TexReport {
-	
+	public static final String TEMPLATE = "fractalCodecReport.tex.tpl";
+
 	/* Source and signal summary */
 
 	private URL sourceUrl;
@@ -184,5 +185,8 @@ public class FractalCodecReport extends TexReport {
 		
 	}
 
-
+	@Override
+	public String getTemplate() {
+		return TEMPLATE;
+	}
 }
