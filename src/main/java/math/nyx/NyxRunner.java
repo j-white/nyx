@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,8 +30,6 @@ import org.springframework.util.StringUtils;
 public class NyxRunner {
 	private static Logger logger = LogManager.getLogger("Nyx");
 
-	public static final Integer[] SCALE_VALUES = new Integer[] { 1 };
-
 	@Autowired
 	private Nyx nyx;
 
@@ -51,7 +49,10 @@ public class NyxRunner {
 
 	private File outputFolder = Paths.get("").toFile().getAbsoluteFile();
 
-	private Set<Integer> scales = new HashSet<Integer>(Arrays.asList(SCALE_VALUES));
+	public static final Integer[] SCALE_VALUES = new Integer[] { 1 };
+
+	// Use the scales in the order that they appear
+	private Set<Integer> scales = new LinkedHashSet<Integer>(Arrays.asList(SCALE_VALUES));
 
 	public List<FractalCodecReport> doMain(String[] args) throws IOException {
         CmdLineParser parser = new CmdLineParser(this);

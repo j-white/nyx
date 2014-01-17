@@ -115,6 +115,10 @@ public class FractalCodecReport extends TexReport {
 		return fractal.getCodec().getDecimationOperator(fractal.getPartitioner());
 	}
 
+	public RealMatrix getDomainFetchOperator(int domainBlockIndex) {
+		return fractal.getPartitioner().getDomainFetchOperator(domainBlockIndex);
+	}
+
 	public RealMatrix getRangeFetchOperator(int rangeBlockIndex) {
 		return fractal.getPartitioner().getRangeFetchOperator(rangeBlockIndex);
 	}

@@ -77,25 +77,52 @@ Decoded size in bytes: ${r.decodedSignal.sizeInBytes}
  \end{bmatrix}
 \end{align*}
 
-\emph{Fetch operator:}
+\emph{Domain Fetch operator:}
 \begin{align*}
- F_I = 
+ F_0 = 
+ \begin{bmatrix}
+  ${helper.matrixToTex(report.getDomainFetchOperator(0))}
+ \end{bmatrix}
+\end{align*}
+
+\begin{align*}
+ F_1 = 
+ \begin{bmatrix}
+  ${helper.matrixToTex(report.getDomainFetchOperator(1))}
+ \end{bmatrix}
+\end{align*}
+
+\emph{Range Fetch operator:}
+\begin{align*}
+ R_0 = 
  \begin{bmatrix}
   ${helper.matrixToTex(report.getRangeFetchOperator(0))}
  \end{bmatrix}
 \end{align*}
 
+\begin{align*}
+ R_1 = 
+ \begin{bmatrix}
+  ${helper.matrixToTex(report.getRangeFetchOperator(1))}
+ \end{bmatrix}
+\end{align*}
+
 \emph{Put operator:}
 \begin{align*}
- P_I = 
+ P_0 = 
  \begin{bmatrix}
   ${helper.matrixToTex(report.getPutOperator(0))}
  \end{bmatrix}
 \end{align*}
 
-\subsection{Kernel parameters}
+\begin{align*}
+ P_1 = 
+ \begin{bmatrix}
+  ${helper.matrixToTex(report.getPutOperator(1))}
+ \end{bmatrix}
+\end{align*}
 
-** Scatter plot of x=range\#, y=distance **
+\subsection{Kernel parameters}
 
 \begin{center}
     \begin{tabular}{| l | l | l | l |}
