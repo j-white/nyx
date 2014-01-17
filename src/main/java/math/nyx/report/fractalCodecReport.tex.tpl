@@ -29,25 +29,35 @@ Signal type: ${report.signalType}
 
 Signal dimension: ${report.signalDimension}
 
-\section{Encoding/Decoding Summary}
+\section{Encoding Summary}
 
 Seconds to encode: ${report.secondsToEncode}s
-
-Seconds to decode at 1x: 2525s
-
-Seconds to decode at 4x: 234234s
 
 Size of signal in bytes: ${report.sizeOfSignalInBytes}
 
 Size of fractal in bytes: ${report.sizeOfFractalInBytes}
 
-\section{Fractal Summary}
-
 Range dimension: ${report.rangeDimension}
+
+Number of range partitions: ${report.numRangePartitions}
 
 Domain dimension: ${report.domainDimension}
 
+Number of domain partitions: ${report.numDomainPartitions}
+
 Number of transforms: ${report.numTransforms}
+
+<#list report.decodeReports as r>
+
+\section{Decoding Summary ${r.scale}x}
+
+\includegraphics[width=250px]{${r.destFile.name}}
+
+Decoded signal dimension: ${r.decodedSignal.dimension}
+
+Decoded size in bytes: ${r.decodedSignal.sizeInBytes}
+
+</#list>
 
 \section{Fractal Details}
 
