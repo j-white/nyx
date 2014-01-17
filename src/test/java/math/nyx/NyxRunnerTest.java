@@ -10,10 +10,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import math.nyx.affine.Symmetry;
+import math.nyx.core.Transform;
 import math.nyx.image.ImageSignal;
 import math.nyx.report.FractalCodecReport;
 import math.nyx.report.FractalCodecReport.DecodeReport;
@@ -76,6 +80,19 @@ public class NyxRunnerTest {
 
 		assertEquals(1, decodeReports.get(0).getScale());
 		assertEquals(4, decodeReports.get(1).getScale());
+
+		// The number of range partitions should be greater than 0
+		assertTrue(report.getNumRangePartitions() > 0);
+
+		// The number of transforms should equal the number of range partitions
+		assertEquals(report.getNumRangePartitions(), report.getNumTransforms());
+
+		// The transforms should use at least two different symmetries
+		Set<Symmetry> symmetriesUsed = new HashSet<Symmetry>();
+		for (Transform t : report.getTransforms()) {
+			symmetriesUsed.add((Symmetry)t.getKernelParameters().get("symmetry"));
+		}
+		assertTrue(symmetriesUsed.size() > 1);
 
 		// Grab the first decode report
 		DecodeReport decodeReport =  decodeReports.get(0);

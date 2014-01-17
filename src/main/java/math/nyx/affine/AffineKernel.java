@@ -7,18 +7,29 @@ import math.nyx.framework.Kernel;
 import math.nyx.framework.SignalBlock;
 
 public class AffineKernel implements Kernel {
+	public static final double THRESHOLD = 0.001;
+
+	private double threshold = THRESHOLD;
+
+	public static final boolean PERMUTE = false;
+
+	private boolean permute = PERMUTE;
+
 	@Override
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock) {
-		return encode(domainBlock, rangeBlock, true);
+		return encode(domainBlock, rangeBlock, permute);
 	}
 
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, Symmetry symmetry) {
 		RealMatrix domain = AffineTransform.permute(domainBlock.getBlock(), symmetry);
 		RealMatrix range = rangeBlock.getBlock();
 
-		Assert.isTrue(domain.getColumnDimension() == 1, "Domain must be a column vector.");
-		Assert.isTrue(range.getColumnDimension() == 1, "Range must be a column vector.");
-		Assert.isTrue(domain.getRowDimension() == range.getRowDimension(), "Domain and range must have the same dimension.");
+		Assert.isTrue(domain.getColumnDimension() == 1,
+				"Domain must be a column vector.");
+		Assert.isTrue(range.getColumnDimension() == 1,
+				"Range must be a column vector.");
+		Assert.isTrue(domain.getRowDimension() == range.getRowDimension(),
+				"Domain and range must have the same dimension.");
 
 		int n = domain.getRowDimension();
 		double s = 0;
@@ -60,8 +71,7 @@ public class AffineKernel implements Kernel {
 	}
 
 	@Override
-	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock,
-			boolean permute) {
+	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, boolean permute) {
 		if (permute) {
 			AffineTransform bestTransform = null;
 			for (Symmetry symmetry : Symmetry.values()) {
@@ -79,5 +89,21 @@ public class AffineKernel implements Kernel {
 		} else {
 			return encode(domainBlock, rangeBlock, Symmetry.ORIGINAL);
 		}
+	}
+
+	public void setThreshold(double threshold) {
+		this.threshold = threshold;
+	}
+
+	public double getThreshold() {
+		return threshold;
+	}
+
+	public void setPermute(Boolean permute) {
+		this.permute = permute;
+	}
+
+	public Boolean getPermute() { 
+		return permute;
 	}
 }

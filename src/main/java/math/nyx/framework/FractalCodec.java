@@ -32,13 +32,12 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	private PartitioningStrategy partitioningStrategy;
 	private DecimationStrategy decimationStrategy;
 	private String name;
-	private boolean permute;
 
 	public Fractal encode(Signal signal) {
 		// Pad the signal to a size that is supported by the partitioning strategy
 		int paddedDimension = partitioningStrategy.getPaddedDimension(signal);
 		signal.pad(paddedDimension);
-		
+
 		// Now fetch the underlying vector and the partitioner
 		RealMatrix x = signal.getVector();
 		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(signal);
@@ -88,7 +87,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	    List<Future<Transform>> futures = new ArrayList<Future<Transform>>();
 	    for (SignalBlock rangeBlock : rangeBlocks) {
-	    	Callable<Transform> worker = new Worker(rangeBlock, kernel, decimatedDomainBlocks, permute);
+	    	Callable<Transform> worker = new Worker(rangeBlock, kernel, decimatedDomainBlocks);
 	    	Future<Transform> future = executor.submit(worker);
 	    	futures.add(future);
 	    }
@@ -115,21 +114,18 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		private final SignalBlock rangeBlock;
 		private final Kernel kernel;
 		private final List<SignalBlock> decimatedDomainBlocks;
-		private final boolean permute;
 
-		public Worker(SignalBlock rangeBlock, Kernel kernel, List<SignalBlock> decimatedDomainBlocks, boolean permute) {
+		public Worker(SignalBlock rangeBlock, Kernel kernel, List<SignalBlock> decimatedDomainBlocks) {
 			this.rangeBlock = rangeBlock;
 			this.kernel = kernel;
 			this.decimatedDomainBlocks = decimatedDomainBlocks;
-			this.permute = permute;
 		}
 
 		@Override
 		public Transform call() throws Exception {
 			Transform bestTransform = null;
 			for (SignalBlock domainBlock : decimatedDomainBlocks) {
-				// TODO: permute flag should be elsewhere
-				Transform transform = kernel.encode(domainBlock, rangeBlock, permute);
+				Transform transform = kernel.encode(domainBlock, rangeBlock);
 				if (transform.compareTo(bestTransform) < 0) {
 					bestTransform = transform;
 				}
@@ -259,14 +255,6 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		return name;
 	}
 
-	public void setPermute(boolean permute) {
-		this.permute = permute;
-	}
-
-	public boolean getPermute() {
-		return permute;
-	}
-	
 	public String toString() {
 	    return Objects.toStringHelper(this.getClass())
 	    		.add("name", getName())

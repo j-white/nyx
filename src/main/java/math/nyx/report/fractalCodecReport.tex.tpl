@@ -6,7 +6,7 @@
 \usepackage{fancyhdr}
 \usepackage{mathrsfs}
 \usepackage{graphicx}
-\usepackage[margin=3cm]{geometry}
+\usepackage[margin=2cm]{geometry}
 \setlength{\parindent}{0.0in}
 \setlength{\parskip}{0.05in}
 
@@ -52,6 +52,8 @@ Number of transforms: ${report.numTransforms}
 \section{Decoding Summary ${r.scale}x}
 
 \includegraphics[width=250px]{${r.destFile.name}}
+
+Seconds to decode: ${r.secondsToDecode}
 
 Decoded signal dimension: ${r.decodedSignal.dimension}
 
@@ -130,7 +132,7 @@ $Tx = Lx + t$ where
     \hline
     Range \# & Domain \# &  Distance & Kernel \\ \hline
 <#list report.transforms as t>
-    ${t.rangeBlockIndex} & ${t.domainBlockIndex} & ${t.distance} & ${helper.mapToString(t.kernelParameters)} \\ \hline
+    ${t.rangeBlockIndex} & ${t.domainBlockIndex} & ${t.distance} & \verb|${helper.mapToString(t.kernelParameters)}| \\ \hline
 </#list>
     \end{tabular}
 \end{center}

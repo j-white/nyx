@@ -7,7 +7,7 @@
 	http://www.springframework.org/schema/context/spring-context-3.2.xsd">
  
 	<context:annotation-config />
- 
+
  	<bean id="nyx" class="math.nyx.Nyx"/>
 	
 	<bean id="signalFactory" class="math.nyx.core.SignalFactory"></bean>
@@ -25,18 +25,25 @@
 	<bean id="squareDecimationStrategy" class="math.nyx.framework.square.SquareDecimationStrategy"/>
 
 	<!-- Affine -->
-	<bean id="affineKernel" class="math.nyx.affine.AffineKernel"/>
+	<bean id="affineKernelWithPermutations" class="math.nyx.affine.AffineKernel">
+		<property name="permute" value="true" />
+	</bean>
 
+	<bean id="affineKernelWithoutPermutations" class="math.nyx.affine.AffineKernel">
+		<property name="permute" value="false" />
+	</bean>
+
+	<!-- Codecs -->
 	<bean id="imageCodec" class="math.nyx.framework.FractalCodec">
 		<property name="name" value="imageCodec" />
-		<property name="kernel" ref="affineKernel" />
+		<property name="kernel" ref="affineKernelWithPermutations" />
 		<property name="partitioningStrategy" ref="squarePartitioningStrategy" />
 		<property name="decimationStrategy" ref="squareDecimationStrategy" />
 	</bean>
 
 	<bean id="audioCodec" class="math.nyx.framework.FractalCodec">
 		<property name="name" value="audioCodec" />
-		<property name="kernel" ref="affineKernel" />
+		<property name="kernel" ref="affineKernelWithoutPermutations" />
 		<property name="partitioningStrategy" ref="linearPartitioningStrategy" />
 		<property name="decimationStrategy" ref="averagingDecimationStrategy" />
 	</bean>
