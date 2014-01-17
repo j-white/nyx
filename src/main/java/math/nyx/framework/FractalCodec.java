@@ -32,6 +32,10 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	private PartitioningStrategy partitioningStrategy;
 	private DecimationStrategy decimationStrategy;
 	private String name;
+	
+	public static final int DECODE_ITERATIONS = 12;
+
+	private int decodeIterations = DECODE_ITERATIONS;
 
 	public Fractal encode(Signal signal) {
 		// Pad the signal to a size that is supported by the partitioning strategy
@@ -144,7 +148,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	}
 	
 	public Signal decode(Fractal fractal, int scale) {
-		return decode(fractal, scale, 12);
+		return decode(fractal, scale, decodeIterations);
 	}
 
 	public Signal decode(Fractal fractal, int scale, int numberOfIterations) {
@@ -253,6 +257,14 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 
 	public String getName() {
 		return name;
+	}
+
+	public void setDecodeIterations(int decodeIterations) {
+		this.decodeIterations = decodeIterations;
+	}
+
+	public int getDecodeIterations() {
+		return decodeIterations;
 	}
 
 	public String toString() {
