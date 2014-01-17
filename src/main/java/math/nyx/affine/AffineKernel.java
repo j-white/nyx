@@ -15,6 +15,10 @@ public class AffineKernel implements Kernel {
 
 	private boolean permute = PERMUTE;
 
+	public static final boolean ALLOW_NEGATIVE_SCALES = false;
+
+	private boolean allowNegativeScales = ALLOW_NEGATIVE_SCALES;
+
 	@Override
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock) {
 		return encode(domainBlock, rangeBlock, permute);
@@ -58,8 +62,7 @@ public class AffineKernel implements Kernel {
 			o = one_over_n * (sum_bis - s*sum_ais);
 		}
 
-		boolean allowNegativeValues = false;
-		if (s < 0 && allowNegativeValues == false) {
+		if (s < 0 && allowNegativeScales == false) {
 			s = 0;
 		}
 
@@ -73,13 +76,14 @@ public class AffineKernel implements Kernel {
 	@Override
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, boolean permute) {
 		if (permute) {
+			// Iterate over all of the known symmetries to find the one with the least distance
 			AffineTransform bestTransform = null;
 			for (Symmetry symmetry : Symmetry.values()) {
 				AffineTransform transform = encode(domainBlock, rangeBlock, symmetry);
 				if (transform.compareTo(bestTransform) < 0) {
 					bestTransform = transform;
 				}
-				
+
 				// If the distance is identically zero, don't try and find a "better" transform
 				if (transform.getDistance() == 0.0) {
 					break;
@@ -105,5 +109,13 @@ public class AffineKernel implements Kernel {
 
 	public Boolean getPermute() { 
 		return permute;
+	}
+
+	public void setAllowNegativeScales(Boolean allowNegativeScales) {
+		this.allowNegativeScales = allowNegativeScales;
+	}
+
+	public Boolean getAllowNegativeScales() { 
+		return allowNegativeScales;
 	}
 }

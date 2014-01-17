@@ -27,6 +27,7 @@
 	<!-- Affine -->
 	<bean id="affineKernelWithPermutations" class="math.nyx.affine.AffineKernel">
 		<property name="permute" value="true" />
+		<property name="allowNegativeScales" value="false"/>
 	</bean>
 
 	<bean id="affineKernelWithoutPermutations" class="math.nyx.affine.AffineKernel">
