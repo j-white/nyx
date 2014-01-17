@@ -32,6 +32,11 @@ public class ImageSignal extends Signal {
 														   img.getType(), img.getColorModel().getNumComponents()));
 	}
 
+	public ImageSignal(RealMatrix v) {
+		super(v);
+		metadata = new ImageMetadata(1, v.getRowDimension(), BufferedImage.TYPE_BYTE_GRAY, 1);
+	}
+
 	public ImageSignal(Signal s, ImageMetadata metadata) {
 		super(s.getVector());
 		this.metadata = metadata;

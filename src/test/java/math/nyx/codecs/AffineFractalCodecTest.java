@@ -1,10 +1,10 @@
 package math.nyx.codecs;
 
 import static org.junit.Assert.assertEquals;
-
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 import math.nyx.framework.FractalCodec;
+import math.nyx.image.ImageSignal;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
@@ -71,7 +71,7 @@ public class AffineFractalCodecTest {
 				3.0, 30.0,
 				4.0, 40.0
 		});
-		Signal signal = new Signal(x);
+		Signal signal = new ImageSignal(x);
 
 		// Encode it
 		Fractal fractal = affineCodec.encode(signal);
@@ -101,8 +101,8 @@ public class AffineFractalCodecTest {
 		for (int i = 0; i < signalDimension; i++) {
 			x.setEntry(i, 0, c);
 		}
-		Signal signal = new Signal(x);
-	
+		Signal signal = new ImageSignal(x);
+
 		// Encode it
 		Fractal fractal = affineCodec.encode(signal);
 

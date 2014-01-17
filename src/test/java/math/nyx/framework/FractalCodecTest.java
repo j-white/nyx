@@ -3,6 +3,7 @@ package math.nyx.framework;
 import static org.junit.Assert.assertEquals;
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
+import math.nyx.image.ImageSignal;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
@@ -25,7 +26,7 @@ public class FractalCodecTest {
 		for (int i = 0; i < dimension; i++) {
 			signal.setEntry(i, 0, value);
 		}
-		return new Signal(signal);
+		return new ImageSignal(signal);
 	}
 
 	@Test
