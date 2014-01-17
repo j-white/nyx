@@ -67,6 +67,18 @@ Decoded size in bytes: ${r.decodedSignal.sizeInBytes}
 
 \section{Fractal Details}
 
+\subsection{Kernel parameters}
+
+\begin{center}
+    \begin{tabular}{| l | l | l | l |}
+    \hline
+    Range \# & Domain \# &  Distance & Kernel \\ \hline
+<#list report.transforms as t>
+    ${t.rangeBlockIndex} & ${t.domainBlockIndex} & ${t.distance} & \verb|${helper.mapToString(t.kernelParameters)}| \\ \hline
+</#list>
+    \end{tabular}
+\end{center}
+
 \subsection{Operators}
 
 \emph{Decimation operator:}
@@ -121,17 +133,5 @@ Decoded size in bytes: ${r.decodedSignal.sizeInBytes}
   ${helper.matrixToTex(report.getPutOperator(1))}
  \end{bmatrix}
 \end{align*}
-
-\subsection{Kernel parameters}
-
-\begin{center}
-    \begin{tabular}{| l | l | l | l |}
-    \hline
-    Range \# & Domain \# &  Distance & Kernel \\ \hline
-<#list report.transforms as t>
-    ${t.rangeBlockIndex} & ${t.domainBlockIndex} & ${t.distance} & \verb|${helper.mapToString(t.kernelParameters)}| \\ \hline
-</#list>
-    \end{tabular}
-\end{center}
 
 \end{document}

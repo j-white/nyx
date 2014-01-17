@@ -110,7 +110,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 				throw new RuntimeException(e);
 			}
 	    	String percentageComplete = String.format("%.2f%%", ((float)k/rangeBlocks.size()) * 100);
-	    	logger.debug("Successfully encoded {}/{} ({}) range blocks.", ++k, rangeBlocks.size(), percentageComplete);
+	    	logger.info("Successfully encoded {}/{} ({}) range blocks.", ++k, rangeBlocks.size(), percentageComplete);
 	    }
 
 	    executor.shutdown();
