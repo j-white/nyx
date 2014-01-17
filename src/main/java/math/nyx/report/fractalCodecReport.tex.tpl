@@ -53,7 +53,9 @@ Number of transforms: ${report.numTransforms}
 
 \section{Decoding Summary ${r.scale}x}
 
+\begin{center}
 \includegraphics[width=250px]{${r.destFile.name}}
+\end{center}
 
 Seconds to decode: ${r.secondsToDecode}
 
