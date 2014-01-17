@@ -41,6 +41,10 @@ public class Fractal implements Serializable {
 
 	private final int signalPad;
 
+	private final double signalMinVal;
+
+	private final double signalMaxVal;
+
 	private final int numSignalChannels;
 
 	private final List<Transform> transforms = new LinkedList<Transform>();
@@ -51,6 +55,8 @@ public class Fractal implements Serializable {
 		signalDimension = signal.getDimension();
 		signalPad = signal.getPad();
 		numSignalChannels = signal.getNumChannels();
+		signalMinVal = signal.getMinVal();
+		signalMaxVal = signal.getMaxVal();
 	}
 
 	public Signal decode() {
@@ -98,6 +104,14 @@ public class Fractal implements Serializable {
 
 	public int getNumSignalChannels() {
 		return numSignalChannels;
+	}
+
+	public double getSignalMinVal() {
+		return signalMinVal;
+	}
+
+	public double getSignalMaxVal() {
+		return signalMaxVal;
 	}
 
 	public SignalMetadata getSignalMetadata() {

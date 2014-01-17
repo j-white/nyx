@@ -160,4 +160,14 @@ public class ImageSignal extends Signal {
 	public void write(File file) throws IOException {
 		ImageIO.write(getImage(), "png", file);
 	}
+
+	@Override
+	public double getMinVal() {
+		return 0;
+	}
+
+	@Override
+	public double getMaxVal() {
+		return 255;
+	}
 }

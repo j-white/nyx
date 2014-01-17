@@ -84,4 +84,14 @@ public class AudioSignal extends Signal {
 			fos.close();
 		}
 	}
+
+	@Override
+	public double getMinVal() {
+		return 0;
+	}
+
+	@Override
+	public double getMaxVal() {
+		return Double.MAX_VALUE;
+	}
 }

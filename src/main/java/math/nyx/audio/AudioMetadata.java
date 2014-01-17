@@ -45,9 +45,14 @@ public class AudioMetadata implements SignalMetadata {
 		return new AudioFormat(new Encoding(formatEncodingAsStr), formatSampleRate, formatSampleSizeInBits * scale, formatChannels,
 				formatFrameSize, formatFrameRate, formatIsBigEndian, formatProperties);
 	}
-	
+
 	public long getFrameLength() {
 		return frameLength;
+	}
+
+	@Override
+	public AudioMetadata scale(int scale) {
+		return new AudioMetadata(getFormat(scale), frameLength * scale);
 	}
 
 	@Override
@@ -56,10 +61,5 @@ public class AudioMetadata implements SignalMetadata {
 	    		.add("format", getFormat())
 	    		.add("frameLength", getFrameLength())
 	            .toString();
-	}
-
-	@Override
-	public AudioMetadata scale(int scale) {
-		return this;
 	}
 }

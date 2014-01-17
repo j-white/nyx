@@ -43,7 +43,7 @@ public class AffineTransform extends AbstractTransform {
 		return symmetry;
 	}
 
-	public RealMatrix apply(final RealMatrix domain) {
+	public RealMatrix apply(final RealMatrix domain, double minVal, double maxVal) {
 		RealMatrix permutedDomain = permute(domain, symmetry);
 		int rangeDimension = permutedDomain.getRowDimension();
 		Array2DRowRealMatrix K_scale = new Array2DRowRealMatrix(rangeDimension, rangeDimension);
@@ -62,10 +62,8 @@ public class AffineTransform extends AbstractTransform {
 
 		// Apply the transform
 		Array2DRowRealMatrix range = (Array2DRowRealMatrix) (K_scale.multiply(permutedDomain)).add(K_offset);
-		
-		// TODO: Find a better way to apply these bounds. Normalize the signals in [0, 1]?
-		double minVal = 0;
-		double maxVal = 256;
+
+		// Bound the transform with the min and max vals
 		double data[][] = range.getDataRef();
 		for (int i = 0; i < data.length; i++) {
 			if (data[i][0] < minVal) {

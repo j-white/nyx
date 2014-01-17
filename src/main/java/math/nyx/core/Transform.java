@@ -9,6 +9,6 @@ public interface Transform extends Serializable, Comparable<Transform> {
 	public double getDistance();
 	public int getDomainBlockIndex();
 	public int getRangeBlockIndex();
-	public RealMatrix apply(RealMatrix domain);
+	public RealMatrix apply(RealMatrix domain, double minVal, double maxVal);
 	public Map<String, Double> getKernelParameters();
 }

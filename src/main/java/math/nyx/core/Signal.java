@@ -35,6 +35,10 @@ public abstract class Signal implements Serializable {
 
 	public abstract SignalMetadata getMetadata();
 
+	public abstract double getMinVal();
+
+	public abstract double getMaxVal();
+
 	public abstract void write(File file) throws IOException;
 
 	public void pad(int targetDimension) {
