@@ -26,7 +26,7 @@ public class AffineTransformTest {
 	
 	private void permuteAndVerify(Symmetry symmetry, double expected[]) {
 		RealMatrix x = TestUtils.generateSignal(expected.length);
-		RealMatrix y = AffineTransform.permute(x, symmetry);
+		RealMatrix y = AffineTransform.permute(x, symmetry, true);
 		assertArrayEquals(expected, y.getColumn(0), TestUtils.DELTA);
 	}
 

@@ -25,7 +25,7 @@ public class AffineKernel implements Kernel {
 	}
 
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, Symmetry symmetry) {
-		RealMatrix domain = AffineTransform.permute(domainBlock.getBlock(), symmetry);
+		RealMatrix domain = AffineTransform.permute(domainBlock.getBlock(), symmetry, false);
 		RealMatrix range = rangeBlock.getBlock();
 
 		Assert.isTrue(domain.getColumnDimension() == 1,

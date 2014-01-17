@@ -204,13 +204,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 				RealMatrix decimatedDomainBlock = D.multiply(domainBlock);
 
 				// Apply the transform
-				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock, fractal.getSignal().getMinVal(), fractal.getSignal().getMaxVal());
-
-				/*
-				if (n == numberOfIterations) {
-					System.out.printf("Range block index %d: %s\n", rangeBlockIndex, transformedBlock);
-				}
-				*/
+				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock, fractal.getSignal(), true);
 				
 				// Put
 				if (!optimized) {
