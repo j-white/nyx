@@ -45,7 +45,7 @@ public class NyxRunner {
     private String pathToOutputFolder;
 
 	@Option(name="-s", usage="additional scales used to decode the signal")
-    private List<String> additionalScales = new ArrayList<String>(0);
+    private String additionalScales;
 
 	private List<File> sourceFiles = new ArrayList<File>(0);
 
@@ -68,11 +68,13 @@ public class NyxRunner {
             	sourceFiles.add(file);
             }
 
-            for (String scaleAsString : additionalScales) {
-            	int scale = new Integer(scaleAsString);
-            	if (scale < 2)
-            		throw new CmdLineException(parser, "Additional scales must be greater than 1");
-            	scales.add(scale);
+            if (!StringUtils.isEmpty(additionalScales)) {
+            	for (String scaleAsString : additionalScales.split(",")) {
+            		int scale = new Integer(scaleAsString);
+                	if (scale < 2)
+                		throw new CmdLineException(parser, "Additional scales must be greater than 1");
+                	scales.add(scale);
+            	}
             }
 
             if (!StringUtils.isEmpty(pathToOutputFolder))

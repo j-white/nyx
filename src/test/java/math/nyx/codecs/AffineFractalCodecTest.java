@@ -40,12 +40,9 @@ public class AffineFractalCodecTest {
 	}
 
 	private void decodeAndVerifyConstantSignalAtVaryingScales(Fractal fractal, double c) {
-		int originalSignalDimesion = fractal.getSignalDimension();
-		
-		// Decode at various powers and verify
-		int powers[] = {1, 2, 3, 4};
-		for (int power : powers) {
-			int scale = (int)Math.pow(originalSignalDimesion, power-1);
+		// Decode at various scales
+		int scales[] = new int[]{1, 2, 3, 4, 5, 6, 7, 8};
+		for (int scale : scales) {
 			System.out.println("\nTesting with scale: " + scale);
 			Signal signal = affineCodec.decode(fractal, scale);
 			System.out.println(signal);
@@ -75,16 +72,16 @@ public class AffineFractalCodecTest {
 		// Encode it
 		Fractal fractal = affineCodec.encode(signal);
 
-		// Decode at 1x and 4x
+		// Decode at 1x and 2x
 		Signal signal1x = affineCodec.decode(fractal, 1);
-		Signal signal4x = affineCodec.decode(fractal, 4);
+		Signal signal2x = affineCodec.decode(fractal, 2);
 		
-		assertEquals(64, signal4x.getDimension());
+		assertEquals(64, signal2x.getDimension());
 
-		// Decimate the signal decoded at 4x
+		// Decimate the signal decoded at 2x
 		RealMatrix D = affineCodec.getDecimationStrategy().getDecimationOperator(signal1x.getDimension(),
-				signal4x.getDimension());
-		RealMatrix decimatedDecodedSignal = D.multiply(signal4x.getVector()).subtract(signal1x.getVector());
+				signal2x.getDimension());
+		RealMatrix decimatedDecodedSignal = D.multiply(signal2x.getVector()).subtract(signal1x.getVector());
 		for (int i = 0; i < 16; i++) {
 			assertEquals(0, decimatedDecodedSignal.getEntry(i, 0), TestUtils.DELTA);
 		}

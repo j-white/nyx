@@ -13,11 +13,10 @@ public abstract class AbstractPartitioningStrategyTest {
 
 	@Test
 	public void fetchAndPutRangePartitions() {
-		// Decode at various powers and verify
+		// Decode at various scales
 		int signalDimension = 16;
-		int powers[] = {1, 2, 3, 4};
-		for (int power : powers) {
-			int scale = (int)Math.pow(signalDimension, power-1);
+		int scales[] = {1, 2, 3, 4};
+		for (int scale : scales) {
 			PartitioningStrategy partitioner = getPartitioner(signalDimension, 1, scale);
 			fetchAndPutRangePartitions(partitioner);
 		}

@@ -10,7 +10,6 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	private int rangeWidth;
 	private final int domainDimension;
 	private final int rangeDimension;
-	private final int sqrtOfScale;
 
 	public SquarePartitioningStrategy() {
 		// Default constructor
@@ -20,17 +19,15 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		rangeWidth = 0;
 		domainDimension = 0;
 		rangeDimension = 0;
-		sqrtOfScale = 0;
 	}
 
 	private SquarePartitioningStrategy(int signalDimension, int numSignalChannels, int scale) {
 		super(signalDimension, numSignalChannels, scale);
 		
-		sqrtOfScale = (int)Math.round(Math.sqrt(getScale()));
 		originalSignalWidth = (int)Math.round(Math.sqrt(getSignalDimension()));
 		scaledSignalWidth = (int)Math.round(Math.sqrt(getScaledSignalDimension()));
 		
-		rangeWidth = calculateRangeWidth(getSignalDimension()) * sqrtOfScale;
+		rangeWidth = calculateRangeWidth(getSignalDimension()) * getScale();
 		domainWidth = 2*rangeWidth;
 
 		domainDimension = domainWidth * domainWidth;
@@ -54,6 +51,11 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	}
 
 	@Override
+	public int getScaledSignalDimension() {
+		return getSignalDimension() * getScale() * getScale();
+	}
+
+	@Override
 	public void checkSignalDimension(int signalDimension, int numSignalChannels, int scale) {
 		if (signalDimension < 4) {
 			throw new IllegalArgumentException("Signal dimension must be greater or equal to 4.");
@@ -64,10 +66,6 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		}
 		if (scale < 1) {
 			throw new IllegalArgumentException("Scale must be a positive integer.");
-		}
-		root = (int)Math.round(Math.sqrt(scale));
-		if (root*root != scale) {
-			throw new IllegalArgumentException("Scale must be a square.");
 		}
 	}
 
@@ -99,7 +97,7 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 
 	@Override
 	public int getNumDomainPartitions() {
-		int k = originalSignalWidth - (domainWidth / sqrtOfScale) + 1;
+		int k = originalSignalWidth - (domainWidth / getScale()) + 1;
 		return k*k;
 	}
 
@@ -131,6 +129,7 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		int spaceWidth = scaledSignalWidth;
 		int spaceHeight = spaceWidth;
 
+		int scale = getScale();
 		int numBlocksPerRow;
 		int numBlocksPerColumn;
 		
@@ -138,8 +137,8 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 			numBlocksPerRow = spaceWidth / blockWidth;
 			numBlocksPerColumn = spaceHeight / blockHeight; 
 		} else {
-			numBlocksPerRow = (spaceWidth / sqrtOfScale) - (blockWidth / sqrtOfScale) + 1;
-			numBlocksPerColumn = (spaceHeight / sqrtOfScale) - (blockHeight / sqrtOfScale) + 1;
+			numBlocksPerRow = (spaceWidth / scale) - (blockWidth / scale) + 1;
+			numBlocksPerColumn = (spaceHeight / scale) - (blockHeight / scale) + 1;
 		}
 
 		int rowIndex = index / numBlocksPerRow;
@@ -150,9 +149,9 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 			offset = (rowIndex * (numBlocksPerRow * blockWidth * blockHeight)) + (columnIndex * blockWidth);
 		} else {
 			offset = (rowIndex * spaceWidth) + columnIndex;
-			offset *= sqrtOfScale;
+			offset *= scale;
 		}
-		
+
 		/*
 		System.out.printf("\nIndex: %d Width: %d Height: %d Overlapping: %s\n", index, blockWidth, blockHeight, overlapping);
 		System.out.printf("Blocks/row: %d Blocks/column: %d\n", numBlocksPerRow, numBlocksPerColumn);

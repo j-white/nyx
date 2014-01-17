@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import math.nyx.core.Fractal;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
-import math.nyx.image.ImageMetadata;
 import math.nyx.image.ImageSignal;
 import math.nyx.utils.TestUtils;
 
@@ -70,31 +69,26 @@ public class ImageEncodeDecodeTest {
 		int scales[] = {1, 2, 3, 4, 5, 6, 7, 8};
 		for (int scale : scales) {
 			System.out.println("\nTesting with scale: " + scale);
-			
 			BufferedImage sourceImageScaled = createImage(size * scale);
 			decodeAndCompare(fractal, size, scale, sourceImageScaled);
 		}
 	}
 
 	private void decodeAndCompare(Fractal fractal, int size, int scale, BufferedImage expectedImage) {
-		Signal expectedSignal = new ImageSignal(expectedImage);
-		//System.out.println("Expected signal: " + expectedSignal);
-		
-		// Now decode the signal from the fractal using the given scale
-		// Square the scale, since we are increasing both the width and height of the image
-		Signal decodedSignal = fractal.decode(scale*scale);
-		//System.out.println("Decoded signal: " + decodedSignal);
-		
+		// Decode the signal from the fractal at the given scale
+		ImageSignal decodedSignal = (ImageSignal)fractal.decode(scale);
+
+		// Create a signal from the expected image
+		ImageSignal expectedSignal = new ImageSignal(expectedImage);
+
+		// Compare the expected with the decoded signals
+		assertEquals(expectedSignal.getDimension(), decodedSignal.getDimension());
 		for (int k = 0; k < expectedSignal.getDimension(); k++) {
 			String msg = String.format("Error decoding message at scale %d", scale);
 			assertEquals(msg, expectedSignal.getEntry(k), decodedSignal.getEntry(k), TestUtils.DELTA);
 		}
-	
-		// Convert the signal to and image
-		ImageMetadata imageMetadata = new ImageMetadata(size * scale, size * scale, expectedImage.getType(), expectedSignal.getNumChannels());
-		ImageSignal decodedImageSignal = new ImageSignal(decodedSignal, imageMetadata);
-		BufferedImage decodedImage = decodedImageSignal.getImage();
 
-		TestUtils.assertImageEquals(expectedImage, decodedImage);
+		// And compare the expected with the decoded images
+		TestUtils.assertImageEquals(expectedImage, decodedSignal.getImage());
 	}
 }

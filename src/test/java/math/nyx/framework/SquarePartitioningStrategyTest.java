@@ -308,7 +308,7 @@ public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategy
 		assertEquals(4, orignalPartitioner.getDomainDimension());
 		assertEquals(9, orignalPartitioner.getNumDomainPartitions());
 
-		int scale = 4;
+		int scale = 2;
 		SquarePartitioningStrategy scaledPartitioner = spStrategy.getPartitioner(signalDimension, 1, scale);
 		assertEquals(64, scaledPartitioner.getScaledSignalDimension());
 		
