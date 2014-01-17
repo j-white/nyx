@@ -110,17 +110,17 @@ public class FractalCodecReport extends TexReport {
 	}
 
 	/* Operators */
-	
-	private Map<Integer, Integer> rangeToDomainMap;
-	
-	private List<RealMatrix> rangeFetchOperators;
-	
-	private Map<Integer, RealMatrix> domainFetchOperators;
-	
-	private List<RealMatrix> putOperators;
 
 	public RealMatrix getDecimationOperator() {
 		return fractal.getCodec().getDecimationOperator(fractal.getPartitioner());
+	}
+
+	public RealMatrix getRangeFetchOperator(int rangeBlockIndex) {
+		return fractal.getPartitioner().getRangeFetchOperator(rangeBlockIndex);
+	}
+
+	public RealMatrix getPutOperator(int rangeBlockIndex) {
+		return fractal.getPartitioner().getPutOperator(rangeBlockIndex);
 	}
 
 	public List<Transform> getTransforms() {
