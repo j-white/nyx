@@ -1,4 +1,4 @@
-package math.nyx.codecs;
+package math.nyx.affine;
 
 import java.util.Iterator;
 

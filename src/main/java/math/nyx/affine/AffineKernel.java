@@ -1,4 +1,4 @@
-package math.nyx.codecs;
+package math.nyx.affine;
 
 import org.apache.commons.math.linear.RealMatrix;
 import org.springframework.util.Assert;

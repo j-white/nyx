@@ -1,4 +1,4 @@
-package math.nyx.codecs;
+package math.nyx.affine;
 
 public enum Symmetry {
 	    ORIGINAL,        /* 1 2

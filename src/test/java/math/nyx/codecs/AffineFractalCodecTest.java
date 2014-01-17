@@ -1,6 +1,7 @@
 package math.nyx.codecs;
 
 import static org.junit.Assert.assertEquals;
+import math.nyx.affine.AffineTransform;
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 import math.nyx.framework.FractalCodec;

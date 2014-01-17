@@ -1,7 +1,8 @@
 package math.nyx.codecs;
 
 import static org.junit.Assert.assertEquals;
-
+import math.nyx.affine.AffineKernel;
+import math.nyx.affine.AffineTransform;
 import math.nyx.framework.SignalBlock;
 import math.nyx.framework.SquareDecimationStrategy;
 import math.nyx.utils.TestUtils;

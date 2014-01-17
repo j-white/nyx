@@ -1,5 +1,7 @@
 package math.nyx.codecs;
 
+import math.nyx.affine.AffineTransform;
+import math.nyx.affine.Symmetry;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.RealMatrix;
