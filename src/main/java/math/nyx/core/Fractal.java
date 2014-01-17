@@ -34,30 +34,12 @@ public class Fractal implements Serializable {
 
 	private String codecName;
 
-	private final String signalClass;
-
-	private final SignalMetadata signalMetadata;
-
-	private final int signalDimension;
-
-	private final int signalPad;
-
-	private final double signalMinVal;
-
-	private final double signalMaxVal;
-
-	private final int numSignalChannels;
+	private final Signal signal;
 
 	private final List<Transform> transforms = new LinkedList<Transform>();
 
 	public Fractal(Signal signal) {
-		signalClass = signal.getClass().getCanonicalName();
-		signalMetadata = signal.getMetadata();
-		signalDimension = signal.getDimension();
-		signalPad = signal.getPad();
-		numSignalChannels = signal.getNumChannels();
-		signalMinVal = signal.getMinVal();
-		signalMaxVal = signal.getMaxVal();
+		this.signal = signal;
 	}
 
 	public Signal decode() {
@@ -84,7 +66,7 @@ public class Fractal implements Serializable {
 	}
 
 	public PartitioningStrategy getPartitioner(int scale) {
-		return getCodec().getPartitioningStrategy().getPartitioner(this, scale);
+		return getCodec().getPartitioningStrategy().getPartitioner(signal, scale);
 	}
 
 	public void setCodecName(String codecName) {
@@ -95,28 +77,8 @@ public class Fractal implements Serializable {
 		return codecName;
 	}
 
-	public int getSignalDimension() {
-		return signalDimension;
-	}
-
-	public int getSignalPad() {
-		return signalPad;
-	}
-
-	public int getNumSignalChannels() {
-		return numSignalChannels;
-	}
-
-	public double getSignalMinVal() {
-		return signalMinVal;
-	}
-
-	public double getSignalMaxVal() {
-		return signalMaxVal;
-	}
-
-	public SignalMetadata getSignalMetadata() {
-		return signalMetadata;
+	public Signal getSignal() {
+		return signal;
 	}
 
 	public void addTransform(Transform transform) {
@@ -154,17 +116,15 @@ public class Fractal implements Serializable {
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	public Signal getSignalFromDecodedVector(RealMatrix x, int scale) {
 		try {
-			Class myClass = Class.forName(signalClass);
+			Class[] types = {this.getClass(), RealMatrix.class, signal.getMetadata().getClass()};
+			Constructor constructor = signal.getClass().getConstructor(types);
 
-			Class[] types = {this.getClass(), RealMatrix.class, signalMetadata.getClass()};
-			Constructor constructor = myClass.getConstructor(types);
-
-			Object[] parameters = {this, x, signalMetadata.scale(scale)};
+			Object[] parameters = {this, x, signal.getMetadata().scale(scale)};
 			Object instanceOfMyClass = constructor.newInstance(parameters);
-			
+
 			return (Signal)instanceOfMyClass;
 		} catch(Exception ex) {
 			logger.error("Could not create signal from vector.", ex);
@@ -180,8 +140,7 @@ public class Fractal implements Serializable {
 	public String toString() {
 	    return Objects.toStringHelper(this.getClass())
 	    		.add("codecName", getCodecName())
-	    		.add("signalDimension", getSignalDimension())
-	    		.add("numSignalChannels", getNumSignalChannels())
+	    		.add("signal", getSignal())
 	    		.add("numTransforms", getTransforms().size())
 	            .toString();
 	}

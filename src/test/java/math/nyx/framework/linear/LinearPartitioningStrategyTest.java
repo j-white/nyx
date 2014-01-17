@@ -1,8 +1,10 @@
 package math.nyx.framework.linear;
 
 import static org.junit.Assert.assertEquals;
+import math.nyx.core.Signal;
 import math.nyx.framework.AbstractPartitioningStrategyTest;
 import math.nyx.framework.linear.LinearPartitioningStrategy;
+import math.nyx.image.ImageSignal;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.RealMatrix;
@@ -20,13 +22,13 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 	private LinearPartitioningStrategy lpStrategy;
 
 	@Override
-	public LinearPartitioningStrategy getPartitioner(int signalDimension, int numSignalChannels, int scale) {
-		return lpStrategy.getPartitioner(signalDimension, numSignalChannels, scale);
+	public LinearPartitioningStrategy getPartitioner(Signal signal, int scale) {
+		return lpStrategy.getPartitioner(signal, scale);
 	}
 
 	@Test(expected = IllegalArgumentException.class)  
 	public void getPartitionerWithOddSignalDimension() {
-		lpStrategy = lpStrategy.getPartitioner(1, 1, 1);
+		lpStrategy = lpStrategy.getPartitioner(new ImageSignal(1));
 	}
 
 	@Test
@@ -48,7 +50,7 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 			int domainDimension = signalDomainRange[i][1];
 			int rangeDimension = signalDomainRange[i][2];
 			
-			lpStrategy = lpStrategy.getPartitioner(signalDimension, 1, 1);
+			lpStrategy = lpStrategy.getPartitioner(new ImageSignal(signalDimension));
 			assertEquals(domainDimension, lpStrategy.getDomainDimension());
 			assertEquals(rangeDimension, lpStrategy.getRangeDimension());
 		}
@@ -57,7 +59,7 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 	@Test
 	public void fetchAndVerifyDomain() {
 		int signalDimension = 8;
-		lpStrategy = lpStrategy.getPartitioner(signalDimension, 1, 1);
+		lpStrategy = lpStrategy.getPartitioner(new ImageSignal(signalDimension));
 
 		// Generate a signal with fixed entries
 		RealMatrix signal = TestUtils.generateSignal(signalDimension);

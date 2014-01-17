@@ -13,6 +13,7 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.util.Assert;
 
 import com.google.common.base.Objects;
 
@@ -81,6 +82,11 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 			decimatedDomainBlocks.add(new SignalBlock(i, decimatedDomainBlock));
 		}
 
+		// If we have any range blocks, we should have at least 1 domain block
+		if (!rangeBlocks.isEmpty()) {
+			Assert.notEmpty(decimatedDomainBlocks);
+		}
+
 		// Construct the fractal used to store our results
 		Fractal fractal = new Fractal(signal);
 		fractal.setCodecName(name);
@@ -130,29 +136,27 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 			Transform bestTransform = null;
 			for (SignalBlock domainBlock : decimatedDomainBlocks) {
 				Transform transform = kernel.encode(domainBlock, rangeBlock);
-				if (transform.compareTo(bestTransform) < 0) {
+				if (transform.compareTo(bestTransform) < 0)
 					bestTransform = transform;
-				}
 
 				// If the distance is identically zero, don't try and find a "better" transform
-				if (transform.getDistance() == 0.0) {
+				if (transform.getDistance() == 0.0)
 					break;
-				}
 			}
-			
-			/*if (rangeBlock.getIndex() == 864) {
-				System.out.printf("Range at %d encoded with: %s\nBlock: %s", rangeBlock.getIndex(), bestTransform, rangeBlock);
-			}*/
-			return bestTransform;
+
+			if (bestTransform != null)
+				return bestTransform;
+
+			throw new Exception("No transform found.");
 		}
 	}
-	
+
 	public Signal decode(Fractal fractal, int scale) {
 		return decode(fractal, scale, decodeIterations);
 	}
 
 	public Signal decode(Fractal fractal, int scale, int numberOfIterations) {
-		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(fractal, scale);
+		PartitioningStrategy partitioner = partitioningStrategy.getPartitioner(fractal.getSignal(), scale);
 		int scaledSignalDimension = partitioner.getScaledSignalDimension();
 
 		SparseRealMatrix D = getDecimationOperator(partitioner);
@@ -171,7 +175,14 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		for (int n = 1; n <= numberOfIterations; n++) {
 			logger.info("Decoding: Iteration {} of {}", n, numberOfIterations);
 			Array2DRowRealMatrix x_n = new Array2DRowRealMatrix(scaledSignalDimension, 1);
+			
+			int k = 1;
+			int numTransforms = fractal.getTransforms().size();
 			for (Transform transform : fractal.getTransforms()) {
+				String percentageComplete = String.format("%.2f%%", ((float)k/numTransforms) * 100);
+				logger.debug("Applying transform {}/{} ({}): {}", ++k, numTransforms,
+						percentageComplete, transform);
+
 				int rangeBlockIndex = transform.getRangeBlockIndex();
 
 				// Fetch
@@ -195,7 +206,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 				RealMatrix decimatedDomainBlock = D.multiply(domainBlock);
 
 				// Apply the transform
-				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock, fractal.getSignalMinVal(), fractal.getSignalMaxVal());
+				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock, fractal.getSignal().getMinVal(), fractal.getSignal().getMaxVal());
 
 				/*
 				if (n == numberOfIterations) {

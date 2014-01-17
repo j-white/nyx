@@ -1,10 +1,11 @@
 package math.nyx.framework.square;
 
-import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 import math.nyx.framework.AbstractPartitioningStrategy;
 
 public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
+	private final int scale;
+	private final int signalDimension;
 	private final int originalSignalWidth;
 	private final int scaledSignalWidth;
 	private int domainWidth;
@@ -14,6 +15,8 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 
 	public SquarePartitioningStrategy() {
 		// Default constructor
+		scale = 0;
+		signalDimension = 0;
 		originalSignalWidth = 0;
 		scaledSignalWidth = 0;
 		domainWidth = 0;
@@ -22,13 +25,15 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		rangeDimension = 0;
 	}
 
-	private SquarePartitioningStrategy(int signalDimension, int numSignalChannels, int scale) {
-		super(signalDimension, numSignalChannels, scale);
-		
-		originalSignalWidth = (int)Math.round(Math.sqrt(getSignalDimension()));
+	private SquarePartitioningStrategy(Signal signal, int scale) {
+		super(signal, scale);
+		this.scale = scale;
+		signalDimension = signal.getDimension();
+
+		originalSignalWidth = (int)Math.round(Math.sqrt(signalDimension));
 		scaledSignalWidth = (int)Math.round(Math.sqrt(getScaledSignalDimension()));
 		
-		rangeWidth = calculateRangeWidth(getSignalDimension()) * getScale();
+		rangeWidth = calculateRangeWidth(signalDimension) * scale;
 		domainWidth = 2*rangeWidth;
 
 		domainDimension = domainWidth * domainWidth;
@@ -52,38 +57,31 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	}
 
 	@Override
-	public int getScaledSignalDimension() {
-		return getSignalDimension() * getScale() * getScale();
-	}
-
-	@Override
-	public void checkSignalDimension(int signalDimension, int numSignalChannels, int scale) {
-		if (signalDimension < 4) {
-			throw new IllegalArgumentException("Signal dimension must be greater or equal to 4.");
+	public boolean isCompatible(Signal signal, int scale) {
+		if (signal.getDimension() < 4) {
+			return false;
 		}
-		int root = (int)Math.round(Math.sqrt(signalDimension));
-		if (root*root != signalDimension) {
-			throw new IllegalArgumentException("Signal dimension must be a square: " + signalDimension);
+		int root = (int)Math.round(Math.sqrt(signal.getDimension()));
+		if (root*root != signal.getDimension()) {
+			return false;
 		}
 		if (scale < 1) {
-			throw new IllegalArgumentException("Scale must be a positive integer.");
+			return false;
 		}
+		return true;
 	}
 
 	@Override
 	public SquarePartitioningStrategy getPartitioner(Signal signal) {
-		return getPartitioner(signal.getDimension(), signal.getNumChannels(), 1);
+		return getPartitioner(signal, 1);
 	}
 
 	@Override
-	public SquarePartitioningStrategy getPartitioner(Fractal fractal, int scale) {
-		return getPartitioner(fractal.getSignalDimension(), fractal.getNumSignalChannels(), scale);
-	}
-
-	@Override
-	public SquarePartitioningStrategy getPartitioner(int signalDimension, int numSignalChannels, int scale) {
-		checkSignalDimension(signalDimension, numSignalChannels, scale);
-		return new SquarePartitioningStrategy(signalDimension, numSignalChannels, scale);
+	public SquarePartitioningStrategy getPartitioner(Signal signal, int scale) {
+		if(!isCompatible(signal, scale)) {
+			throw new IllegalArgumentException("Signal is not compatible with partitioning strategy.");
+		}
+		return new SquarePartitioningStrategy(signal, scale);
 	}
 
 	@Override
@@ -130,7 +128,6 @@ public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 		int spaceWidth = scaledSignalWidth;
 		int spaceHeight = spaceWidth;
 
-		int scale = getScale();
 		int numBlocksPerRow;
 		int numBlocksPerColumn;
 		

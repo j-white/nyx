@@ -1,5 +1,7 @@
 package math.nyx.framework;
 
+import math.nyx.core.Signal;
+
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
@@ -7,42 +9,33 @@ import com.google.common.base.Objects;
 
 public abstract class AbstractPartitioningStrategy implements PartitioningStrategy {
 
-	private final int signalDimension;
-
-	private final int numSignalChannels;
+	private final Signal signal;
 
 	private final int scale;
 
 	public AbstractPartitioningStrategy() {
-		signalDimension = 0;
-		numSignalChannels = 0;
+		//TODO: This constructor should not exist.
+		signal = null;
 		scale = 0;
 	}
 
-	public AbstractPartitioningStrategy(int signalDimension, int numSignalChannels, int scale) {
-		this.signalDimension = signalDimension;
-		this.numSignalChannels = numSignalChannels;
+	public AbstractPartitioningStrategy(Signal signal, int scale) {
+		this.signal = signal;
 		this.scale = scale;
+	}
+
+	public Signal getSignal() {
+		return signal;
 	}
 
 	public int getScale() {
 		return scale;
 	}
 
-	public int getSignalDimension() {
-		return signalDimension;
-	}
-
-	public int getNumSignalChannels() {
-		return numSignalChannels;
-	}
-
 	@Override
 	public int getScaledSignalDimension() {
-		return signalDimension * scale;
+		return signal.getScaledDimension(scale);
 	}
-
-	public abstract void checkSignalDimension(int signalDimension, int numSignalChannels, int scale);
 
 	@Override
 	public int[] getDomainIndices(int domainBlockIndex) {
@@ -92,7 +85,7 @@ public abstract class AbstractPartitioningStrategy implements PartitioningStrate
 	@Override
 	public String toString() {
 	    return Objects.toStringHelper(this.getClass())
-	            .add("signalDimension", signalDimension)
+	            .add("signal", signal)
 	            .add("scale", scale)
 	            .add("scaledSignalDimension", getScaledSignalDimension())
 	            .add("domainDimension", getDomainDimension())

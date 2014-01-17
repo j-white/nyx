@@ -1,6 +1,5 @@
 package math.nyx.framework;
 
-import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 
 import org.apache.commons.math.linear.SparseRealMatrix;
@@ -10,13 +9,13 @@ public interface PartitioningStrategy {
 
 	public PartitioningStrategy getPartitioner(Signal signal);
 
-	public PartitioningStrategy getPartitioner(Fractal fractal, int scale);
+	public PartitioningStrategy getPartitioner(Signal signal, int scale);
 
-	public PartitioningStrategy getPartitioner(int signalDimension, int numSignalChannels, int scale);
+	public boolean isCompatible(Signal signal, int scale);
+
+	public Signal getSignal();
 
 	public int getScale();
-
-	public int getSignalDimension();
 	
 	public int getScaledSignalDimension();
 

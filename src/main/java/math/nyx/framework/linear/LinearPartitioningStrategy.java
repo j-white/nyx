@@ -1,10 +1,11 @@
 package math.nyx.framework.linear;
 
-import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 import math.nyx.framework.AbstractPartitioningStrategy;
 
 public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
+	private final int scale;
+	private final int signalDimension;
 	private final int domainDimension;
 	private final int rangeDimension;
 
@@ -12,42 +13,45 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 		// Default constructor
 		domainDimension = 0;
 		rangeDimension = 0;
+		signalDimension = 0;
+		scale = 0;
 	}
 
-	private LinearPartitioningStrategy(int signalDimension, int numSignalChannels, int scale) {
-		super(signalDimension, numSignalChannels, scale);
+	private LinearPartitioningStrategy(Signal signal, int scale) {
+		super(signal, scale);
+		this.scale = scale;
+		signalDimension = signal.getDimension();
 		domainDimension = calculateDomainDimension();
 		rangeDimension = calculateRangeDimension();
 	}
 
 	@Override
 	public LinearPartitioningStrategy getPartitioner(Signal signal) {
-		return getPartitioner(signal.getDimension(), signal.getNumChannels(), 1);
+		return getPartitioner(signal, 1);
 	}
 
 	@Override
-	public LinearPartitioningStrategy getPartitioner(Fractal fractal, int scale) {
-		return getPartitioner(fractal.getSignalDimension(), fractal.getNumSignalChannels(), scale);
-	}
-
-	@Override
-	public LinearPartitioningStrategy getPartitioner(int signalDimension, int numSignalChannels, int scale) {
-		checkSignalDimension(signalDimension, numSignalChannels, scale);
-		return new LinearPartitioningStrategy(signalDimension, numSignalChannels, scale);
-	}
-
-	public void checkSignalDimension(int signalDimension, int numSignalChannels, int scale) {
-		if (signalDimension < 1 || signalDimension % 2 != 0) {
-			throw new IllegalArgumentException("Signal dimension must be an even positive integer.");
+	public LinearPartitioningStrategy getPartitioner(Signal signal, int scale) {
+		if(!isCompatible(signal, scale)) {
+			throw new IllegalArgumentException("Signal is not compatible with partitioning strategy.");
 		}
-		if (scale < 1) {
-			throw new IllegalArgumentException("Scale must be a positive integer.");
+		return new LinearPartitioningStrategy(signal, scale);
+	}
+
+	@Override
+	public boolean isCompatible(Signal signal, int scale) {
+		if (signal.getDimension() < 1 || signal.getDimension() % 2 != 0) {
+			return false;
+		} else if (scale < 1) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 
 	private int calculateDomainDimension() {
-		int N = Math.round((float)getSignalDimension() / 4);
-		int M = Math.min((int)Math.floor(Math.log(getSignalDimension()) / Math.log(1.1)), N);
+		int N = Math.round((float)signalDimension / 4);
+		int M = Math.min((int)Math.floor(Math.log(signalDimension) / Math.log(1.1)), N);
 
 		// If M is odd, make it even
 		if ((M+1) % 2 == 0) {
@@ -56,7 +60,7 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 
 		// Find the largest positive even integer bounded by M that divides the signal dimension
 		for (int k = M; k > 0; k -= 2) {
-			if ((getSignalDimension() / getNumSignalChannels()) % k == 0) {
+			if ((signalDimension / getSignal().getNumChannels()) % k == 0) {
 				return k * getScale();
 			}
 		}
@@ -80,14 +84,13 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 
 	@Override
 	public int getNumDomainPartitions() {
-		return getScaledSignalDimension() - domainDimension;
+		return signalDimension / getDomainDimension();
 	}
 
 	@Override
 	public int getNumRangePartitions() {
-		return getScaledSignalDimension() / getRangeDimension();
+		return getSignal().getScaledDimension(scale) / getRangeDimension();
 	}
-
 
 	@Override
 	public void getDomainIndices(int domainBlockIndex, int domainIndices[]) {

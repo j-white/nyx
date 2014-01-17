@@ -1,5 +1,7 @@
 package math.nyx.image;
 
+import java.awt.image.BufferedImage;
+
 import math.nyx.core.SignalMetadata;
 
 import com.google.common.base.Objects;
@@ -37,6 +39,10 @@ public class ImageMetadata implements SignalMetadata {
 	@Override
 	public ImageMetadata scale(int scale) {
 		return new ImageMetadata(width * scale, height * scale, type, numComponents);
+	}
+
+	public BufferedImage getBufferedImage() {
+		return new BufferedImage(getWidth(), getHeight(), getType());
 	}
 
 	@Override

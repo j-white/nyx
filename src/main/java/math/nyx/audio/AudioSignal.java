@@ -100,4 +100,9 @@ public class AudioSignal extends Signal {
 			fos.close();
 		}
 	}
+
+	@Override
+	public int getScaledDimension(int scale) {
+		return getDimension() * scale;
+	}
 }

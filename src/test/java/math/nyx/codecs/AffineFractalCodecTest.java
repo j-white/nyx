@@ -10,6 +10,8 @@ import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +20,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
+@ContextConfiguration(locations = {"classpath:applicationContext.xml",
+								   "classpath:applicationContext-test.xml"}) 
 public class AffineFractalCodecTest {
+	private static Logger logger = LogManager.getLogger("Nyx");
+
 	@Autowired
-	@Qualifier("imageCodec")
+	@Qualifier("affineSquareCodec")
 	private FractalCodec affineCodec;
 
 	@Test
@@ -44,10 +49,9 @@ public class AffineFractalCodecTest {
 		// Decode at various scales
 		int scales[] = new int[]{1, 2, 3, 4, 5, 6, 7, 8};
 		for (int scale : scales) {
-			System.out.println("\nTesting with scale: " + scale);
+			logger.debug("Testing with scale: {}", scale);
 			Signal signal = affineCodec.decode(fractal, scale);
-			System.out.println(signal);
-			//assertEquals(signal.getDimension(), scale * fractal.getUnpaddedSignalDimension());
+
 			for(int i = 0; i < signal.getDimension(); i++) {
 				String message = String.format("Scale: %d, Row: %d", scale, i);
 				assertEquals(message, c, signal.getEntry(i), TestUtils.DELTA);

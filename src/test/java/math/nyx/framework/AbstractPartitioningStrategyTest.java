@@ -1,6 +1,8 @@
 package math.nyx.framework;
 
 import static org.junit.Assert.assertArrayEquals;
+import math.nyx.core.Signal;
+import math.nyx.image.ImageSignal;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
@@ -9,7 +11,7 @@ import org.apache.commons.math.linear.SparseRealMatrix;
 import org.junit.Test;
 
 public abstract class AbstractPartitioningStrategyTest {
-	public abstract PartitioningStrategy getPartitioner(int signalDimension, int numSignalChannel, int scale);
+	public abstract PartitioningStrategy getPartitioner(Signal signal, int scale);
 
 	@Test
 	public void fetchAndPutRangePartitions() {
@@ -17,7 +19,7 @@ public abstract class AbstractPartitioningStrategyTest {
 		int signalDimension = 16;
 		int scales[] = {1, 2, 3, 4};
 		for (int scale : scales) {
-			PartitioningStrategy partitioner = getPartitioner(signalDimension, 1, scale);
+			PartitioningStrategy partitioner = getPartitioner(new ImageSignal(signalDimension), scale);
 			fetchAndPutRangePartitions(partitioner);
 		}
 	}
@@ -43,7 +45,7 @@ public abstract class AbstractPartitioningStrategyTest {
 
 		// And compare the two vectors
 		String message = String.format("Signal dimension: %d Scale: %d Num partitions: %d",
-				partitioner.getSignalDimension(), partitioner.getScale(), numRangePartitions);
+				partitioner.getSignal().getDimension(), partitioner.getScale(), numRangePartitions);
 		assertArrayEquals(message, signal.getColumn(0), result.getColumn(0), TestUtils.DELTA);
 	}
 }

@@ -7,8 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import math.nyx.core.Fractal;
-import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
+import math.nyx.framework.FractalCodec;
 import math.nyx.image.ImageSignal;
 import math.nyx.utils.TestUtils;
 
@@ -21,11 +21,12 @@ import org.springframework.util.SerializationUtils;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
+@ContextConfiguration(locations = {"classpath:applicationContext.xml",
+								   "classpath:applicationContext-test.xml"}) 
 public class ImageEncodeDecodeTest {
 	@Autowired
-	@Qualifier("imageCodec")
-	private FractalEncoder fractalEncoder;
+	@Qualifier("affineSquareCodec")
+	private FractalCodec fractalCodec;
 
 	private BufferedImage createImage(int size) {
 		if (size % 2 != 0 || size < 2) {
@@ -59,7 +60,7 @@ public class ImageEncodeDecodeTest {
 		//System.out.println("Source signal: " + sourceSignal);
 		
 		// Now encode the signal as a fractal
-		Fractal fractal = fractalEncoder.encode(sourceSignal);
+		Fractal fractal = fractalCodec.encode(sourceSignal);
 		//System.out.println("Fractal: "  + fractal);
 
 		// Serialize and de-serialize the fractal
@@ -76,7 +77,7 @@ public class ImageEncodeDecodeTest {
 
 	private void decodeAndCompare(Fractal fractal, int size, int scale, BufferedImage expectedImage) {
 		// Decode the signal from the fractal at the given scale
-		ImageSignal decodedSignal = (ImageSignal)fractal.decode(scale);
+		ImageSignal decodedSignal = (ImageSignal)fractalCodec.decode(fractal, scale);
 
 		// Create a signal from the expected image
 		ImageSignal expectedSignal = new ImageSignal(expectedImage);

@@ -92,7 +92,7 @@ public class NyxRunnerTest {
 		for (Transform t : report.getTransforms()) {
 			symmetriesUsed.add((Symmetry)t.getKernelParameters().get("symmetry"));
 		}
-		assertTrue(symmetriesUsed.size() > 1);
+		assertTrue(symmetriesUsed.size() == 1);
 
 		// Grab the first decode report
 		DecodeReport decodeReport =  decodeReports.get(0);

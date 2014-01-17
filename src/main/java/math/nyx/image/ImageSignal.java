@@ -13,6 +13,8 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
@@ -26,6 +28,7 @@ import math.nyx.core.Signal;
  */
 public class ImageSignal extends Signal {
 	private static final long serialVersionUID = -1875089091108123392L;
+	private static Logger logger = LogManager.getLogger("Nyx");
 
 	public static final String TYPE = "Image";
 
@@ -39,6 +42,10 @@ public class ImageSignal extends Signal {
 	public ImageSignal(BufferedImage img) {
 		this(bufferedImageToVector(img), new ImageMetadata(img.getWidth(), img.getHeight(),
 														   img.getType(), img.getColorModel().getNumComponents()));
+	}
+
+	public ImageSignal(int size) {
+		this(new Array2DRowRealMatrix(size, 1));
 	}
 
 	public ImageSignal(RealMatrix v) {
@@ -74,13 +81,14 @@ public class ImageSignal extends Signal {
 	}
 
 	public BufferedImage getImage() {
-		BufferedImage img = new BufferedImage(metadata.getWidth(), metadata.getHeight(), metadata.getType());
+		BufferedImage img = metadata.getBufferedImage();
 		DataBuffer dataBuffer = img.getRaster().getDataBuffer();
 		double[] data = getVector().getColumn(0);
 
-		int numChannels = metadata.getNumComponents();
+		int numChannels = getNumChannels();
 		int numEntriesPerChannel = Math.round((float)dataBuffer.getSize() / numChannels);
-		
+		logger.debug("Converting {}, with {} entries per channel to buffered image.", this, numEntriesPerChannel);
+
 		switch(dataBuffer.getDataType()) {
 		case DataBuffer.TYPE_BYTE:
 			{
@@ -89,11 +97,9 @@ public class ImageSignal extends Signal {
 					for (int j = 0; j < numEntriesPerChannel; j++) {
 						int u = numEntriesPerChannel*i + j;
 						int v = i + j*numChannels;
-						//System.out.println("u: " + u + " v: " + v);
 						pixels[v] = (byte)data[u];
 					}
 				}
-				//System.out.println("reverted pixels: " + java.util.Arrays.toString(pixels));
 			}
 			break;
 		case DataBuffer.TYPE_USHORT:
@@ -176,5 +182,10 @@ public class ImageSignal extends Signal {
 	@Override
 	public double getMaxVal() {
 		return 255;
+	}
+
+	@Override
+	public int getScaledDimension(int scale) {
+		return getDimension() * scale * scale;
 	}
 }

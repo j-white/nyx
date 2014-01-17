@@ -9,6 +9,7 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.springframework.util.SerializationUtils;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
 
 public abstract class Signal implements Serializable {
 	private static final long serialVersionUID = -3505516831802019801L;
@@ -28,9 +29,9 @@ public abstract class Signal implements Serializable {
 
 	public Signal(Fractal fractal, RealMatrix decodedVector) {
 		// Extract the unpadded signal from the decoded vector
-		int unpaddedSignalDimension = decodedVector.getRowDimension() - fractal.getSignalPad();
+		int unpaddedSignalDimension = decodedVector.getRowDimension() - fractal.getSignal().getPad();
 		this.x = decodedVector.getSubMatrix(0, unpaddedSignalDimension-1, 0, 0);
-		this.numChannels = fractal.getNumSignalChannels();
+		this.numChannels = fractal.getSignal().getNumChannels();
 	}
 
 	/** Used to identify the type of the signal in a report. */
@@ -41,6 +42,8 @@ public abstract class Signal implements Serializable {
 	public abstract double getMinVal();
 
 	public abstract double getMaxVal();
+	
+	public abstract int getScaledDimension(int scale);
 
 	public abstract void write(File file) throws IOException;
 
@@ -116,12 +119,16 @@ public abstract class Signal implements Serializable {
 		}
     }
 
-	@Override
-	public String toString() {
-	    return Objects.toStringHelper(this.getClass())
+	public ToStringHelper toStringHelper() {
+		return Objects.toStringHelper(this.getClass())
 	    		.add("dimension", getDimension())
 	    		.add("unpaddedDimension", getUnpaddedDimension())
 	    		.add("numChannels", getNumChannels())
-	            .toString();
+	    		.add("metadata", getMetadata());
+	}
+
+	@Override
+	public final String toString() {
+		return toStringHelper().toString();
 	}
 }

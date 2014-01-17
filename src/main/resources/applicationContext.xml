@@ -37,9 +37,9 @@
 	<!-- Codecs -->
 	<bean id="imageCodec" class="math.nyx.framework.FractalCodec">
 		<property name="name" value="imageCodec" />
-		<property name="kernel" ref="affineKernelWithPermutations" />
-		<property name="partitioningStrategy" ref="squarePartitioningStrategy" />
-		<property name="decimationStrategy" ref="squareDecimationStrategy" />
+		<property name="kernel" ref="affineKernelWithoutPermutations" />
+		<property name="partitioningStrategy" ref="linearPartitioningStrategy" />
+		<property name="decimationStrategy" ref="averagingDecimationStrategy" />
 	</bean>
 
 	<bean id="audioCodec" class="math.nyx.framework.FractalCodec">
