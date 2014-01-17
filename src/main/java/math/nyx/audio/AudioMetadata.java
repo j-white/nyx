@@ -1,14 +1,15 @@
 package math.nyx.audio;
 
-import java.io.Serializable;
 import java.util.Map;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioFormat.Encoding;
 
+import math.nyx.core.SignalMetadata;
+
 import com.google.common.base.Objects;
 
-public class AudioMetadata implements Serializable {
+public class AudioMetadata implements SignalMetadata {
 	private static final long serialVersionUID = 6282613034251062575L;
 
 	private final int formatChannels;
@@ -55,5 +56,10 @@ public class AudioMetadata implements Serializable {
 	    		.add("format", getFormat())
 	    		.add("frameLength", getFrameLength())
 	            .toString();
+	}
+
+	@Override
+	public AudioMetadata scale(int scale) {
+		return this;
 	}
 }

@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 
+import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 
 /**
@@ -26,6 +27,11 @@ import math.nyx.core.Signal;
 public class ImageSignal extends Signal {
 	private static final long serialVersionUID = -1875089091108123392L;
 	private final ImageMetadata metadata;
+
+	public ImageSignal(Fractal fractal, RealMatrix decodedVector, ImageMetadata metadata) {
+		super(fractal, decodedVector);
+		this.metadata = metadata;
+	}
 
 	public ImageSignal(BufferedImage img) {
 		this(bufferedImageToVector(img), new ImageMetadata(img.getWidth(), img.getHeight(),
@@ -161,5 +167,11 @@ public class ImageSignal extends Signal {
 														originalType, orginalNumComponents);
 		ImageSignal decodedImageSignal = new ImageSignal(decodedSignal, imageMetadata);
 		ImageIO.write(decodedImageSignal.getImage(), "png", file);
+	}
+
+	@Override
+	public void write(File file) {
+		// TODO Auto-generated method stub
+		
 	}
 }

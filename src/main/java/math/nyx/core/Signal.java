@@ -1,6 +1,7 @@
 package math.nyx.core;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
@@ -9,7 +10,7 @@ import org.springframework.util.SerializationUtils;
 
 import com.google.common.base.Objects;
 
-public class Signal implements Serializable {
+public abstract class Signal implements Serializable {
 	private static final long serialVersionUID = -3505516831802019801L;
 
 	private RealMatrix x;
@@ -31,6 +32,10 @@ public class Signal implements Serializable {
 		this.x = decodedVector.getSubMatrix(0, unpaddedSignalDimension-1, 0, 0);
 		this.numChannels = fractal.getNumSignalChannels();
 	}
+
+	public abstract SignalMetadata getMetadata();
+
+	public abstract void write(File file) throws IOException;
 
 	public void pad(int targetDimension) {
 		int targetPad = targetDimension - getDimension();
@@ -77,6 +82,14 @@ public class Signal implements Serializable {
 		return numChannels;
 	}
 
+	public long getSizeInBytes() {
+		return SerializationUtils.serialize(this).length;
+	}
+
+	public double getPSNR(Signal signal) {
+		return 0.0;
+	}
+
 	@Override
     public boolean equals(Object obj) {
 		if (obj == null)
@@ -103,17 +116,5 @@ public class Signal implements Serializable {
 	    		.add("unpaddedDimension", getUnpaddedDimension())
 	    		.add("numChannels", getNumChannels())
 	            .toString();
-	}
-
-	public long getSizeInBytes() {
-		return SerializationUtils.serialize(this).length;
-	}
-
-	public void write(File file) {
-		// TODO Auto-generated method stub
-	}
-
-	public double getPSNR(Signal signal) {
-		return 0.0;
 	}
 }

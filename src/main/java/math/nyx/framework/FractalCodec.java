@@ -75,11 +75,8 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		}
 
 		// Construct the fractal used to store our results
-		Fractal fractal = new Fractal();
+		Fractal fractal = new Fractal(signal);
 		fractal.setCodecName(name);
-		fractal.setSignalDimension(signal.getDimension());
-		fractal.setSignalPad(signal.getPad());
-		fractal.setNumSignalChannels(signal.getNumChannels());
 
 		// Now match the domain and range partitions while minimizing the distance
 		// and store the results in the fractal
@@ -216,13 +213,8 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 			x = x_n;
 			xRef = x.getDataRef();
 		}
-		
-		/*int id = 32 * 28;
-		SparseRealMatrix F_I = partitioner.getRangeFetchOperator(id);
-		System.out.println("Range block " + id + " decoded: " + F_I.multiply(x));
-		System.exit(1);*/
-		
-		return new Signal(fractal, x);
+
+		return fractal.getSignalFromDecodedVector(x, scale);
 	}
 
 	public SparseRealMatrix getDecimationOperator(PartitioningStrategy partitioner) {

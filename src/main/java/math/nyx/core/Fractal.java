@@ -13,28 +13,45 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.util.LinkedList;
 import java.util.List;
 
 import math.nyx.framework.FractalCodec;
 import math.nyx.framework.PartitioningStrategy;
 
+import org.apache.commons.math.linear.RealMatrix;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.google.common.base.Objects;
 
 public class Fractal implements Serializable {
 	private static final long serialVersionUID = -3691227743645881425L;
+	private static Logger logger = LogManager.getLogger("Nyx");
 
 	private String codecName;
 
-	private int signalDimension;
+	private final String signalClass;
 
-	private int signalPad;
+	private final SignalMetadata signalMetadata;
 
-	private int numSignalChannels = 1;
+	private final int signalDimension;
+
+	private final int signalPad;
+
+	private final int numSignalChannels;
 
 	private final List<Transform> transforms = new LinkedList<Transform>();
+
+	public Fractal(Signal signal) {
+		signalClass = signal.getClass().getCanonicalName();
+		signalMetadata = signal.getMetadata();
+		signalDimension = signal.getDimension();
+		signalPad = signal.getPad();
+		numSignalChannels = signal.getNumChannels();
+	}
 
 	public Signal decode() {
 		return decode(1);
@@ -75,24 +92,16 @@ public class Fractal implements Serializable {
 		return signalDimension;
 	}
 
-	public void setSignalDimension(int signalDimension) {
-		this.signalDimension = signalDimension;
-	}
-
 	public int getSignalPad() {
 		return signalPad;
-	}
-
-	public void setSignalPad(int signalPad) {
-		this.signalPad = signalPad;
 	}
 
 	public int getNumSignalChannels() {
 		return numSignalChannels;
 	}
 
-	public void setNumSignalChannels(int numSignalChannels) {
-		this.numSignalChannels = numSignalChannels;
+	public SignalMetadata getSignalMetadata() {
+		return signalMetadata;
 	}
 
 	public void addTransform(Transform transform) {
@@ -127,6 +136,24 @@ public class Fractal implements Serializable {
 			ObjectOutput output = new ObjectOutputStream(buffer);
 	    ){
 	    	output.writeObject(this);
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Signal getSignalFromDecodedVector(RealMatrix x, int scale) {
+		try {
+			Class myClass = Class.forName(signalClass);
+
+			Class[] types = {this.getClass(), RealMatrix.class, signalMetadata.getClass()};
+			Constructor constructor = myClass.getConstructor(types);
+
+			Object[] parameters = {this, x, signalMetadata.scale(scale)};
+			Object instanceOfMyClass = constructor.newInstance(parameters);
+			
+			return (Signal)instanceOfMyClass;
+		} catch(Exception ex) {
+			logger.error("Could not create signal from vector.", ex);
+			throw new RuntimeException("Could not create signal from vector.", ex);
 		}
 	}
 

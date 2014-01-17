@@ -105,7 +105,7 @@ public class Nyx {
 		return fractal;
 	}
 
-	public Signal decode(Fractal fractal, int scale, File signalOnDisk) {
+	public Signal decode(Fractal fractal, int scale, File signalOnDisk) throws IOException {
 		Signal decodedSignal = fractal.decode(scale);
 		logger.info("Writing decoded signal to {}", signalOnDisk);
 		decodedSignal.write(signalOnDisk);

@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.sound.sampled.AudioFileFormat.Type;
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
@@ -21,6 +21,11 @@ public class AudioSignal extends Signal {
 	private static final long serialVersionUID = 2184407289543087741L;
 
 	private final AudioMetadata metadata;
+
+	public AudioSignal(Fractal fractal, RealMatrix decodedVector, AudioMetadata metadata) {
+		super(fractal, decodedVector);
+		this.metadata = metadata;
+	}
 
 	public AudioSignal(AudioInputStream audioIs) throws IOException {
 		this(audioStreamToVector(audioIs), new AudioMetadata(audioIs.getFormat(), audioIs.getFrameLength()));
@@ -70,17 +75,11 @@ public class AudioSignal extends Signal {
 		return x;
 	}
 
-	public static void writeToFile(AudioSignal originalSignal, Signal decodedSignal, int scale, File file) throws IOException {
-		AudioFormat audioFormat = originalSignal.getMetadata().getFormat(scale);
-		long frameLength = originalSignal.getMetadata().getFrameLength() * scale;
-		AudioMetadata audioMetadata = new AudioMetadata(audioFormat, frameLength);
-		
-		System.out.printf("Size: %d Size scaled: %d Metadata: %s", originalSignal.getDimension(), decodedSignal.getDimension(), audioMetadata);
-
-		AudioSignal decodedAudioSignal = new AudioSignal(decodedSignal, audioMetadata);
+	@Override
+	public void write(File file) throws IOException {
 		FileOutputStream fos = new FileOutputStream(file);
 		try{
-			AudioSystem.write(decodedAudioSignal.getAudioStream(), Type.WAVE, fos);
+			AudioSystem.write(getAudioStream(), Type.WAVE, fos);
 		} finally {
 			fos.close();
 		}

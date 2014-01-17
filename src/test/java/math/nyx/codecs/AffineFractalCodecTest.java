@@ -29,8 +29,7 @@ public class AffineFractalCodecTest {
 		final double c = 13.0;
 
 		// Build a simple fractal
-		Fractal fractal = new Fractal();
-		fractal.setSignalDimension(signalDimension);
+		Fractal fractal = new Fractal(new ImageSignal(new Array2DRowRealMatrix(signalDimension, 1)));
 		fractal.addTransform(new AffineTransform(0, 0, 0, 0, c));
 		fractal.addTransform(new AffineTransform(0, 1, 0, 0, c));
 		fractal.addTransform(new AffineTransform(0, 2, 0, 0, c));

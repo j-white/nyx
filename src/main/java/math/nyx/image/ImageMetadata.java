@@ -1,10 +1,10 @@
 package math.nyx.image;
 
-import java.io.Serializable;
+import math.nyx.core.SignalMetadata;
 
 import com.google.common.base.Objects;
 
-public class ImageMetadata implements Serializable {
+public class ImageMetadata implements SignalMetadata {
 	private static final long serialVersionUID = -6662522469914219075L;
 	private final int width;
 	private final int height;
@@ -32,6 +32,11 @@ public class ImageMetadata implements Serializable {
 
 	public int getNumComponents() {
 		return numComponents;
+	}
+
+	@Override
+	public ImageMetadata scale(int scale) {
+		return this;
 	}
 
 	@Override
