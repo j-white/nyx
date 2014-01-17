@@ -22,8 +22,13 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.util.StringUtils;
 
+/**
+ * Main class used to control encode, decode and generate reports via the CLI.
+ *
+ * @author jwhite
+ */
 public class NyxRunner {
-	private static Logger logger = LogManager.getLogger("NyxRunner");
+	private static Logger logger = LogManager.getLogger("Nyx");
 
 	public static final Integer[] SCALE_VALUES = new Integer[] { 1 };
 
@@ -91,16 +96,16 @@ public class NyxRunner {
         return generateAndSaveCodecReports(fileNames);
     }
 
-	public List<FractalCodecReport> generateAndSaveCodecReports(List<String> fileNames) {
+	public List<FractalCodecReport> generateAndSaveCodecReports(List<String> fileNames) throws IOException {
         List<FractalCodecReport> reports = new ArrayList<FractalCodecReport>();
         for( String fileName : fileNames ) {
         	File sourceFile = new File(fileName);
-        	logger.info("Generating encode/decode report for {} .", sourceFile);
+        	logger.info("Generating encode/decode report for {}.", sourceFile);
         	FractalCodecReport report = nyx.encodeDecode(sourceFile, scales, outputFolder, forceEncode);
         	reports.add(report);
 
         	File reportFile = new File(outputFolder, String.format("%s-report.tex", sourceFile.getName()));
-        	logger.info("Saving report to {} .", reportFile);
+        	logger.info("Saving report to {}.", reportFile);
         	report.save(reportFile);
         }
 

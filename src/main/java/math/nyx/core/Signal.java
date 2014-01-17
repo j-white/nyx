@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
+import org.springframework.util.SerializationUtils;
 
 import com.google.common.base.Objects;
 
@@ -101,8 +102,11 @@ public class Signal implements Serializable {
 	    		.add("dimension", getDimension())
 	    		.add("unpaddedDimension", getUnpaddedDimension())
 	    		.add("numChannels", getNumChannels())
-	            .add("vector", getVector())
 	            .toString();
+	}
+
+	public long getSizeInBytes() {
+		return SerializationUtils.serialize(this).length;
 	}
 
 	public void write(File file) {

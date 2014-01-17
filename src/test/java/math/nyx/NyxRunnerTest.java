@@ -57,24 +57,25 @@ public class NyxRunnerTest {
 	@Test
 	public void lenaReportTest() throws IOException {
 		// Copy the resource from the class-path to a temporary file
-		File sourceFile = getFileFor("hall.png");
+		File sourceFile = getFileFor("ocean-gray-32.png");
 
 		// Generate the report via the main function
-		FractalCodecReport codecReport = getReportFor(sourceFile);
+		FractalCodecReport report = getReportFor(sourceFile);
 
-		// We should have two decode reports with scales 1 and 2
-		List<DecodeReport> decodeReports =  codecReport.getDecodeReports();
+		// We should have two decode reports with scales 1 and 4
+		List<DecodeReport> decodeReports = report.getDecodeReports();
 		assertEquals(2, decodeReports.size());
 
 		assertEquals(1, decodeReports.get(0).getScale());
-		assertEquals(2, decodeReports.get(1).getScale());
+		assertEquals(4, decodeReports.get(1).getScale());
 
 		// Grab the first decode report
 		DecodeReport decodeReport =  decodeReports.get(0);
 
 		// The size of the decoded signal should be non-zero
-		assertNotEquals(0, decodeReport.getSignalSizeInBytes());
+		assertNotEquals(0, decodeReport.getDecodedSignal().getSizeInBytes());
 
+		/*
 		// We should be able to read the decoded image
 		File decodedFile = decodeReport.getDestFile();
 		BufferedImage decodedImage = ImageIO.read(decodedFile);
@@ -85,6 +86,7 @@ public class NyxRunnerTest {
 		assertEquals(originalImage.getHeight(), decodedImage.getHeight());
 		assertEquals(originalImage.getTransparency(), decodedImage.getTransparency());
 		assertEquals(originalImage.getType(), decodedImage.getType());
+		*/
 	}
 
 	/**
@@ -106,7 +108,9 @@ public class NyxRunnerTest {
 	 * Generate the report by passing the arguments as strings via the main function
 	 */
 	private FractalCodecReport getReportFor(File sourceFile) throws IOException {
-		String args[] = new String[]{"-s", "2", sourceFile.getAbsolutePath()};
+		String args[] = new String[]{"-s", "4", // Decode at 1x and at 4z
+									 "-o", sourceFile.getParent(), // Point the output folder to the temp dir.
+									 sourceFile.getAbsolutePath()};
 		return nyxRunner.doMain(args).get(0);
 	}
 }

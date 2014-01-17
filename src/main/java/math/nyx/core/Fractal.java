@@ -137,7 +137,6 @@ public class Fractal implements Serializable {
 	    		.add("signalDimension", getSignalDimension())
 	    		.add("numSignalChannels", getNumSignalChannels())
 	    		.add("numTransforms", getTransforms().size())
-	    		.add("transforms", getTransforms())
 	            .toString();
 	}
 }
