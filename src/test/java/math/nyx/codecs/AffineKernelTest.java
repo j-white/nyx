@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import math.nyx.affine.AffineKernel;
 import math.nyx.affine.AffineTransform;
 import math.nyx.framework.SignalBlock;
-import math.nyx.framework.SquareDecimationStrategy;
+import math.nyx.framework.square.SquareDecimationStrategy;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;

@@ -1,7 +1,8 @@
-package math.nyx.framework;
+package math.nyx.framework.linear;
 
 import static org.junit.Assert.assertEquals;
-import math.nyx.framework.LinearPartitioningStrategy;
+import math.nyx.framework.AbstractPartitioningStrategyTest;
+import math.nyx.framework.linear.LinearPartitioningStrategy;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.RealMatrix;

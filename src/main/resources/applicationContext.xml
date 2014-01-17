@@ -8,15 +8,24 @@
  
 	<context:annotation-config />
  
+ 	<bean id="nyx" class="math.nyx.Nyx"/>
+	
+	<bean id="signalFactory" class="math.nyx.core.SignalFactory"></bean>
+	
+	<bean id="fractalFactory" class="math.nyx.core.FractalFactory"></bean>
+
+	<!-- Linear -->
+	<bean id="linearPartitioningStrategy" class="math.nyx.framework.linear.LinearPartitioningStrategy"/>
+	
+	<bean id="averagingDecimationStrategy" class="math.nyx.framework.linear.AveragingDecimationStrategy"/>
+
+	<!-- Square -->
+	<bean id="squarePartitioningStrategy" class="math.nyx.framework.square.SquarePartitioningStrategy"/>
+
+	<bean id="squareDecimationStrategy" class="math.nyx.framework.square.SquareDecimationStrategy"/>
+
+	<!-- Affine -->
 	<bean id="affineKernel" class="math.nyx.affine.AffineKernel"/>
-
-	<bean id="linearPartitioningStrategy" class="math.nyx.framework.LinearPartitioningStrategy"/>
-	
-	<bean id="squarePartitioningStrategy" class="math.nyx.framework.SquarePartitioningStrategy"/>
-	
-	<bean id="averagingDecimationStrategy" class="math.nyx.framework.AveragingDecimationStrategy"/>
-
-	<bean id="squareDecimationStrategy" class="math.nyx.framework.SquareDecimationStrategy"/>
 
 	<bean id="imageCodec" class="math.nyx.framework.FractalCodec">
 		<property name="name" value="imageCodec" />
@@ -31,11 +40,5 @@
 		<property name="partitioningStrategy" ref="linearPartitioningStrategy" />
 		<property name="decimationStrategy" ref="averagingDecimationStrategy" />
 	</bean>
-
-	<bean id="fractalFactory" class="math.nyx.core.FractalFactory"></bean>
-	
-	<bean id="signalFactory" class="math.nyx.core.SignalFactory"></bean>
-	
-	<bean id="nyx" class="math.nyx.Nyx"/>
 
 </beans>

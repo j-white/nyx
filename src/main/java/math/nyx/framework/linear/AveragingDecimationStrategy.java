@@ -1,4 +1,6 @@
-package math.nyx.framework;
+package math.nyx.framework.linear;
+
+import math.nyx.framework.DecimationStrategy;
 
 import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;

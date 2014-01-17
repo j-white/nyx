@@ -23,7 +23,7 @@ import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
 import math.nyx.core.Transform;
 import math.nyx.framework.PartitioningStrategy;
-import math.nyx.framework.SquarePartitioningStrategy;
+import math.nyx.framework.square.SquarePartitioningStrategy;
 import math.nyx.image.ImageMetadata;
 import math.nyx.image.ImageSignal;
 

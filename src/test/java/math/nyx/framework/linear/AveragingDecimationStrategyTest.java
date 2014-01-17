@@ -1,7 +1,7 @@
-package math.nyx.framework;
+package math.nyx.framework.linear;
 
 import static org.junit.Assert.assertEquals;
-
+import math.nyx.framework.linear.AveragingDecimationStrategy;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.RealMatrix;

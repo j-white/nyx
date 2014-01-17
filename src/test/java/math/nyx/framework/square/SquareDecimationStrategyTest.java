@@ -1,7 +1,8 @@
-package math.nyx.framework;
+package math.nyx.framework.square;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import math.nyx.framework.square.SquareDecimationStrategy;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;

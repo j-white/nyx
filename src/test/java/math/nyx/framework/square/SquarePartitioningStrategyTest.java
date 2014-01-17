@@ -1,8 +1,10 @@
-package math.nyx.framework;
+package math.nyx.framework.square;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
-
+import math.nyx.framework.AbstractPartitioningStrategyTest;
+import math.nyx.framework.square.SquareDecimationStrategy;
+import math.nyx.framework.square.SquarePartitioningStrategy;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.RealMatrix;

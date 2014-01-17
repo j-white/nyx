@@ -1,7 +1,8 @@
-package math.nyx.framework;
+package math.nyx.framework.square;
 
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
+import math.nyx.framework.AbstractPartitioningStrategy;
 
 public class SquarePartitioningStrategy extends AbstractPartitioningStrategy {
 	private final int originalSignalWidth;
