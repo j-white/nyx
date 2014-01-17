@@ -5,6 +5,7 @@ import math.nyx.framework.AbstractPartitioningStrategy;
 
 public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 	private final int scale;
+	private final int ratio;
 	private final int signalDimension;
 	private final int domainDimension;
 	private final int rangeDimension;
@@ -15,11 +16,13 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 		rangeDimension = 0;
 		signalDimension = 0;
 		scale = 0;
+		ratio = 0;
 	}
 
 	private LinearPartitioningStrategy(Signal signal, int scale) {
 		super(signal, scale);
 		this.scale = scale;
+		this.ratio = (int)((float)signal.getScaledDimension(scale) / signal.getDimension());
 		signalDimension = signal.getDimension();
 		domainDimension = calculateDomainDimension();
 		rangeDimension = calculateRangeDimension();
@@ -61,11 +64,11 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 		// Find the largest positive even integer bounded by M that divides the signal dimension
 		for (int k = M; k > 0; k -= 2) {
 			if ((signalDimension / getSignal().getNumChannels()) % k == 0) {
-				return k * getScale();
+				return k * ratio;
 			}
 		}
 
-		return 2 * getScale();
+		return 2 * ratio;
 	}
 
 	private int calculateRangeDimension() {
@@ -84,7 +87,7 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 
 	@Override
 	public int getNumDomainPartitions() {
-		return signalDimension / getDomainDimension();
+		return signalDimension - (int)((float)getDomainDimension() / ratio) + 1;
 	}
 
 	@Override
@@ -95,7 +98,7 @@ public class LinearPartitioningStrategy extends AbstractPartitioningStrategy {
 	@Override
 	public void getDomainIndices(int domainBlockIndex, int domainIndices[]) {
 		for (int k = 0; k < domainDimension; k++) {
-			domainIndices[k] = domainBlockIndex * getScale() + k;
+			domainIndices[k] = domainBlockIndex * scale + k;
 		}
 	}
 

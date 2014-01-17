@@ -76,4 +76,28 @@ public class LinearPartitioningStrategyTest extends AbstractPartitioningStrategy
 		assertEquals(7, (int)block.getEntry(0, 0));
 		assertEquals(8, (int)block.getEntry(1, 0));
 	}
+
+	@Test
+	public void scaledDomainAndRangePartitions() {
+		int signalDimension = 4;
+		Signal signal = new ImageSignal(signalDimension);
+		LinearPartitioningStrategy orignalPartitioner = lpStrategy.getPartitioner(signal);
+		assertEquals(4, orignalPartitioner.getScaledSignalDimension());
+
+		assertEquals(1, orignalPartitioner.getRangeDimension());
+		assertEquals(4, orignalPartitioner.getNumRangePartitions());
+		
+		assertEquals(2, orignalPartitioner.getDomainDimension());
+		assertEquals(3, orignalPartitioner.getNumDomainPartitions());
+		
+		int scale = 2;
+		LinearPartitioningStrategy scaledPartitioner = lpStrategy.getPartitioner(signal, scale);
+		assertEquals(16, scaledPartitioner.getScaledSignalDimension());
+
+		assertEquals(4, scaledPartitioner.getRangeDimension());
+		assertEquals(4, scaledPartitioner.getNumRangePartitions());
+
+		assertEquals(8, scaledPartitioner.getDomainDimension());
+		assertEquals(3, scaledPartitioner.getNumDomainPartitions());
+	}
 }
