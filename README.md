@@ -1,4 +1,4 @@
 nyx
 ===
 
-Fractal-based Signal Encoding and Decoding
+Fractal Signal Modeling
