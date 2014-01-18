@@ -1,11 +1,8 @@
 package math.nyx.framework.square;
 
-import math.nyx.framework.DecimationStrategy;
+import math.nyx.framework.AbstractDecimationStrategy;
 
-import org.apache.commons.math.linear.OpenMapRealMatrix;
-import org.apache.commons.math.linear.SparseRealMatrix;
-
-public class SquareDecimationStrategy implements DecimationStrategy {
+public class SquareDecimationStrategy extends AbstractDecimationStrategy {
 	private final int rangeDimension;
 	private final int domainDimension;
 	private final int decimationRatio;
@@ -18,17 +15,14 @@ public class SquareDecimationStrategy implements DecimationStrategy {
 		this.decimationRatio = 4;
 	}
 
-	@Override
-	public SparseRealMatrix getDecimationOperator() {
-		SparseRealMatrix D = new OpenMapRealMatrix(rangeDimension, domainDimension);
+	public void getIndices(int indices[][]) {
 		for (int i = 0; i < rangeDimension; i++) {
 			int offset = getOffset(i);
 			for (int j = 0; j < decimationRatio; j++) {
 				int index = getIndex(j);
-				D.setEntry(i, offset + index, 1.0f / decimationRatio);
+				indices[i][j] = offset + index;
 			}
 		}
-		return D;
 	}
 
 	protected int getOffset(int decimatorRow) {

@@ -169,6 +169,12 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		int domainIndices[] = new int[partitioner.getDomainDimension()];
 		int rangeIndices[] = new int[partitioner.getRangeDimension()];
 
+		DecimationStrategy decimator = getDecimator(partitioner);
+		final int decimationRatio = decimator.getDecimationRatio();
+		int indices[][] = decimator.getIndices();
+		Array2DRowRealMatrix optDecimatedDomainBlock = new Array2DRowRealMatrix(partitioner.getRangeDimension(), 1);
+		double dRef[][] = optDecimatedDomainBlock.getDataRef();
+
 		for (int n = 1; n <= numberOfIterations; n++) {
 			logger.info("Decoding: Iteration {} of {}", n, numberOfIterations);
 			Array2DRowRealMatrix x_n = new Array2DRowRealMatrix(scaledSignalDimension, 1);
@@ -200,8 +206,19 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 				}
 
 				// Decimate
-				// TODO: Optimize this
-				RealMatrix decimatedDomainBlock = D.multiply(domainBlock);
+				RealMatrix decimatedDomainBlock;
+				if (!optimized) {
+					decimatedDomainBlock = D.multiply(domainBlock);
+				} else {
+					for (int i = 0; i < indices.length; i++) {
+						dRef[i][0] = 0;
+						for (int j = 0; j < indices[i].length; j++) {
+							dRef[i][0] += domainBlockRef[indices[i][j]][0];
+						}
+						dRef[i][0] *= 1.0f/decimationRatio;
+					}
+					decimatedDomainBlock = optDecimatedDomainBlock;
+				}
 
 				// Apply the transform
 				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock, fractal.getSignal(), true);
@@ -225,9 +242,13 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		return fractal.getSignalFromDecodedVector(x, scale);
 	}
 
-	public SparseRealMatrix getDecimationOperator(PartitioningStrategy partitioner) {
+	public DecimationStrategy getDecimator(PartitioningStrategy partitioner) {
 		return decimationStrategyFactory.getDecimator(partitioner.getRangeDimension(),
-				partitioner.getDomainDimension()).getDecimationOperator();
+				partitioner.getDomainDimension());
+	}
+
+	public SparseRealMatrix getDecimationOperator(PartitioningStrategy partitioner) {
+		return getDecimator(partitioner).getDecimationOperator();
 	}
 
 	public void setKernel(Kernel kernel) {

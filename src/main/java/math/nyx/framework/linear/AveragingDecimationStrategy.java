@@ -1,11 +1,8 @@
 package math.nyx.framework.linear;
 
-import math.nyx.framework.DecimationStrategy;
+import math.nyx.framework.AbstractDecimationStrategy;
 
-import org.apache.commons.math.linear.OpenMapRealMatrix;
-import org.apache.commons.math.linear.SparseRealMatrix;
-
-public class AveragingDecimationStrategy implements DecimationStrategy {
+public class AveragingDecimationStrategy extends AbstractDecimationStrategy {
 	private final int rangeDimension;
 	private final int domainDimension;
 	private final int decimationRatio;
@@ -17,14 +14,12 @@ public class AveragingDecimationStrategy implements DecimationStrategy {
 	}
 
 	@Override
-	public SparseRealMatrix getDecimationOperator() {
-		SparseRealMatrix D = new OpenMapRealMatrix(rangeDimension, domainDimension);
+	public void getIndices(int indices[][]) {
 		for (int i = 0; i < rangeDimension; i++) {
 			for (int j = 0; j < decimationRatio; j++) {
-				D.setEntry(i, i*decimationRatio + j, 1.0f/decimationRatio);
+				indices[i][j] = i*decimationRatio + j;
 			}
 		}
-		return D;
 	}
 
 	@Override
@@ -32,10 +27,12 @@ public class AveragingDecimationStrategy implements DecimationStrategy {
 		return decimationRatio;
 	}
 
+	@Override
 	public int getRangeDimension() {
 		return rangeDimension;
 	}
 
+	@Override
 	public int getDomainDimension() {
 		return domainDimension;
 	}

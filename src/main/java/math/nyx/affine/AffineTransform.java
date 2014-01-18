@@ -57,8 +57,15 @@ public class AffineTransform extends AbstractTransform {
 		RealMatrix range = null;
 		if (inPlace) {
 			range = domain;
-			for (int i = 0; i < rangeDimension; i++) {
-				range.setEntry(i, 0, domain.getEntry(i, 0) * scale + offset);
+			if (domain instanceof Array2DRowRealMatrix) {
+				double data[][] = ((Array2DRowRealMatrix)range).getDataRef();
+				for (int i = 0; i < rangeDimension; i++) {
+					data[i][0] = data[i][0] * scale + offset; 
+				}
+			} else {
+				for (int i = 0; i < rangeDimension; i++) {
+					range.setEntry(i, 0, domain.getEntry(i, 0) * scale + offset);
+				}
 			}
 		} else {
 			Array2DRowRealMatrix K_scale = new Array2DRowRealMatrix(rangeDimension, rangeDimension);
