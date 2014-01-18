@@ -8,6 +8,19 @@
   <properties>
   	<springVersion>3.2.5.RELEASE</springVersion>
   </properties>
+  <build>
+    <plugins>
+      <!-- Require Java 7 -->
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+            <source>1.7</source>
+            <target>1.7</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
 	<dependency>
     	<groupId>org.freemarker</groupId>
