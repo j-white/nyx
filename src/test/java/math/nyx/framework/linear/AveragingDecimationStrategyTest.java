@@ -1,7 +1,6 @@
 package math.nyx.framework.linear;
 
 import static org.junit.Assert.assertEquals;
-import math.nyx.framework.linear.AveragingDecimationStrategy;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.RealMatrix;
@@ -16,10 +15,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
 public class AveragingDecimationStrategyTest {
 	@Autowired
-	private AveragingDecimationStrategy adStrategy;
+	private AveragingDecimationStrategyFactory adStrategyFactory;
 
 	private SparseRealMatrix getDecimator(int rangeDimension, int domainDimension) {
-		return adStrategy.getDecimationOperator(rangeDimension, domainDimension);
+		return adStrategyFactory.getDecimator(rangeDimension, domainDimension).getDecimationOperator();
 	}
 
 	@Test

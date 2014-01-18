@@ -6,21 +6,32 @@ import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
 public class SquareDecimationStrategy implements DecimationStrategy {
+	private final int rangeDimension;
+	private final int domainDimension;
+	private final int decimationRatio;
+
+	public SquareDecimationStrategy(int rangeDimension, int domainDimension) {
+		this.rangeDimension = rangeDimension;
+		this.domainDimension = domainDimension;
+		
+		//TODO: Verify range and domain partition sizes
+		this.decimationRatio = 4;
+	}
+
 	@Override
-	public SparseRealMatrix getDecimationOperator(int rangeDimension, int domainDimension) {
-		final int decimationRatio = 4;
+	public SparseRealMatrix getDecimationOperator() {
 		SparseRealMatrix D = new OpenMapRealMatrix(rangeDimension, domainDimension);
 		for (int i = 0; i < rangeDimension; i++) {
-			int offset = getOffset(i, rangeDimension, domainDimension);
+			int offset = getOffset(i);
 			for (int j = 0; j < decimationRatio; j++) {
-				int index = getIndex(j, rangeDimension, domainDimension);
+				int index = getIndex(j);
 				D.setEntry(i, offset + index, 1.0f / decimationRatio);
 			}
 		}
 		return D;
 	}
 
-	protected int getOffset(int decimatorRow, int rangeDimension, int domainDimension) {
+	protected int getOffset(int decimatorRow) {
 		int rangeWidth = (int)Math.sqrt(rangeDimension);
 		int domainWidth = (int)Math.sqrt(domainDimension);
 		
@@ -33,8 +44,21 @@ public class SquareDecimationStrategy implements DecimationStrategy {
 		return a + b;
 	}
 
-	protected int getIndex(int cellNumber, int rangeDimension, int domainDimension) {
+	protected int getIndex(int cellNumber) {
 		int root = (int)Math.sqrt(domainDimension);
 		return ((cellNumber / 2) * root) + (cellNumber % 2);
+	}
+
+	@Override
+	public int getDecimationRatio() {
+		return decimationRatio;
+	}
+
+	public int getRangeDimension() {
+		return rangeDimension;
+	}
+
+	public int getDomainDimension() {
+		return domainDimension;
 	}
 }

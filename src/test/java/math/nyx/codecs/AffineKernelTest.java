@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import math.nyx.affine.AffineKernel;
 import math.nyx.affine.AffineTransform;
 import math.nyx.framework.SignalBlock;
-import math.nyx.framework.square.SquareDecimationStrategy;
+import math.nyx.framework.square.SquareDecimationStrategyFactory;
 import math.nyx.utils.TestUtils;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
@@ -22,7 +22,7 @@ public class AffineKernelTest {
 	private AffineKernel affineKernel = new AffineKernel();
 
 	@Autowired
-	private SquareDecimationStrategy decimationStrategy;
+	private SquareDecimationStrategyFactory decimationStrategyFactory;
 
 	@Test
 	public void getAffineTransformForIdenticalBlocks() {
@@ -86,8 +86,8 @@ public class AffineKernelTest {
 			14.0, 14.0, 15.0, 14.0, 12.0, 14.0, 13.0, 12.0, 12.0, 12.0, 12.0, 13.0, 12.0, 14.0, 15.0, 13.0
 		};
 
-		SparseRealMatrix decimationOperator = decimationStrategy.getDecimationOperator(rangeVector.length, domainVector.length);
-		
+		SparseRealMatrix decimationOperator = decimationStrategyFactory.getDecimator(rangeVector.length, domainVector.length).getDecimationOperator();
+
 		RealMatrix range = new Array2DRowRealMatrix(rangeVector.length, 1);
 		range.setColumn(0, rangeVector);
 		

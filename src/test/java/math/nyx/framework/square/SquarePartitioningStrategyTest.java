@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 import math.nyx.core.Signal;
 import math.nyx.framework.AbstractPartitioningStrategyTest;
-import math.nyx.framework.square.SquareDecimationStrategy;
 import math.nyx.framework.square.SquarePartitioningStrategy;
 import math.nyx.image.ImageSignal;
 import math.nyx.utils.TestUtils;
@@ -22,9 +21,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class SquarePartitioningStrategyTest extends AbstractPartitioningStrategyTest {
 	@Autowired
 	private SquarePartitioningStrategyFactory spFactory;
-
-	@Autowired
-	private SquareDecimationStrategy decStrategy;
 
 	@Override
 	public SquarePartitioningStrategyFactory getPartioningStrategyFactory() {

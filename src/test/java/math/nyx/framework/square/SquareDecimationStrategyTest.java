@@ -18,42 +18,50 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"file:src/main/resources/applicationContext.xml"}) 
 public class SquareDecimationStrategyTest {
 	@Autowired
-	private SquareDecimationStrategy sdStrategy;
+	private SquareDecimationStrategyFactory sdStrategyFactory;
 
-	private SparseRealMatrix getDecimator(int rangeDimension, int domainDimension) {
-		return sdStrategy.getDecimationOperator(rangeDimension, domainDimension);
+	private SquareDecimationStrategy getDecimator(int rangeDimension, int domainDimension) {
+		return sdStrategyFactory.getDecimator(rangeDimension, domainDimension);
+	}
+
+	private SparseRealMatrix getDecimationOperator(int rangeDimension, int domainDimension) {
+		return getDecimator(rangeDimension, domainDimension).getDecimationOperator();
 	}
 
 	@Test
 	public void checkOffset() {
 		// 3x3 -> 2x2
-		assertEquals(0, sdStrategy.getOffset(0, 4, 9));
-		assertEquals(1, sdStrategy.getOffset(1, 4, 9));
-		assertEquals(3, sdStrategy.getOffset(2, 4, 9));
-		assertEquals(4, sdStrategy.getOffset(3, 4, 9));
+		SquareDecimationStrategy sdStrategy = getDecimator(4, 9);
+		assertEquals(0, sdStrategy.getOffset(0));
+		assertEquals(1, sdStrategy.getOffset(1));
+		assertEquals(3, sdStrategy.getOffset(2));
+		assertEquals(4, sdStrategy.getOffset(3));
 		
 		// 16x16 -> 8x8
-		assertEquals(0, sdStrategy.getOffset(0, 64, 256));
-		assertEquals(2, sdStrategy.getOffset(1, 64, 256));
-		assertEquals(4, sdStrategy.getOffset(2, 64, 256));
-		assertEquals(6, sdStrategy.getOffset(3, 64, 256));
-		
-		assertEquals(32, sdStrategy.getOffset(8, 64, 256));
+		sdStrategy = getDecimator(64, 256);
+		assertEquals(0, sdStrategy.getOffset(0));
+		assertEquals(2, sdStrategy.getOffset(1));
+		assertEquals(4, sdStrategy.getOffset(2));
+		assertEquals(6, sdStrategy.getOffset(3));
+		// ...
+		assertEquals(32, sdStrategy.getOffset(8));
 	}
 
 	@Test
 	public void checkIndex() {
 		// 3x3 -> 2x2
-		assertEquals(0, sdStrategy.getIndex(0, 4, 9));
-		assertEquals(1, sdStrategy.getIndex(1, 4, 9));
-		assertEquals(3, sdStrategy.getIndex(2, 4, 9));
-		assertEquals(4, sdStrategy.getIndex(3, 4, 9));
+		SquareDecimationStrategy sdStrategy = getDecimator(4, 9);
+		assertEquals(0, sdStrategy.getIndex(0));
+		assertEquals(1, sdStrategy.getIndex(1));
+		assertEquals(3, sdStrategy.getIndex(2));
+		assertEquals(4, sdStrategy.getIndex(3));
 		
 		// 16x16 -> 8x8
-		assertEquals(0, sdStrategy.getIndex(0, 64, 256));
-		assertEquals(1, sdStrategy.getIndex(1, 64, 256));
-		assertEquals(16, sdStrategy.getIndex(2, 64, 256));
-		assertEquals(17, sdStrategy.getIndex(3, 64, 256));
+		sdStrategy = getDecimator(64, 256);
+		assertEquals(0, sdStrategy.getIndex(0));
+		assertEquals(1, sdStrategy.getIndex(1));
+		assertEquals(16, sdStrategy.getIndex(2));
+		assertEquals(17, sdStrategy.getIndex(3));
 	}
 
 	@Test
@@ -62,7 +70,7 @@ public class SquareDecimationStrategyTest {
 		RealMatrix signal = TestUtils.generateSignal(9);
 
 		// Decimate
-		SparseRealMatrix decimator = getDecimator(4, 9);
+		SparseRealMatrix decimator = getDecimationOperator(4, 9);
 		RealMatrix decimated = decimator.multiply(signal);
 
 		// Verify
@@ -108,7 +116,7 @@ public class SquareDecimationStrategyTest {
 		expectedDecimatedDomain.setColumn(0, decimatedDomainVector);
 
 		// Decimate
-		SparseRealMatrix decimator = getDecimator(decimatedDomainVector.length, domainVector.length);
+		SparseRealMatrix decimator = getDecimationOperator(decimatedDomainVector.length, domainVector.length);
 		RealMatrix decimatedDomain = decimator.multiply(domain);
 		
 		// Verify

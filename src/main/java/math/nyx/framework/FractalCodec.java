@@ -22,7 +22,6 @@ import math.nyx.core.FractalDecoder;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
 import math.nyx.core.Transform;
-import math.nyx.framework.DecimationStrategy;
 import math.nyx.framework.Kernel;
 import math.nyx.framework.PartitioningStrategy;
 
@@ -31,7 +30,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 
 	private Kernel kernel;
 	private PartitioningStrategyFactory partitioningStrategyFactory;
-	private DecimationStrategy decimationStrategy;
+	private DecimationStrategyFactory decimationStrategyFactory;
 	private String name;
 	
 	public static final int DECODE_ITERATIONS = 12;
@@ -227,8 +226,8 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	}
 
 	public SparseRealMatrix getDecimationOperator(PartitioningStrategy partitioner) {
-		return decimationStrategy.getDecimationOperator(partitioner.getRangeDimension(),
-				partitioner.getDomainDimension());
+		return decimationStrategyFactory.getDecimator(partitioner.getRangeDimension(),
+				partitioner.getDomainDimension()).getDecimationOperator();
 	}
 
 	public void setKernel(Kernel kernel) {
@@ -247,12 +246,12 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		return partitioningStrategyFactory;
 	}
 
-	public void setDecimationStrategy(DecimationStrategy decimationStrategy) {
-		this.decimationStrategy = decimationStrategy;
+	public void setDecimationStrategyFactory(DecimationStrategyFactory decimationStrategyFactory) {
+		this.decimationStrategyFactory = decimationStrategyFactory;
 	}
 
-	public DecimationStrategy getDecimationStrategy() {
-		return decimationStrategy;
+	public DecimationStrategyFactory getDecimationStrategyFactory() {
+		return decimationStrategyFactory;
 	}
 
 	public void setName(String name) {

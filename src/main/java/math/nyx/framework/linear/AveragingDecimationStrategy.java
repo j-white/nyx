@@ -6,10 +6,18 @@ import org.apache.commons.math.linear.OpenMapRealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 
 public class AveragingDecimationStrategy implements DecimationStrategy {
-	@Override
-	public SparseRealMatrix getDecimationOperator(int rangeDimension, int domainDimension) {
-		final int decimationRatio = (int)Math.floor((float)domainDimension / rangeDimension);
+	private final int rangeDimension;
+	private final int domainDimension;
+	private final int decimationRatio;
 
+	public AveragingDecimationStrategy(int rangeDimension, int domainDimension) {
+		this.rangeDimension = rangeDimension;
+		this.domainDimension = domainDimension;
+		this.decimationRatio = (int)Math.floor((float)domainDimension / rangeDimension);
+	}
+
+	@Override
+	public SparseRealMatrix getDecimationOperator() {
 		SparseRealMatrix D = new OpenMapRealMatrix(rangeDimension, domainDimension);
 		for (int i = 0; i < rangeDimension; i++) {
 			for (int j = 0; j < decimationRatio; j++) {
@@ -17,5 +25,18 @@ public class AveragingDecimationStrategy implements DecimationStrategy {
 			}
 		}
 		return D;
+	}
+
+	@Override
+	public int getDecimationRatio() {
+		return decimationRatio;
+	}
+
+	public int getRangeDimension() {
+		return rangeDimension;
+	}
+
+	public int getDomainDimension() {
+		return domainDimension;
 	}
 }

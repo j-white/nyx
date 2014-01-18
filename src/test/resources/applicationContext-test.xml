@@ -12,7 +12,7 @@
 		<property name="name" value="affineSquareCodec" />
 		<property name="kernel" ref="affineKernelWithPermutations" />
 		<property name="partitioningStrategyFactory" ref="squarePartitioningStrategyFactory" />
-		<property name="decimationStrategy" ref="squareDecimationStrategy" />
+		<property name="decimationStrategyFactory" ref="squareDecimationStrategyFactory" />
 	</bean>
 
 </beans>
