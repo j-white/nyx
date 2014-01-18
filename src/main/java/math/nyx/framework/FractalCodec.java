@@ -201,6 +201,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 				}
 
 				// Decimate
+				// TODO: Optimize this
 				RealMatrix decimatedDomainBlock = D.multiply(domainBlock);
 
 				// Apply the transform

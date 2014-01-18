@@ -51,7 +51,7 @@ public class AffineTransform extends AbstractTransform {
 
 	@Override
 	public RealMatrix apply(RealMatrix domain, Signal signal, boolean inPlace) {
-		RealMatrix permutedDomain = permute(domain, symmetry, false);
+		RealMatrix permutedDomain = permute(domain, symmetry, inPlace);
 		int rangeDimension = permutedDomain.getRowDimension();
 
 		RealMatrix range = null;
