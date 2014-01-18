@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.math.linear.Array2DRowRealMatrix;
+import org.apache.commons.math.linear.Array2DColumnRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.SparseRealMatrix;
 import org.apache.logging.log4j.LogManager;
@@ -152,81 +152,116 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		return decode(fractal, scale, decodeIterations);
 	}
 
+	// Courtesy of http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
+	public static String humanReadableByteCount(long bytes, boolean si) {
+	    int unit = si ? 1000 : 1024;
+	    if (bytes < unit) return bytes + " B";
+	    int exp = (int) (Math.log(bytes) / Math.log(unit));
+	    String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
+	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+	}
+
+	//TODO: Moved optimized routines to a separate decode function
 	public Signal decode(Fractal fractal, int scale, int numberOfIterations) {
 		PartitioningStrategy partitioner = partitioningStrategyFactory.getPartitioner(fractal.getSignal(), scale);
 		int scaledSignalDimension = partitioner.getScaledSignalDimension();
+
+		logger.info("Allocating memory for two column vectors of dimension {} (total of {}) and associated operators.",
+						scaledSignalDimension, humanReadableByteCount(2*(long)scaledSignalDimension*8, true));
 
 		SparseRealMatrix D = getDecimationOperator(partitioner);
 		boolean optimized = true;
 		RealMatrix domainBlock = null;
 
 		// Iterated system
-		Array2DRowRealMatrix x = new Array2DRowRealMatrix(scaledSignalDimension, 1);
-		
+		Array2DColumnRealMatrix x = new Array2DColumnRealMatrix(scaledSignalDimension, 1);
+		Array2DColumnRealMatrix x_n = new Array2DColumnRealMatrix(scaledSignalDimension, 1);
+
 		// For optimized routine
 		double domainBlockRef[][] = null;
 		double xRef[][] = x.getDataRef();
+		double xnRef[][] = x_n.getDataRef();
 		int domainIndices[] = new int[partitioner.getDomainDimension()];
 		int rangeIndices[] = new int[partitioner.getRangeDimension()];
 
 		DecimationStrategy decimator = getDecimator(partitioner);
 		final int decimationRatio = decimator.getDecimationRatio();
 		int indices[][] = decimator.getIndices();
-		Array2DRowRealMatrix optDecimatedDomainBlock = new Array2DRowRealMatrix(partitioner.getRangeDimension(), 1);
+		Array2DColumnRealMatrix optDecimatedDomainBlock = new Array2DColumnRealMatrix(partitioner.getRangeDimension(), 1);
 		double dRef[][] = optDecimatedDomainBlock.getDataRef();
+
+		int numTransforms = fractal.getTransforms().size();
+		Signal signal = fractal.getSignal();
+		
+		logger.info("Done allocating memory.");
 
 		for (int n = 1; n <= numberOfIterations; n++) {
 			logger.info("Decoding: Iteration {} of {}", n, numberOfIterations);
-			Array2DRowRealMatrix x_n = new Array2DRowRealMatrix(scaledSignalDimension, 1);
+			
+			logger.trace("Resetting vector to 0.");
+			
+			// Reset the vector to 0
+			for (int i = 0; i < scaledSignalDimension; i++) {
+				xnRef[0][i] = 0;
+			}
 			
 			int k = 1;
-			int numTransforms = fractal.getTransforms().size();
 			for (Transform transform : fractal.getTransforms()) {
-				String percentageComplete = String.format("%.2f%%", ((float)k/numTransforms) * 100);
-				logger.debug("Applying transform {}/{} ({}): {}", ++k, numTransforms,
-						percentageComplete, transform);
+				if (logger.isDebugEnabled()) {
+					String percentageComplete = String.format("%.2f%%", ((float)k/numTransforms) * 100);
+					logger.debug("Applying transform {}/{} ({}): {}", ++k, numTransforms,
+							percentageComplete, transform);
+				}
 
 				int rangeBlockIndex = transform.getRangeBlockIndex();
 
+				logger.trace("Fetching");
+				
 				// Fetch
 				if (!optimized) {
 					SparseRealMatrix F_I = partitioner.getDomainFetchOperator(transform.getDomainBlockIndex());
 					domainBlock = F_I.multiply(x);
 				} else {
 					if (domainBlock == null) {
-						Array2DRowRealMatrix block = new Array2DRowRealMatrix(partitioner.getDomainDimension(), 1);
+						Array2DColumnRealMatrix block = new Array2DColumnRealMatrix(partitioner.getDomainDimension(), 1);
 						domainBlock = block;
 						domainBlockRef = block.getDataRef();
 					}
 
 					partitioner.getDomainIndices(transform.getDomainBlockIndex(), domainIndices);
 					for (int i = 0; i < domainIndices.length; i++) {
-						domainBlockRef[i][0] = xRef[domainIndices[i]][0];
+						domainBlockRef[0][i] = xRef[0][domainIndices[i]];
 					}
 				}
 
+				logger.trace("Decimating");
+				
 				// Decimate
 				RealMatrix decimatedDomainBlock;
 				if (!optimized) {
 					decimatedDomainBlock = D.multiply(domainBlock);
 				} else {
 					for (int i = 0; i < indices.length; i++) {
-						dRef[i][0] = 0;
+						dRef[0][i] = 0;
 						for (int j = 0; j < indices[i].length; j++) {
-							dRef[i][0] += domainBlockRef[indices[i][j]][0];
+							dRef[0][i] += domainBlockRef[0][indices[i][j]];
 						}
-						dRef[i][0] *= 1.0f/decimationRatio;
+						dRef[0][i] *= 1.0f/decimationRatio;
 					}
 					decimatedDomainBlock = optDecimatedDomainBlock;
 				}
 
+				logger.trace("Transforming");
+				
 				// Apply the transform
-				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock, fractal.getSignal(), true);
+				RealMatrix transformedBlock = transform.apply(decimatedDomainBlock, signal, true);
+				
+				logger.trace("Putting");
 				
 				// Put
 				if (!optimized) {
 					SparseRealMatrix P_J = partitioner.getPutOperator(rangeBlockIndex);
-					x_n = (Array2DRowRealMatrix) x_n.add(P_J.multiply(transformedBlock));
+					x_n = (Array2DColumnRealMatrix) x_n.add(P_J.multiply(transformedBlock));
 				} else {
 					partitioner.getRangeIndices(rangeBlockIndex, rangeIndices);
 					for (int i = 0; i < rangeIndices.length; i++) {
@@ -235,8 +270,13 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 				}
 			}
 
+			// Swap x and x_n
+			Array2DColumnRealMatrix tmp = x;
 			x = x_n;
+			x_n = tmp;
+
 			xRef = x.getDataRef();
+			xnRef = x_n.getDataRef();
 		}
 
 		return fractal.getSignalFromDecodedVector(x, scale);

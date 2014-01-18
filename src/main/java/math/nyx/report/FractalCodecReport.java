@@ -55,10 +55,6 @@ public class FractalCodecReport extends TexReport {
 		return sourceSignal.getDimension();
 	}
 
-	public long getSizeOfSignalInBytes() {
-		return sourceSignal.getSizeInBytes();
-	}
-
 	/* Encoding summary */
 
 	private Fractal fractal;
@@ -79,10 +75,6 @@ public class FractalCodecReport extends TexReport {
 
 	public long getSecondsToEncode() {
 		return secondsToEncode;
-	}
-
-	public long getSizeOfFractalInBytes() {
-		return fractal.getSizeInBytes();
 	}
 
 	public String getCodecName() {

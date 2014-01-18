@@ -35,10 +35,6 @@ Signal dimension: ${report.signalDimension}
 
 Seconds to encode: ${report.secondsToEncode}s
 
-Size of signal in bytes: ${report.sizeOfSignalInBytes}
-
-Size of fractal in bytes: ${report.sizeOfFractalInBytes}
-
 Range dimension: ${report.rangeDimension}
 
 Number of range partitions: ${report.numRangePartitions}
@@ -60,8 +56,6 @@ Number of transforms: ${report.numTransforms}
 Seconds to decode: ${r.secondsToDecode}
 
 Decoded signal dimension: ${r.decodedSignal.dimension}
-
-Decoded size in bytes: ${r.decodedSignal.sizeInBytes}
 
 </#list>
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.math.linear.Array2DColumnRealMatrix;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 
@@ -57,10 +58,10 @@ public class AffineTransform extends AbstractTransform {
 		RealMatrix range = null;
 		if (inPlace) {
 			range = domain;
-			if (domain instanceof Array2DRowRealMatrix) {
-				double data[][] = ((Array2DRowRealMatrix)range).getDataRef();
+			if (domain instanceof Array2DColumnRealMatrix) {
+				double data[][] = ((Array2DColumnRealMatrix)range).getDataRef();
 				for (int i = 0; i < rangeDimension; i++) {
-					data[i][0] = data[i][0] * scale + offset; 
+					data[0][i] = data[0][i] * scale + offset; 
 				}
 			} else {
 				for (int i = 0; i < rangeDimension; i++) {
@@ -89,13 +90,13 @@ public class AffineTransform extends AbstractTransform {
 		// Bound the transform with the min and max vals of the underlying signal
 		double minVal = signal.getMinVal();
 		double maxVal = signal.getMaxVal();
-		if (range instanceof Array2DRowRealMatrix) {
-			double data[][] = ((Array2DRowRealMatrix)range).getDataRef();
+		if (range instanceof Array2DColumnRealMatrix) {
+			double data[][] = ((Array2DColumnRealMatrix)range).getDataRef();
 			for (int i = 0; i < data.length; i++) {
-				if (data[i][0] < minVal) {
-					data[i][0] = minVal;
-				} else if (data[i][0] > maxVal) {
-					data[i][0] = maxVal;
+				if (data[0][i] < minVal) {
+					data[0][i] = minVal;
+				} else if (data[0][i] > maxVal) {
+					data[0][i] = maxVal;
 				}
 			}
 		} else {
@@ -113,6 +114,8 @@ public class AffineTransform extends AbstractTransform {
 
 	public static RealMatrix permute(RealMatrix vector, Symmetry symmetry, boolean inPlace) {
 		if (symmetry == Symmetry.ORIGINAL) return vector;
+
+		//TODO: getColumn() creates a copy of the underlying vector, try to avoid this
 		Iterator<Double> it = new SymmetryIterator(vector.getColumn(0), symmetry);
 		int k = 0;
 		RealMatrix permutedVector = vector;

@@ -72,7 +72,6 @@ public class NyxRunnerTest {
 		assertEquals(sourceFile, report.getSourceFile());
 		assertEquals(ImageSignal.TYPE, report.getSignalType());
 		assertEquals(32*32, report.getSignalDimension());
-		assertTrue(report.getSizeOfSignalInBytes() > 0);
 
 		// We should have two decode reports with scales 1 and 4
 		List<DecodeReport> decodeReports = report.getDecodeReports();
