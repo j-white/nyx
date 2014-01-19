@@ -24,7 +24,7 @@ import org.apache.commons.math.linear.MatrixVisitorException;
 import org.apache.commons.math.exception.util.LocalizedFormats;
 
 /**
- * Differs from the Array2DRowRealMatrix in that it stores entries with:
+ * Differs from the Array2DRowRealMatrix in that it stores entries in:
  *    data[column][row]
  *
  * as opposed to:
