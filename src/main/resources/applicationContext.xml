@@ -39,7 +39,7 @@
 	</bean>
 
 	<!-- Codecs -->
-	
+
 	<!--  
 	<bean id="imageCodec" class="math.nyx.framework.FractalCodec">
 		<property name="name" value="imageCodec" />

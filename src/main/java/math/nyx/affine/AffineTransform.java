@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.math.linear.Array2DColumnRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
+import org.springframework.util.Assert;
 
 import math.nyx.core.AbstractTransform;
 import math.nyx.core.Signal;
@@ -98,6 +99,8 @@ public class AffineTransform extends AbstractTransform {
 		while (it.hasNext()) {
 			vector.setEntry(k++, 0, it.next());
 		}
+
+		Assert.isTrue(k == copyOfColumn.length);
 	}
 
 	@Override

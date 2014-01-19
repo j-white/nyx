@@ -73,7 +73,6 @@ public class AffineKernel implements Kernel {
 				Math.sqrt(Math.abs(R)), s, o, symmetry);
 	}
 
-	@Override
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, boolean permute) {
 		if (permute) {
 			// Iterate over all of the known symmetries to find the one with the least distance
@@ -84,8 +83,8 @@ public class AffineKernel implements Kernel {
 					bestTransform = transform;
 				}
 
-				// If the distance is identically zero, don't try and find a "better" transform
-				if (transform.getDistance() == 0.0) {
+				// If the distance is <= the threshold, don't try to find a "better" transform
+				if (transform.getDistance() <= threshold) {
 					break;
 				}
 			}
@@ -99,6 +98,7 @@ public class AffineKernel implements Kernel {
 		this.threshold = threshold;
 	}
 
+	@Override
 	public double getThreshold() {
 		return threshold;
 	}

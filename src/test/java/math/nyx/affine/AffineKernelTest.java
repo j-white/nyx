@@ -1,4 +1,4 @@
-package math.nyx.codecs;
+package math.nyx.affine;
 
 import static org.junit.Assert.assertEquals;
 import math.nyx.affine.AffineKernel;
@@ -96,7 +96,9 @@ public class AffineKernelTest {
 
 		RealMatrix decimatedDomain = decimationOperator.multiply(domain);
 		
-		AffineTransform transform = affineKernel.encode(new SignalBlock(0, decimatedDomain), new SignalBlock(0, range));
+		SignalBlock domainBlock = new SignalBlock(0, decimatedDomain);
+		SignalBlock rangeBlock = new SignalBlock(0, range);
+		AffineTransform transform = affineKernel.encode(domainBlock, rangeBlock);
 		
 		assertEquals(1.303533, transform.getDistance(), TestUtils.DELTA);
 		assertEquals(0.107998, transform.getScale(), TestUtils.DELTA);

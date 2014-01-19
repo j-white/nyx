@@ -144,8 +144,8 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 				if (transform.compareTo(bestTransform) < 0)
 					bestTransform = transform;
 
-				// If the distance is identically zero, don't try and find a "better" transform
-				if (transform.getDistance() == 0.0)
+				// If the distance is <= the kernel's threshold, don't try to find a "better" transform
+				if (transform.getDistance() <= kernel.getThreshold())
 					break;
 			}
 

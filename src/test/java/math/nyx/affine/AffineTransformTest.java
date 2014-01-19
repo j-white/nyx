@@ -1,4 +1,4 @@
-package math.nyx.codecs;
+package math.nyx.affine;
 
 import math.nyx.affine.AffineTransform;
 import math.nyx.affine.Symmetry;
