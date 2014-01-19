@@ -75,11 +75,11 @@ public class AffineTransform extends AbstractTransform {
 		for (int i = 0; i < dimension; i++) {
 			data[0][i] = data[0][i] * scale + offset; 
 		}
-
+		
 		// Bound the transform with the min and max vals of the underlying signal
 		double minVal = signal.getMinVal();
 		double maxVal = signal.getMaxVal();
-		for (int i = 0; i < data.length; i++) {
+		for (int i = 0; i < data[0].length; i++) {
 			if (data[0][i] < minVal) {
 				data[0][i] = minVal;
 			} else if (data[0][i] > maxVal) {
