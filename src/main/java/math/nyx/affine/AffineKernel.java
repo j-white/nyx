@@ -1,5 +1,6 @@
 package math.nyx.affine;
 
+import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.springframework.util.Assert;
 
@@ -25,7 +26,8 @@ public class AffineKernel implements Kernel {
 	}
 
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, Symmetry symmetry) {
-		RealMatrix domain = AffineTransform.permute(domainBlock.getBlock(), symmetry, false);
+		RealMatrix domain = new Array2DRowRealMatrix(domainBlock.getBlock().getData(), false);
+		AffineTransform.permute(domainBlock.getBlock(), symmetry);
 		RealMatrix range = rangeBlock.getBlock();
 
 		Assert.isTrue(domain.getColumnDimension() == 1,

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.Collection;
 
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
@@ -12,21 +14,42 @@ import math.nyx.framework.FractalCodec;
 import math.nyx.image.ImageSignal;
 import math.nyx.utils.TestUtils;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestContextManager;
 import org.springframework.util.SerializationUtils;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(Parameterized.class)
 @ContextConfiguration(locations = {"classpath:applicationContext.xml",
 								   "classpath:applicationContext-test.xml"}) 
 public class ImageEncodeDecodeTest {
 	@Autowired
 	@Qualifier("affineSquareCodec")
 	private FractalCodec fractalCodec;
+
+	private final boolean useOptimizedDecodeRoutine;
+
+	public ImageEncodeDecodeTest(boolean useOptimizedDecodeRoutine) {
+		this.useOptimizedDecodeRoutine = useOptimizedDecodeRoutine;
+	}
+ 
+	@Parameters
+	public static Collection<Object[]> data() {
+		Object[][] data = new Object[][] { { true }, { false } };
+		return Arrays.asList(data);
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		new TestContextManager(getClass()).prepareTestInstance(this);
+		fractalCodec.setOptimized(useOptimizedDecodeRoutine);
+	}
 
 	private BufferedImage createImage(int size) {
 		if (size % 2 != 0 || size < 2) {

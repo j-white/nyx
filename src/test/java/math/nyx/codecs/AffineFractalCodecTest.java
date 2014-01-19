@@ -1,6 +1,10 @@
 package math.nyx.codecs;
 
 import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.Collection;
+
 import math.nyx.affine.AffineTransform;
 import math.nyx.core.Fractal;
 import math.nyx.core.Signal;
@@ -12,14 +16,17 @@ import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.TestContextManager;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(Parameterized.class)
 @ContextConfiguration(locations = {"classpath:applicationContext.xml",
 								   "classpath:applicationContext-test.xml"}) 
 public class AffineFractalCodecTest {
@@ -28,6 +35,24 @@ public class AffineFractalCodecTest {
 	@Autowired
 	@Qualifier("affineSquareCodec")
 	private FractalCodec affineCodec;
+
+	private final boolean useOptimizedDecodeRoutine;
+
+	public AffineFractalCodecTest(boolean useOptimizedDecodeRoutine) {
+		this.useOptimizedDecodeRoutine = useOptimizedDecodeRoutine;
+	}
+ 
+	@Parameters
+	public static Collection<Object[]> data() {
+		Object[][] data = new Object[][] { { true }, { false } };
+		return Arrays.asList(data);
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		new TestContextManager(getClass()).prepareTestInstance(this);
+		affineCodec.setOptimized(useOptimizedDecodeRoutine);
+	}
 
 	@Test
 	public void decodeConstantSignal() {
