@@ -1,5 +1,6 @@
 package math.nyx.affine;
 
+import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.springframework.util.Assert;
 
@@ -25,7 +26,8 @@ public class AffineKernel implements Kernel {
 	}
 
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, Symmetry symmetry) {
-		RealMatrix domain = AffineTransform.permute(domainBlock.getBlock(), symmetry, false);
+		RealMatrix domain = new Array2DRowRealMatrix(domainBlock.getBlock().getData(), false);
+		AffineTransform.permute(domain, symmetry);
 		RealMatrix range = rangeBlock.getBlock();
 
 		Assert.isTrue(domain.getColumnDimension() == 1,
@@ -38,8 +40,6 @@ public class AffineKernel implements Kernel {
 		int n = domain.getRowDimension();
 		double s = 0;
 		double o = 0;
-		double ai[] = domain.getColumn(0);
-		double bi[] = range.getColumn(0);
 		double sum_ais = domainBlock.getSumOfPoints();
 		double sum_bis = rangeBlock.getSumOfPoints();
 		double sum_squared_ais = domainBlock.getSumOfSquaredPoints();
@@ -50,7 +50,7 @@ public class AffineKernel implements Kernel {
 		double sum_ais_times_bis = 0;
 
 		for (int i = 0; i < n; i++) {
-			sum_ais_times_bis += ai[i] * bi[i];
+			sum_ais_times_bis += domain.getEntry(i, 0) * range.getEntry(i, 0);
 		}
 
 		double s_denum = (n*sum_squared_ais) - sum_ais_squared;
@@ -73,7 +73,6 @@ public class AffineKernel implements Kernel {
 				Math.sqrt(Math.abs(R)), s, o, symmetry);
 	}
 
-	@Override
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, boolean permute) {
 		if (permute) {
 			// Iterate over all of the known symmetries to find the one with the least distance
@@ -84,8 +83,8 @@ public class AffineKernel implements Kernel {
 					bestTransform = transform;
 				}
 
-				// If the distance is identically zero, don't try and find a "better" transform
-				if (transform.getDistance() == 0.0) {
+				// If the distance is <= the threshold, don't try to find a "better" transform
+				if (transform.getDistance() <= threshold) {
 					break;
 				}
 			}
@@ -99,23 +98,24 @@ public class AffineKernel implements Kernel {
 		this.threshold = threshold;
 	}
 
+	@Override
 	public double getThreshold() {
 		return threshold;
 	}
 
-	public void setPermute(Boolean permute) {
+	public void setPermute(boolean permute) {
 		this.permute = permute;
 	}
 
-	public Boolean getPermute() { 
+	public boolean getPermute() { 
 		return permute;
 	}
 
-	public void setAllowNegativeScales(Boolean allowNegativeScales) {
+	public void setAllowNegativeScales(boolean allowNegativeScales) {
 		this.allowNegativeScales = allowNegativeScales;
 	}
 
-	public Boolean getAllowNegativeScales() { 
+	public boolean getAllowNegativeScales() { 
 		return allowNegativeScales;
 	}
 }

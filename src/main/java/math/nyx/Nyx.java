@@ -21,7 +21,7 @@ import com.google.common.base.Stopwatch;
 
 /**
  * Contains methods used to encode and decode audio and image files
- * using a fractal based approach and generate LaTeX reports for analysis.
+ * using a fractal based approach and generates LaTeX reports for analysis.
  *
  * @author jwhite
  */

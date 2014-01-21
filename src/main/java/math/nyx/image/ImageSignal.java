@@ -34,6 +34,14 @@ public class ImageSignal extends Signal {
 
 	private final ImageMetadata metadata;
 
+	public static final double MIN_VAL = 0;
+
+	private double minVal = MIN_VAL;
+
+	public static final double MAX_VAL = 255;
+
+	private double maxVal = MAX_VAL;
+
 	public ImageSignal(Fractal fractal, RealMatrix decodedVector, ImageMetadata metadata) {
 		super(fractal, decodedVector);
 		this.metadata = metadata;
@@ -174,14 +182,22 @@ public class ImageSignal extends Signal {
 		ImageIO.write(getImage(), "png", file);
 	}
 
+	public void setMinVal(double minVal) {
+		this.minVal = minVal;
+	}
+
 	@Override
 	public double getMinVal() {
-		return 0;
+		return minVal;
+	}
+
+	public void setMaxVal(double maxVal) {
+		this.maxVal = maxVal;
 	}
 
 	@Override
 	public double getMaxVal() {
-		return 255;
+		return maxVal;
 	}
 
 	@Override

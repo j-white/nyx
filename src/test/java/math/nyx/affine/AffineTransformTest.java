@@ -1,9 +1,11 @@
-package math.nyx.codecs;
+package math.nyx.affine;
 
 import math.nyx.affine.AffineTransform;
 import math.nyx.affine.Symmetry;
+import math.nyx.image.ImageSignal;
 import math.nyx.utils.TestUtils;
 
+import org.apache.commons.math.linear.Array2DColumnRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.junit.Test;
 
@@ -26,8 +28,8 @@ public class AffineTransformTest {
 	
 	private void permuteAndVerify(Symmetry symmetry, double expected[]) {
 		RealMatrix x = TestUtils.generateSignal(expected.length);
-		RealMatrix y = AffineTransform.permute(x, symmetry, true);
-		assertArrayEquals(expected, y.getColumn(0), TestUtils.DELTA);
+		AffineTransform.permute(x, symmetry);
+		assertArrayEquals(expected, x.getColumn(0), TestUtils.DELTA);
 	}
 
 	@Test
@@ -43,5 +45,25 @@ public class AffineTransformTest {
 		assertTrue(t2.compareTo(t1) > 0);
 		assertTrue(t3.compareTo(t1) > 0);
 		assertTrue(t3.compareTo(t2) > 0);
+	}
+
+	@Test
+	public void upperAndLowerBounds() {
+		// Create a new signal with strict bounds
+		Array2DColumnRealMatrix x = new Array2DColumnRealMatrix(8, 1);
+		x.setEntry(0, 0, -1);
+		x.setEntry(1, 0, 1);
+		ImageSignal signal = new ImageSignal(x);
+		signal.setMinVal(-1);
+		signal.setMaxVal(1);
+
+		// Apply a transform that will take the signal out of these bounds
+		AffineTransform t1 = new AffineTransform(0, 0, 0, 100, 0);
+		t1.apply(x, signal);
+
+		// Verify that the bounds are applied
+		for (int i = 0; i < 8; i++) {
+			assertTrue(x.getEntry(i, 0) >= -1 && x.getEntry(i, 0) <= 1);
+		}
 	}
 }

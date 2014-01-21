@@ -13,12 +13,6 @@ public abstract class AbstractPartitioningStrategy implements PartitioningStrate
 
 	private final int scale;
 
-	public AbstractPartitioningStrategy() {
-		//TODO: This constructor should not exist.
-		signal = null;
-		scale = 0;
-	}
-
 	public AbstractPartitioningStrategy(Signal signal, int scale) {
 		this.signal = signal;
 		this.scale = scale;

@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.math.linear.Array2DColumnRealMatrix;
-import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
+import org.springframework.util.Assert;
 
 import math.nyx.core.AbstractTransform;
 import math.nyx.core.Signal;
@@ -46,86 +46,61 @@ public class AffineTransform extends AbstractTransform {
 	}
 
 	@Override
-	public RealMatrix apply(final RealMatrix domain, Signal signal) {
-		return apply(domain, signal, false);
-	}
+	public void apply(RealMatrix domain, Signal signal) {
+		permute(domain, symmetry);
 
-	@Override
-	public RealMatrix apply(RealMatrix domain, Signal signal, boolean inPlace) {
-		RealMatrix permutedDomain = permute(domain, symmetry, inPlace);
-		int rangeDimension = permutedDomain.getRowDimension();
-
-		RealMatrix range = null;
-		if (inPlace) {
-			range = domain;
-			if (domain instanceof Array2DColumnRealMatrix) {
-				double data[][] = ((Array2DColumnRealMatrix)range).getDataRef();
-				for (int i = 0; i < rangeDimension; i++) {
-					data[0][i] = data[0][i] * scale + offset; 
-				}
-			} else {
-				for (int i = 0; i < rangeDimension; i++) {
-					range.setEntry(i, 0, domain.getEntry(i, 0) * scale + offset);
-				}
-			}
-		} else {
-			Array2DRowRealMatrix K_scale = new Array2DRowRealMatrix(rangeDimension, rangeDimension);
-			Array2DRowRealMatrix K_offset = new Array2DRowRealMatrix(rangeDimension, 1);
-
-			// Build the transform
-			for (int i = 0; i < rangeDimension; i++) {
-				K_offset.setEntry(i, 0, offset);
-
-				for (int j = 0; j < rangeDimension; j++) {
-					if (i == j) {
-						K_scale.setEntry(i, j, scale);
-					}
-				}
-			}
-
-			// Apply the transform
-			range = (Array2DRowRealMatrix) (K_scale.multiply(permutedDomain)).add(K_offset);
+		int dimension = domain.getRowDimension();
+		for (int i = 0; i < dimension; i++) {
+			domain.setEntry(i, 0, domain.getEntry(i, 0) * scale + offset);
 		}
 
 		// Bound the transform with the min and max vals of the underlying signal
 		double minVal = signal.getMinVal();
 		double maxVal = signal.getMaxVal();
-		if (range instanceof Array2DColumnRealMatrix) {
-			double data[][] = ((Array2DColumnRealMatrix)range).getDataRef();
-			for (int i = 0; i < data.length; i++) {
-				if (data[0][i] < minVal) {
-					data[0][i] = minVal;
-				} else if (data[0][i] > maxVal) {
-					data[0][i] = maxVal;
-				}
-			}
-		} else {
-			for (int i = 0; i < rangeDimension; i++) {
-				if (range.getEntry(i, 0) < minVal) {
-					range.setEntry(i, 0, minVal);
-				} else if (range.getEntry(i, 0) > maxVal) {
-					range.setEntry(i, 0, maxVal);
-				}
+		for (int i = 0; i < dimension; i++) {
+			if (domain.getEntry(i, 0) < minVal) {
+				domain.setEntry(i, 0, minVal);
+			} else if (domain.getEntry(i, 0) > maxVal) {
+				domain.setEntry(i, 0, maxVal);
 			}
 		}
-
-		return range;
 	}
 
-	public static RealMatrix permute(RealMatrix vector, Symmetry symmetry, boolean inPlace) {
-		if (symmetry == Symmetry.ORIGINAL) return vector;
+	@Override
+	public void apply(Array2DColumnRealMatrix domain, Signal signal) {
+		permute(domain, symmetry);
 
-		//TODO: getColumn() creates a copy of the underlying vector, try to avoid this
-		Iterator<Double> it = new SymmetryIterator(vector.getColumn(0), symmetry);
+		double data[][] = domain.getDataRef();
+		int dimension = domain.getRowDimension();
+		for (int i = 0; i < dimension; i++) {
+			data[0][i] = data[0][i] * scale + offset; 
+		}
+		
+		// Bound the transform with the min and max vals of the underlying signal
+		double minVal = signal.getMinVal();
+		double maxVal = signal.getMaxVal();
+		for (int i = 0; i < data[0].length; i++) {
+			if (data[0][i] < minVal) {
+				data[0][i] = minVal;
+			} else if (data[0][i] > maxVal) {
+				data[0][i] = maxVal;
+			}
+		}
+	}
+
+	public static void permute(RealMatrix vector, Symmetry symmetry) {
+		if (symmetry == Symmetry.ORIGINAL)
+			return;
+
+		// Permute using the symmetry operator
 		int k = 0;
-		RealMatrix permutedVector = vector;
-		if (!inPlace) {
-			permutedVector = new Array2DRowRealMatrix(vector.getRowDimension(), 1);
-		}
+		double copyOfColumn[] = vector.getColumn(0);
+		Iterator<Double> it = new SymmetryIterator(copyOfColumn, symmetry);
 		while (it.hasNext()) {
-			permutedVector.setEntry(k++, 0, it.next());
+			vector.setEntry(k++, 0, it.next());
 		}
-		return permutedVector;
+
+		Assert.isTrue(k == copyOfColumn.length);
 	}
 
 	@Override
