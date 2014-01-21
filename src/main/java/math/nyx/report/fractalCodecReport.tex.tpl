@@ -6,6 +6,7 @@
 \usepackage{fancyhdr}
 \usepackage{mathrsfs}
 \usepackage{graphicx}
+\usepackage{longtable}
 \usepackage[margin=2cm]{geometry}
 \setlength{\parindent}{0.0in}
 \setlength{\parskip}{0.05in}
@@ -64,13 +65,13 @@ Decoded signal dimension: ${r.decodedSignal.dimension}
 \subsection{Kernel parameters}
 
 \begin{center}
-    \begin{tabular}{| l | l | l | l |}
+    \begin{longtable}{| l | l | l | l |}
     \hline
     Range \# & Domain \# &  Distance & Kernel \\ \hline
 <#list report.transforms as t>
     ${t.rangeBlockIndex} & ${t.domainBlockIndex} & ${t.distance} & \verb|${helper.mapToString(t.kernelParameters)}| \\ \hline
 </#list>
-    \end{tabular}
+    \end{longtable}
 \end{center}
 
 \subsection{Operators}
