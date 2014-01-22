@@ -54,6 +54,8 @@ Number of transforms: ${report.numTransforms}
 \includegraphics[width=250px]{${r.destFile.name}}
 \end{center}
 
+PSNR: ${r.PSNR} dB
+
 Seconds to decode: ${r.secondsToDecode}
 
 Decoded signal dimension: ${r.decodedSignal.dimension}

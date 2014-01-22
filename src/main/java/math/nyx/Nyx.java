@@ -69,6 +69,11 @@ public class Nyx {
 			decodeReport.setScale(scale);
 			decodeReport.setSecondsToDecode(decodingStopwatch.elapsed(TimeUnit.SECONDS));
 
+			// Calculate the PSNR for scale 1x
+			if (scale == 1) {
+				decodeReport.setPSNR(sourceSignal.getPSNR(decodedSignal));
+			}
+
 			// Append the decode report the "main" report
 			report.addDecodeReport(decodeReport);
 		}

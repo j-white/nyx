@@ -137,6 +137,8 @@ public class FractalCodecReport extends TexReport {
 
 		private Signal decodedSignal; 
 
+		private double psnr = Double.NaN;
+
 		public void setDestFile(File destFile) {
 			this.destFile = destFile;
 		}
@@ -167,6 +169,14 @@ public class FractalCodecReport extends TexReport {
 
 		public long getSecondsToDecode() {
 			return secondsToDecode;
+		}
+
+		public void setPSNR(double psnr) {
+			this.psnr = psnr;
+		}
+
+		public double getPSNR() {
+			return psnr;
 		}
 	}
 

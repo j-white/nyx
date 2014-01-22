@@ -68,6 +68,10 @@ public abstract class Signal implements Serializable {
 		return x;
 	}
 
+	public double getEntry(final int row) {
+		return x.getEntry(row, 0);
+	}
+
 	public RealMatrix getUnpaddedVector() {
 		return getVector().getSubMatrix(0, getUnpaddedDimension()-1, 0, 0);
 	}
@@ -84,10 +88,6 @@ public abstract class Signal implements Serializable {
 		return getDimension() - getPad();
 	}
 
-	public double getEntry(int row) {
-		return x.getEntry(row, 0);
-	}
-
 	public int getNumChannels() {
 		return numChannels;
 	}
@@ -97,7 +97,21 @@ public abstract class Signal implements Serializable {
 	}
 
 	public double getPSNR(Signal signal) {
-		return 0.0;
+		int n = getUnpaddedDimension();
+		if (n != signal.getUnpaddedDimension()) {
+			throw new IllegalArgumentException("Cannot compare two signals of different lengths.");
+		}
+
+		// Calculate the value of the rms metric (2-norm)
+		double rms = 0;
+		for (int i = 0; i < n; i++) {
+			rms += Math.pow(getEntry(i) - signal.getEntry(i), 2);
+		}
+		rms = Math.sqrt(rms);
+
+		if (rms == 0) return 0;
+
+		return 20 * Math.log10(getMaxVal() / rms);
 	}
 
 	@Override
