@@ -134,6 +134,7 @@ public class ImageSignal extends Signal {
 	}
 
 	private static RealMatrix bufferedImageToVector(BufferedImage img)  {
+		if (img == null) throw new IllegalArgumentException("Image cannot be null.");
 		DataBuffer dataBuffer = img.getRaster().getDataBuffer();
 		final int numChannels = img.getColorModel().getNumComponents();
 		final int bufferSize = dataBuffer.getSize();

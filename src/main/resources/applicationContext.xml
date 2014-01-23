@@ -9,9 +9,7 @@
 	<context:annotation-config />
 
  	<bean id="nyx" class="math.nyx.Nyx"/>
-	
-	<bean id="signalFactory" class="math.nyx.core.SignalFactory"></bean>
-	
+
 	<bean id="fractalFactory" class="math.nyx.core.FractalFactory"></bean>
 
 	<!-- Linear -->

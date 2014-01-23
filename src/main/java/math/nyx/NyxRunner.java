@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import math.nyx.core.InvalidSignalException;
 import math.nyx.report.FractalCodecReport;
 
 import org.apache.logging.log4j.LogManager;
@@ -104,12 +105,16 @@ public class NyxRunner {
         for( String fileName : fileNames ) {
         	File sourceFile = new File(fileName);
         	logger.info("Generating encode/decode report for {}.", sourceFile);
-        	FractalCodecReport report = nyx.encodeDecode(sourceFile, scales, outputFolder, forceEncode);
-        	reports.add(report);
+			try {
+				FractalCodecReport report = nyx.encodeDecode(sourceFile, scales, outputFolder, forceEncode);
+				reports.add(report);
 
-        	File reportFile = new File(outputFolder, String.format("%s-report.tex", sourceFile.getName()));
-        	logger.info("Saving report to {}.", reportFile);
-        	report.save(reportFile);
+	        	File reportFile = new File(outputFolder, String.format("%s-report.tex", sourceFile.getName()));
+	        	logger.info("Saving report to {}.", reportFile);
+	        	report.save(reportFile);
+			} catch (InvalidSignalException e) {
+				logger.error("Error retrieving signal from file.", e);
+			}
         }
 
         return reports;

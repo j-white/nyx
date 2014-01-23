@@ -3,6 +3,7 @@ package math.nyx.core;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ServiceLoader;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
@@ -144,5 +145,16 @@ public abstract class Signal implements Serializable {
 	@Override
 	public final String toString() {
 		return toStringHelper().toString();
+	}
+
+	private static ServiceLoader<SignalFactory> signalFactoryLoader = ServiceLoader.load(SignalFactory.class);
+
+	public static Signal getSignalFor(File signalFile) throws IOException, InvalidSignalException {
+	     for (SignalFactory signalFactory : signalFactoryLoader) {
+	         Signal signal = signalFactory.getSignalFor(signalFile);
+	         if (signal != null)
+	             return signal;
+	     }
+	     throw new InvalidSignalException("No handlers availabe.");
 	}
 }

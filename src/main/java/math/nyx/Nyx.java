@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 
 import math.nyx.core.Fractal;
 import math.nyx.core.FractalFactory;
+import math.nyx.core.InvalidSignalException;
 import math.nyx.core.Signal;
-import math.nyx.core.SignalFactory;
 import math.nyx.framework.FractalCodec;
 import math.nyx.report.FractalCodecReport;
 import math.nyx.report.FractalCodecReport.DecodeReport;
@@ -29,14 +29,11 @@ public class Nyx {
 	private static Logger logger = LogManager.getLogger("Nyx");
 
 	@Autowired
-	public SignalFactory signalFactory;
-
-	@Autowired
 	private FractalFactory fractalFactory;
 
-	public FractalCodecReport encodeDecode(File sourceFile, Set<Integer> scales, File outputDirectory, Boolean forceEncode) throws IOException {
+	public FractalCodecReport encodeDecode(File sourceFile, Set<Integer> scales, File outputDirectory, Boolean forceEncode) throws IOException, InvalidSignalException {
 		logger.info("Encoding {} into a signal.", sourceFile.getAbsolutePath());
-		Signal sourceSignal = signalFactory.getSignalFor(sourceFile);
+		Signal sourceSignal = Signal.getSignalFor(sourceFile);
 		logger.info("Succesfully encoded file to {}.", sourceSignal);
 
 		File fractalFile = new File(outputDirectory, String.format("%s-fractal.nyx", sourceFile.getName()));

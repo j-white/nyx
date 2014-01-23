@@ -23,7 +23,7 @@ public class FractalFactory {
 			return imageCodec;
 		}
 	}
-	
+
 	public FractalCodec getCodecFor(Signal signal) {
 		return getEncoderFor(signal);
 	}

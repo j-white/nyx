@@ -124,7 +124,7 @@ public class NyxRunnerTest {
 	@Test
 	public void audioReportTest() throws IOException, UnsupportedAudioFileException {
 		// Copy the resource from the class-path to a temporary file
-		File sourceFile = getFileFor("disconnect.wav");
+		File sourceFile = getFileFor("beep.wav");
 
 		// Generate the report via the main function
 		FractalCodecReport report = getReportFor(sourceFile);
@@ -197,6 +197,8 @@ public class NyxRunnerTest {
 		String args[] = new String[]{"-s", "4", // Decode at 1x and at 4x
 									 "-o", sourceFile.getParent(), // Point the output folder to the temp dir.
 									 sourceFile.getAbsolutePath()};
-		return nyxRunner.doMain(args).get(0);
+		List<FractalCodecReport> reports = nyxRunner.doMain(args);
+		assertEquals(1, reports.size());
+		return reports.get(0);
 	}
 }
