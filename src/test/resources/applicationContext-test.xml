@@ -10,7 +10,7 @@
 
 	<bean id="affineSquareCodec" class="math.nyx.framework.FractalCodec">
 		<property name="name" value="affineSquareCodec" />
-		<property name="kernel" ref="affineKernelWithPermutations" />
+		<property name="kernel" ref="affineImageKernel" />
 		<property name="partitioningStrategyFactory" ref="squarePartitioningStrategyFactory" />
 		<property name="decimationStrategyFactory" ref="squareDecimationStrategyFactory" />
 	</bean>
