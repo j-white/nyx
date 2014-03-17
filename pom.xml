@@ -25,6 +25,35 @@
             <target>1.7</target>
         </configuration>
       </plugin>
+	  <!-- Define the manifest and include the dependencies in the generated Jar -->
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+    	<artifactId>maven-shade-plugin</artifactId>
+    	<version>2.2</version>
+	    <executions>
+	      <execution>
+	        <phase>package</phase>
+	        <goals>
+	          <goal>shade</goal>
+	        </goals>
+	      </execution>
+	    </executions>
+        <configuration>
+          <transformers>
+			<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+			  <resource>META-INF/spring.handlers</resource>
+			</transformer>
+			<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+			  <resource>META-INF/spring.schemas</resource>
+			</transformer>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+              <mainClass>math.nyx.NyxRunner</mainClass>
+            </transformer>
+          </transformers>
+		  <shadedArtifactAttached>true</shadedArtifactAttached>
+		  <shadedClassifierName>executable</shadedClassifierName>
+        </configuration>
+	  </plugin>
     </plugins>
   </build>
   <dependencies>
