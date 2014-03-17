@@ -20,15 +20,6 @@
         </configuration>
       </plugin>
     </plugins>
-     <resources>
-        <!-- Include the Freemarker templates. -->
-        <resource>
-            <directory>${basedir}/src/main/java</directory>
-            <includes>
-                <include>**/*.tpl</include>
-            </includes>
-        </resource>
-    </resources>
   </build>
   <dependencies>
 	<dependency>
