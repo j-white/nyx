@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>math.nyx</groupId>
   <artifactId>nyx</artifactId>
-  <version>0.0.1</version>
+  <version>1.0.0</version>
   <name>Nyx</name>
   <description>Fractal-based Signal Encoding and Decoding</description>
   <properties>
