@@ -53,8 +53,8 @@ public class AudioSignalTest {
 
 	@Test
 	public void testWavFile() throws IOException, UnsupportedAudioFileException {
-		String audioFileName = "disconnect.wav";
-		Resource audioFile = new ClassPathResource("math/nyx/resources/" + audioFileName);
+		String audioFileName = "beep-100ms-pcm.wav";
+		Resource audioFile = new ClassPathResource("math/nyx/samples/" + audioFileName);
 		testAudioSignalConversion(audioFile);
 	}
 }

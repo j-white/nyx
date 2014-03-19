@@ -95,14 +95,14 @@ public class ImageSignalTest {
 
 	@Test
 	public void testPNG() throws IOException {
-		Resource imgFile = new ClassPathResource("math/nyx/resources/ocean.png");
+		Resource imgFile = new ClassPathResource("math/nyx/samples/ocean-32x32-gray.png");
 		BufferedImage img = ImageIO.read(imgFile.getInputStream());
 		testImageSignalConversion(img);
 	}
 
 	@Test
 	public void testJPG() throws IOException {
-		Resource imgFile = new ClassPathResource("math/nyx/resources/lena-128.jpg");
+		Resource imgFile = new ClassPathResource("math/nyx/samples/lena-64x64-color.jpg");
 		BufferedImage img = ImageIO.read(imgFile.getInputStream());
 
 		testImageSignalConversion(img);
