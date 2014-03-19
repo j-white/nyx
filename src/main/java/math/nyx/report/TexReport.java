@@ -83,6 +83,10 @@ public abstract class TexReport {
 	}
 
 	public static class TexHelper {
+		public String pathToTex(String absolutePath) {
+			return absolutePath.replace("\\", "/");
+		}
+
 		public String matrixToTex(RealMatrix m) {
 			StringBuilder sb = new StringBuilder();
 			int N = m.getRowDimension();

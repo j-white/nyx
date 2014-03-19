@@ -1,7 +1,5 @@
 \documentclass[12pt,letterpaper]{article}
 \usepackage{amsmath,amsthm,amsfonts,amssymb,amscd}
-%\usepackage{fullpage}
-%\usepackage{lastpage}
 \usepackage{enumerate}
 \usepackage{fancyhdr}
 \usepackage{mathrsfs}
@@ -25,7 +23,7 @@
 \section{Source}
 
 \begin{center}
-\includegraphics[width=250px]{${report.sourceFile.name}}
+\includegraphics[width=250px]{${helper.pathToTex(report.sourceFile.absolutePath)}}
 \end{center}
 
 Signal type: ${report.signalType}
@@ -51,7 +49,7 @@ Number of transforms: ${report.numTransforms}
 \section{Decoding Summary ${r.scale}x}
 
 \begin{center}
-\includegraphics[width=250px]{${r.destFile.name}}
+\includegraphics[width=250px]{${helper.pathToTex(r.destFile.absolutePath)}}
 \end{center}
 
 PSNR: ${r.PSNR} dB
