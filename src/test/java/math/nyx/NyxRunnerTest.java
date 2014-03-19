@@ -69,7 +69,7 @@ public class NyxRunnerTest {
 	@Test
 	public void imageReportTest() throws IOException {
 		// Copy the resource from the class-path to a temporary file
-		File sourceFile = getFileFor("ocean-gray-32.png");
+		File sourceFile = getFileFor("ocean-32x32-gray.png");
 
 		// Generate the report via the main function
 		FractalCodecReport report = getReportFor(sourceFile);
@@ -124,7 +124,7 @@ public class NyxRunnerTest {
 	@Test
 	public void audioReportTest() throws IOException, UnsupportedAudioFileException {
 		// Copy the resource from the class-path to a temporary file
-		File sourceFile = getFileFor("beep.wav");
+		File sourceFile = getFileFor("beep-100ms-pcm.wav");
 
 		// Generate the report via the main function
 		FractalCodecReport report = getReportFor(sourceFile);
@@ -179,7 +179,7 @@ public class NyxRunnerTest {
 	 * Copy the file a fixed directory in the class-path to a temporary file
 	 */
 	private File getFileFor(String classpathResource) throws IOException {
-		Resource source = new ClassPathResource("math/nyx/resources/" + classpathResource); 
+		Resource source = new ClassPathResource("math/nyx/samples/" + classpathResource); 
 		File sourceFile = testFolder.newFile(classpathResource);
 		try (
 			InputStream in = source.getInputStream();
