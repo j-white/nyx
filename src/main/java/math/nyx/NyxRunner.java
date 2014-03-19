@@ -90,6 +90,7 @@ public class NyxRunner {
 
         } catch( CmdLineException e ) {
             System.err.println(e.getMessage());
+            System.err.println();
             System.err.println("java Nyx [options...] files...");
             parser.printUsage(System.err);
             System.err.println();
