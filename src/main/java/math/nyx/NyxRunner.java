@@ -94,7 +94,7 @@ public class NyxRunner {
             System.err.println("java Nyx [options...] files...");
             parser.printUsage(System.err);
             System.err.println();
-            System.err.println("  Example: java Nyx -f -s 1,2,4 -o ../target/ lena.png img2.jpg");
+            System.err.println("  Example: java Nyx -f -s 2,4 -o ../target/ lena.png img2.jpg");
             return new ArrayList<FractalCodecReport>(0);
         }
 
