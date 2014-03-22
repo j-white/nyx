@@ -100,7 +100,7 @@ public class AffineKernelTest {
 		SignalBlock rangeBlock = new SignalBlock(0, range);
 		AffineTransform transform = affineKernel.encode(domainBlock, rangeBlock);
 		
-		assertEquals(1.303533, transform.getDistance(), TestUtils.DELTA);
+		assertEquals(10.428263, transform.getDistance(), TestUtils.DELTA);
 		assertEquals(0.107998, transform.getScale(), TestUtils.DELTA);
 		assertEquals(84.911498, transform.getOffset(), TestUtils.DELTA);
 	}

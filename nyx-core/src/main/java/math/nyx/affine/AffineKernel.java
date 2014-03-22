@@ -25,6 +25,17 @@ public class AffineKernel implements Kernel {
 		return encode(domainBlock, rangeBlock, permute);
 	}
 
+	private double euclideanNorm(RealMatrix y, RealMatrix x, double s, double o) {
+		int n = y.getRowDimension();
+		assert(n == x.getRowDimension());
+		assert(1 == y.getColumnDimension() && 1 == x.getColumnDimension());
+		double sum = 0;
+		for (int i = 0; i < n; i++) {
+			sum += Math.pow(y.getEntry(i, 0) - s*x.getEntry(i, 0) - o, 2);
+		}
+		return Math.sqrt(sum);
+	}
+
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, Symmetry symmetry) {
 		RealMatrix domain = new Array2DRowRealMatrix(domainBlock.getBlock().getData(), false);
 		AffineTransform.permute(domain, symmetry);
@@ -43,7 +54,7 @@ public class AffineKernel implements Kernel {
 		double sum_ais = domainBlock.getSumOfPoints();
 		double sum_bis = rangeBlock.getSumOfPoints();
 		double sum_squared_ais = domainBlock.getSumOfSquaredPoints();
-		double sum_squared_bis = rangeBlock.getSumOfSquaredPoints();
+		//double sum_squared_bis = rangeBlock.getSumOfSquaredPoints();
 		double sum_ais_squared = Math.pow(sum_ais,2);
 		double one_over_n = ((double)1/(double)n);
 
@@ -66,11 +77,14 @@ public class AffineKernel implements Kernel {
 			s = 0;
 		}
 
-		double u = (s*sum_squared_ais) - (2*sum_ais_times_bis) + (2*o*sum_ais);
-		double v = (n*o) - (2*sum_bis);
-		double R = one_over_n * (sum_squared_bis + s*u + o*v);
+		// TODO: Make this more efficient
+		double norm = euclideanNorm(range, domain, s, o);
+//		double u = (s*sum_squared_ais) - (2*sum_ais_times_bis) + (2*o*sum_ais);
+//		double v = (n*o) - (2*sum_bis);
+//		double R = one_over_n * (sum_squared_bis + s*u + o*v);
+//		double norm = Math.sqrt(Math.abs(R));
 		return new AffineTransform(domainBlock.getIndex(), rangeBlock.getIndex(),
-				Math.sqrt(Math.abs(R)), s, o, symmetry);
+				norm, s, o, symmetry);
 	}
 
 	public AffineTransform encode(SignalBlock domainBlock, SignalBlock rangeBlock, boolean permute) {
