@@ -7,50 +7,17 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>nyx-core</artifactId>
+    <artifactId>nyx-gl</artifactId>
     <version>${nyxVersion}</version>
     <packaging>jar</packaging>
 
-    <name>Nyx :: Core</name>
+    <name>Nyx :: GL</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
-            <version>${freemarkerVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>args4j</groupId>
-            <artifactId>args4j</artifactId>
-            <version>${args4jVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>${springVersion}</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-            <version>${springVersion}</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${springVersion}</version>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${springVersion}</version>
-            <type>jar</type>
-            <scope>compile</scope>
+            <groupId>math.nyx</groupId>
+            <artifactId>nyx-core</artifactId>
+			<version>${nyxVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
