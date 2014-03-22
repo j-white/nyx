@@ -4,30 +4,49 @@ import static javax.media.opengl.GL2.GL_POLYGON;
 import static javax.media.opengl.GL2.GL_LINE_LOOP;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.media.opengl.GL2;
 import javax.vecmath.Point2f;
 import javax.vecmath.Point3f;
 
+import org.apache.commons.math.linear.RealMatrix;
+
 import math.nyx.core.Fractal;
+import math.nyx.core.FractalDecoderVisitor;
+import math.nyx.core.Transform;
 import math.nyx.framework.PartitioningStrategy;
+import math.nyx.image.ImageMetadata;
 import math.nyx.image.ImageSignal;
 
-public class ImageDecodeAnimation {
+public class ImageDecodeAnimation extends TimerTask {
+	private final int msPerTransform = 60;
 	private final ImageSignal sourceSignal;
 	private final Fractal fractal;
 	private PartitioningStrategy partitioner;
 	private Nyx nyx;
+	private int scale;
 	private ImageAsQuad range;
 	private ImageAsQuad domain;
-	private int nextRange = 0;
+	private FractalDecoder decoder;
+	private Thread thread = null;
+	private Timer timer = null;
+	private boolean animating = false;
+	
+	private Transform activeTransform;
+	private volatile Object newRangeSignalLock = new Object();
+	private volatile ImageSignal newRangeSignal = null;
+	private volatile Object newDomainSignalLock = new Object();
+	private volatile ImageSignal newDomainSignal = null;
 
 	private ArrayList<Polygon> rangePolys;
-	private Map<Integer, Polygon> idxToDomainPoly = new HashMap<Integer, Polygon>();
+	private Map<Integer, Polygon> domainPolys = new HashMap<Integer, Polygon>();
 
 	public ImageDecodeAnimation(ImageSignal sourceSignal, Fractal fractal) {
 		this.sourceSignal = sourceSignal;
@@ -35,7 +54,8 @@ public class ImageDecodeAnimation {
 	}
 
 	public void init(GL2 gl, int scale) {
-		this.partitioner = fractal.getPartitioner(scale);
+		this.scale = scale;
+		this.partitioner = fractal.getPartitioner(1);
 		ImageSignal decodedSignal = (ImageSignal)fractal.decode(scale);
 
 		domain = new ImageAsQuad(gl, sourceSignal, new Point3f(-1.1f, 0, 0));
@@ -46,24 +66,113 @@ public class ImageDecodeAnimation {
 		for (int i = 0; i < numRanges; i++) {
 			rangePolys.add(getPolyForRangeBlock(i));
 		}
-		
-		nextRange = 0;
+
+		// Pre-calculate all of the domain blocks used for the transforms
+		for (Transform t : fractal.getTransforms()) {
+			getPolyForDomainBlock(t.getDomainBlockIndex());
+		}
+	}
+
+	private class FractalDecoder implements Runnable, FractalDecoderVisitor {
+		private final ImageMetadata scaledMetadata = sourceSignal.getMetadata().scale(scale);
+
+		@Override
+		public void run() {
+			fractal.decode(scale, this);
+		}
+	
+		@Override
+		public void afterTransform(int iteration, Transform transform,
+				RealMatrix source, RealMatrix domain,
+				RealMatrix decimatedDomain, RealMatrix target) {
+
+			synchronized(newRangeSignalLock) {
+				sourceSignal.getMetadata().scale(scale);
+				newRangeSignal = new ImageSignal(target, scaledMetadata);
+			}
+			activeTransform = transform;
+
+			try {
+				Thread.sleep(msPerTransform);
+			} catch (InterruptedException e) {
+				Thread.interrupted();
+			}
+		}
+
+		@Override
+		public void beforeIteration(int n, RealMatrix source, RealMatrix target) {
+			synchronized(newDomainSignalLock) {
+				newDomainSignal = new ImageSignal(source, scaledMetadata);
+			}
+			synchronized(newRangeSignalLock) {
+				newRangeSignal = new ImageSignal(target, scaledMetadata);
+			}
+		}
+
+		@Override
+		public void afterIteration(int n, RealMatrix source, RealMatrix target) {
+			// pass
+		}
+
+		@Override
+		public void beforeDecode() {
+			// pass
+		}
+
+		@Override
+		public void afterDecode() {
+			activeTransform = null;
+			synchronized(newDomainSignalLock) {
+				newDomainSignal = sourceSignal;
+			}
+		}
+	}
+
+	public void animate(GL2 gl) {
+		List<Transform> transforms = fractal.getTransforms();
+		if (transforms.size() == 0) {
+			return;
+		}
+		if (timer != null) {
+			timer.cancel();
+		}
+		timer = new Timer();
+		timer.scheduleAtFixedRate(this, new Date(), 250);
+		animating = true;
+
+		activeTransform = null;
+		decoder = new FractalDecoder();
+		thread = new Thread(decoder);
+		thread.start();
+	};
+
+	@Override
+	public void run() {
+		// timer, pass
 	}
 
 	public void draw(GL2 gl) {
+		synchronized(newRangeSignalLock) {
+			if (newRangeSignal != null) {
+				range.updateTexture(gl, newRangeSignal);
+				newRangeSignal = null;
+			}
+		}
+		synchronized(newDomainSignalLock) {
+			if (newDomainSignal != null) {
+				domain.updateTexture(gl, newDomainSignal);
+				newDomainSignal = null;
+			}
+		}
 		domain.draw(gl);
 		range.draw(gl);
 		
-		for (Polygon poly : rangePolys) {
-			poly.draw(gl);
+		if (animating && activeTransform != null) {
+			int di = activeTransform.getDomainBlockIndex();
+			int ri = activeTransform.getRangeBlockIndex();
+			domainPolys.get(di).draw(gl);
+			rangePolys.get(ri).draw(gl);
 		}
-
-//		if (nextRange < rangePolys.size() && rangePolys.size() > 0) {
-//			rangePolys.get(nextRange).draw(gl);
-//			nextRange++;
-//		} else {
-//			nextRange = 0;
-//		}
 	}
 
 	public static class Polygon {
@@ -100,11 +209,11 @@ public class ImageDecodeAnimation {
 
 	public Polygon getPolyForDomainBlock(int domainBlockIndex) {
 		Polygon poly = null;
-		if (idxToDomainPoly.containsKey(domainBlockIndex)) {
-			poly = idxToDomainPoly.get(domainBlockIndex);
+		if (domainPolys.containsKey(domainBlockIndex)) {
+			poly = domainPolys.get(domainBlockIndex);
 		} else {
 			poly = getPolyFromIndices(partitioner.getDomainIndices(domainBlockIndex), domain.getWorld());
-			idxToDomainPoly.put(domainBlockIndex, poly);
+			domainPolys.put(domainBlockIndex, poly);
 		}
 		return poly;
 	}

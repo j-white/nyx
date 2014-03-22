@@ -35,6 +35,10 @@ public class ImageAsQuad {
         return texture;
 	}
 
+	public void updateTexture(GL2 gl, ImageSignal signal) {
+		texture.updateImage(gl, AWTTextureIO.newTextureData(gl.getGLProfile(), signal.getImage(), false));
+	}
+
 	public void draw(GL2 gl) {
 		// Enables this texture's target in the current GL context's state.
 		texture.enable(gl); // same as gl.glEnable(texture.getTarget());

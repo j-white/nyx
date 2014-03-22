@@ -154,14 +154,15 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 	public void setupFractal(GL2 gl) {
 		ImageSignal sourceSignal = null;
 		try {
-			sourceSignal = new ImageSignal(new ClassPathResource("images/tiny-32x32-gray.jpg").getInputStream());
+			sourceSignal = new ImageSignal(new ClassPathResource("images/flames-48x48-gray.jpg").getInputStream());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
 		decodeAnimation = new ImageDecodeAnimation(sourceSignal, nyx.encode(sourceSignal));
 		decodeAnimation.setNyx(nyx);
-		decodeAnimation.init(gl, 1);
+		decodeAnimation.init(gl, 16);
+		decodeAnimation.animate(gl);
 	}
 
 	/**
