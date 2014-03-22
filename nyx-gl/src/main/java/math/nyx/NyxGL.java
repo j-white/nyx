@@ -2,13 +2,24 @@ package math.nyx;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+
 import javax.swing.*;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.awt.GLCanvas;
 import javax.media.opengl.glu.GLU;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.io.ClassPathResource;
+
+import math.nyx.image.ImageSignal;
+
 import com.jogamp.opengl.util.FPSAnimator;
+
 import static javax.media.opengl.GL.*; // GL constants
 import static javax.media.opengl.GL2.*; // GL2 constants
 import static java.awt.event.KeyEvent.VK_W;
@@ -34,10 +45,15 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 
 	private float translateX = 0.0f;
 	private float translateY = 0.0f;
-	private float translateZ = 0.0f;
+	private float translateZ = -5.0f;
 	private float rotateX = 0.0f;
 	private float rotateY = 0.0f;
 	private float rotateZ = 0.0f;
+
+	@Autowired
+	private Nyx nyx;
+	
+	private ImageDecodeAnimation decodeAnimation;
 
 	/** The entry main() method to setup the top-level container and animator */
 	public static void main(String[] args) {
@@ -50,6 +66,13 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 				canvas.setPreferredSize(new Dimension(CANVAS_WIDTH,
 						CANVAS_HEIGHT));
 				NyxGL renderer = new NyxGL();
+				
+				// Spring-ify
+				@SuppressWarnings("resource")
+				ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+				AutowireCapableBeanFactory beanFactory = context.getAutowireCapableBeanFactory();
+				beanFactory.autowireBean(renderer);
+				
 				canvas.addGLEventListener(renderer);
 
 				canvas.addKeyListener(renderer);
@@ -116,6 +139,29 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 																// correction
 		gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out
 									// lighting
+        // Use linear filter for texture if image is larger than the original texture
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // Use linear filter for texture if image is smaller than the original texture
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        
+        // Enable blending
+        gl.glEnable(GL_BLEND);
+        gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        setupFractal(gl);
+	}
+
+	public void setupFractal(GL2 gl) {
+		ImageSignal sourceSignal = null;
+		try {
+			sourceSignal = new ImageSignal(new ClassPathResource("images/tiny-32x32-gray.jpg").getInputStream());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		decodeAnimation = new ImageDecodeAnimation(sourceSignal, nyx.encode(sourceSignal));
+		decodeAnimation.setNyx(nyx);
+		decodeAnimation.init(gl, 1);
 	}
 
 	/**
@@ -156,27 +202,11 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 																// buffers
 		gl.glLoadIdentity(); // reset the model-view matrix
 		gl.glTranslatef(translateX, translateY, translateZ);
+		gl.glRotatef(rotateX, 1.0f, 0.0f, 0.0f); // rotate about the x-axis
+		gl.glRotatef(rotateY, 0.0f, 1.0f, 0.0f); // rotate about the y-axis
+		gl.glRotatef(rotateZ, 0.0f, 0.0f, 1.0f); // rotate about the z-axis
 
-		// ----- Render a triangle -----
-		gl.glTranslatef(-1.5f, 0.0f, -6.0f); // translate left and into the
-												// screen
-
-		gl.glBegin(GL_TRIANGLES); // draw using triangles
-		gl.glVertex3f(0.0f, 1.0f, 0.0f);
-		gl.glVertex3f(-1.0f, -1.0f, 0.0f);
-		gl.glVertex3f(1.0f, -1.0f, 0.0f);
-		gl.glEnd();
-
-		// ----- Render a quad -----
-		// translate right, relative to the previous translation
-		gl.glTranslatef(3.0f, 0.0f, 0.0f);
-
-		gl.glBegin(GL_QUADS); // draw using quads
-		gl.glVertex3f(-1.0f, 1.0f, 0.0f);
-		gl.glVertex3f(1.0f, 1.0f, 0.0f);
-		gl.glVertex3f(1.0f, -1.0f, 0.0f);
-		gl.glVertex3f(-1.0f, -1.0f, 0.0f);
-		gl.glEnd();
+		decodeAnimation.draw(gl);
 	}
 
 	/**
@@ -197,10 +227,10 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 				translateZ--;
 				break;
 			case VK_A:
-				translateX--;
+				translateX++;
 				break;
 			case VK_D:
-				translateX++;
+				translateX--;
 				break;
 			case VK_Z:
 				translateY++;
@@ -209,16 +239,22 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 				translateY--;
 				break;
 			case VK_Y:
+				rotateX++;
 				break;
 			case VK_H:
+				rotateX--;
 				break;
 			case VK_U:
+				rotateY++;
 				break;
 			case VK_J:
+				rotateY--;
 				break;
 			case VK_I:
+				rotateZ++;
 				break;
 			case VK_K:
+				rotateZ--;
 				break;
 		}
 	}
