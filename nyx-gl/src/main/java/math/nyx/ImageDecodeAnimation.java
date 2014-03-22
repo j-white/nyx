@@ -4,12 +4,10 @@ import static javax.media.opengl.GL2.GL_POLYGON;
 import static javax.media.opengl.GL2.GL_LINE_LOOP;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.media.opengl.GL2;
@@ -36,7 +34,6 @@ public class ImageDecodeAnimation extends TimerTask {
 	private ImageAsQuad domain;
 	private FractalDecoder decoder;
 	private Thread thread = null;
-	private Timer timer = null;
 	private boolean animating = false;
 	
 	private Transform activeTransform;
@@ -116,7 +113,7 @@ public class ImageDecodeAnimation extends TimerTask {
 
 		@Override
 		public void beforeDecode() {
-			// pass
+			activeTransform = null;
 		}
 
 		@Override
@@ -125,22 +122,15 @@ public class ImageDecodeAnimation extends TimerTask {
 			synchronized(newDomainSignalLock) {
 				newDomainSignal = sourceSignal;
 			}
+			animating = false;
 		}
 	}
 
-	public void animate(GL2 gl) {
-		List<Transform> transforms = fractal.getTransforms();
-		if (transforms.size() == 0) {
+	public void animate() {
+		if (animating) {
 			return;
 		}
-		if (timer != null) {
-			timer.cancel();
-		}
-		timer = new Timer();
-		timer.scheduleAtFixedRate(this, new Date(), 250);
 		animating = true;
-
-		activeTransform = null;
 		decoder = new FractalDecoder();
 		thread = new Thread(decoder);
 		thread.start();
@@ -188,10 +178,10 @@ public class ImageDecodeAnimation extends TimerTask {
 			gl.glTranslatef(world.x - 1, world.y - 1, world.z);
 
 			// Draw the polygon
-			gl.glColor4f(0.0f, 0.0f, 1.0f, 0.5f); //blue color w/ alpha
+			gl.glColor4f(0.0f, 0.0f, 1.0f, 0.6f); //blue color w/ alpha
 			gl.glBegin(GL_POLYGON);
 				for (Point2f p : points) {
-					gl.glVertex3f(p.x, p.y, 0);
+					gl.glVertex3f(p.x, p.y, 0.1f);
 				}
 			gl.glEnd();
 			
@@ -199,7 +189,7 @@ public class ImageDecodeAnimation extends TimerTask {
 			gl.glColor3f(0.0f, 0.0f, 1.0f); //blue color
 			gl.glBegin(GL_LINE_LOOP);
 				for (Point2f p : points) {
-					gl.glVertex3f(p.x, p.y, 0);
+					gl.glVertex3f(p.x, p.y, 0.1f);
 				}
 			gl.glEnd();
 

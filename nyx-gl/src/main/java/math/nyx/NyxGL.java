@@ -34,6 +34,7 @@ import static java.awt.event.KeyEvent.VK_U;
 import static java.awt.event.KeyEvent.VK_J;
 import static java.awt.event.KeyEvent.VK_I;
 import static java.awt.event.KeyEvent.VK_K;
+import static java.awt.event.KeyEvent.VK_R;
 
 public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 	private static final long serialVersionUID = 8290398504918746872L;
@@ -53,7 +54,7 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 	@Autowired
 	private Nyx nyx;
 	
-	private ImageDecodeAnimation decodeAnimation;
+	private ImageDecodeAnimation decodeAnimation = null;
 
 	/** The entry main() method to setup the top-level container and animator */
 	public static void main(String[] args) {
@@ -154,7 +155,7 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 	public void setupFractal(GL2 gl) {
 		ImageSignal sourceSignal = null;
 		try {
-			sourceSignal = new ImageSignal(new ClassPathResource("images/flames-48x48-gray.jpg").getInputStream());
+			sourceSignal = new ImageSignal(new ClassPathResource("images/leaf-48x48-gray.jpg").getInputStream());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -162,7 +163,7 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 		decodeAnimation = new ImageDecodeAnimation(sourceSignal, nyx.encode(sourceSignal));
 		decodeAnimation.setNyx(nyx);
 		decodeAnimation.init(gl, 16);
-		decodeAnimation.animate(gl);
+		decodeAnimation.animate();
 	}
 
 	/**
@@ -256,6 +257,11 @@ public class NyxGL extends GLCanvas implements GLEventListener, KeyListener {
 				break;
 			case VK_K:
 				rotateZ--;
+				break;
+			case VK_R:
+				if (decodeAnimation != null) {
+					decodeAnimation.animate();
+				}
 				break;
 		}
 	}
