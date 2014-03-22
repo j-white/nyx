@@ -48,9 +48,13 @@ public class Fractal implements Serializable {
 	}
 
 	public Signal decode(int scale) {
+		return decode(scale, new DummyFractalDecoderVisitor());
+	}
+
+	public Signal decode(int scale, FractalDecoderVisitor visitor) {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
 		FractalDecoder codec = (FractalDecoder)ctx.getBean(codecName);
-		Signal signal = codec.decode(this, scale);
+		Signal signal = codec.decode(this, scale, visitor);
 		ctx.close();
 		return signal;
 	}

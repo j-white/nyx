@@ -18,8 +18,10 @@ import org.springframework.util.Assert;
 
 import com.google.common.base.Objects;
 
+import math.nyx.core.DummyFractalDecoderVisitor;
 import math.nyx.core.Fractal;
 import math.nyx.core.FractalDecoder;
+import math.nyx.core.FractalDecoderVisitor;
 import math.nyx.core.FractalEncoder;
 import math.nyx.core.Signal;
 import math.nyx.core.Transform;
@@ -156,8 +158,14 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		}
 	}
 
+	@Override
 	public Signal decode(Fractal fractal, int scale) {
-		return decode(fractal, scale, decodeIterations);
+		return decode(fractal, scale, new DummyFractalDecoderVisitor());
+	}
+
+	@Override
+	public Signal decode(Fractal fractal, int scale, FractalDecoderVisitor visitor) {
+		return decode(fractal, scale, decodeIterations, visitor);
 	}
 
 	// Courtesy of http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
@@ -169,15 +177,15 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 
-	public Signal decode(Fractal fractal, int scale, int numberOfIterations) {
+	public Signal decode(Fractal fractal, int scale, int numberOfIterations, FractalDecoderVisitor visitor) {
 		if (optimized) {
-			return decodeOptimized(fractal, scale, numberOfIterations);
+			return decodeOptimized(fractal, scale, numberOfIterations, visitor);
 		} else {
-			return decodeSimple(fractal, scale, numberOfIterations);
+			return decodeSimple(fractal, scale, numberOfIterations, visitor);
 		}
 	}
 
-	public Signal decodeSimple(Fractal fractal, int scale, int numberOfIterations) {
+	public Signal decodeSimple(Fractal fractal, int scale, int numberOfIterations, FractalDecoderVisitor visitor) {
 		PartitioningStrategy partitioner = partitioningStrategyFactory.getPartitioner(fractal.getSignal(), scale);
 		int scaledSignalDimension = partitioner.getScaledSignalDimension();
 		RealMatrix x = new Array2DRowRealMatrix(scaledSignalDimension, 1);
@@ -220,7 +228,7 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		return fractal.getSignalFromDecodedVector(x, scale);
 	}
 
-	public Signal decodeOptimized(Fractal fractal, int scale, int numberOfIterations) {
+	public Signal decodeOptimized(Fractal fractal, int scale, int numberOfIterations, FractalDecoderVisitor visitor) {
 		PartitioningStrategy partitioner = partitioningStrategyFactory.getPartitioner(fractal.getSignal(), scale);
 		int scaledSignalDimension = partitioner.getScaledSignalDimension();
 
@@ -250,8 +258,11 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 		Signal signal = fractal.getSignal();
 
 		logger.info("Done allocating memory.");
+		
+		visitor.beforeDecode();
 
 		for (int n = 1; n <= numberOfIterations; n++) {
+			visitor.beforeIteration(n, x, x_n);
 			logger.info("Decoding: Iteration {} of {}", n, numberOfIterations);
 
 			logger.trace("Resetting vector to 0.");
@@ -291,8 +302,11 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 				for (int i = 0; i < rangeIndices.length; i++) {
 					x_n.addToEntry(rangeIndices[i], 0, decimatedDomainRef[0][i]);
 				}
-			}
 
+				visitor.afterTransform(n, transform, x, domain, decimatedDomain, x_n);
+			}
+			visitor.afterIteration(n, x, x_n);
+			
 			// Swap x and x_n
 			Array2DColumnRealMatrix tmp = x;
 			x = x_n;
@@ -301,6 +315,8 @@ public class FractalCodec implements FractalEncoder, FractalDecoder {
 			xRef = x.getDataRef();
 			xnRef = x_n.getDataRef();
 		}
+		
+		visitor.afterDecode();
 
 		return fractal.getSignalFromDecodedVector(x, scale);
 	}
