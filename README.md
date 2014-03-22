@@ -52,13 +52,9 @@ Here's a standard example using the algorithm to encode and decode an image of L
 
     $ java -jar nyx-1.0.0.jar -o output/ samples/lena-256x256-gray.png
 
-**lena-256x256-gray.png:**
+**Original vs decoded:**
 
-![](https://raw.githubusercontent.com/j-white/nyx/master/samples/lena-256x256-gray.png) 
-
-**decoded-1x-lena-256x256-gray.png:**
-
-![](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-1x-lena-256x256-gray.png) 
+![Original](https://raw.githubusercontent.com/j-white/nyx/master/samples/lena-256x256-gray.png)  ![Decoded](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-1x-lena-256x256-gray.png) 
 
 ### Resolution independence
 
