@@ -38,20 +38,42 @@ The output folder will contain a series of decoded images (at scales 1x, 2x, 4x 
 
 If you experience out of memory errors when decoding at higher scales you will need to increase the heap size on your JVM. You can increase the heap from the default to 8GB by adding the `-Xmx8g`  flag before the `-jar` in the command above.
 
+## Current issues
+
+- Scaling colour images does not work (the re-scaled channels don't align properly)
+- Scaling is limited by the amount of memory available, we should be able to use disk space to store the matrix as well.
+- Encoding performance is poor.
+
 ## Example results
 
-Here's an example of the source image the resulting decoded images:
+### Lena
 
-    $ java -Xmx1g -jar target/nyx-1.0.0-executable.jar -s 8 samples/fractal-256x256-gray.jpg
+Here's a standard example using the algorithm to encode and decode an image of Lena:
 
-**fractal-256x256-gray.jpg:**
+    $ java -jar target/nyx-1.0.0-executable.jar -o output/ samples/lena-256x256-gray.png
 
-![](https://raw.githubusercontent.com/j-white/nyx/master/samples/fractal-256x256-gray.jpg) 
+**lena-256x256-gray.png:**
 
-**decoded-1x-fractal-256x256-gray.jpg:**
+![](https://raw.githubusercontent.com/j-white/nyx/master/samples/lena-256x256-gray.png) 
 
-![](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-1x-fractal-256x256-gray.jpg)
+**decoded-1x-lena-256x256-gray.png:**
 
-**decoded-8x-fractal-256x256-gray.jpg:**
+![](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-1x-lena-256x256-gray.png) 
 
-![](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-8x-fractal-256x256-gray.jpg)
+### Resolution independence
+
+Here we encode a tiny image (32x32 pixels) and decode it at 64x (2048x2048), the results are quite interesting:
+
+    $ java -Xmx1g -jar target/nyx-1.0.0-executable.jar -s 64 samples/tiny-32x32-gray.jpg
+
+**tiny-32x32-gray.jpg:**
+
+![](https://raw.githubusercontent.com/j-white/nyx/master/samples/tiny-32x32-gray.jpg) 
+
+**decoded-1x-tiny-32x32-gray.jpg:**
+
+![](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-1x-tiny-32x32-gray.jpg) 
+
+**decoded-64x-tiny-32x32-gray.jpg:**
+
+![](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-64x-tiny-32x32-gray.jpg)
