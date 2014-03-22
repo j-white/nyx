@@ -19,9 +19,9 @@ This project requires [Java 7](http://www.oracle.com/technetwork/java/javase/dow
 
 Running
 
-    $ mvn compile
+    $ mvn install
 
-will compiler the source, run the unit tests and generate a super JAR (containing all of the required dependencies).
+will compile the source, run the unit tests and generate a super JAR (containing all of the required dependencies).
 
 ## Using Nyx
 
@@ -30,7 +30,7 @@ will compiler the source, run the unit tests and generate a super JAR (containin
 From the root of the project, you can trying encoding and decoding an image at various scales from the with:
 
     $ mkdir output
-    $ java -jar target/nyx-1.0.0-executable.jar -s 2,4,8 -o output/ samples/fractal-256x256-gray.jpg
+    $ java -jar nyx-1.0.0.jar -s 2,4,8 -o output/ samples/fractal-256x256-gray.jpg
 
 Running the previous command will make all of the CPU cores scream for several minutes and will placed the generated files in the `output/` folder.
 
@@ -50,7 +50,7 @@ If you experience out of memory errors when decoding at higher scales you will n
 
 Here's a standard example using the algorithm to encode and decode an image of Lena:
 
-    $ java -jar target/nyx-1.0.0-executable.jar -o output/ samples/lena-256x256-gray.png
+    $ java -jar nyx-1.0.0.jar -o output/ samples/lena-256x256-gray.png
 
 **lena-256x256-gray.png:**
 
@@ -64,7 +64,7 @@ Here's a standard example using the algorithm to encode and decode an image of L
 
 Here we encode a tiny image (32x32 pixels) and decode it at 64x (2048x2048), the results are quite interesting:
 
-    $ java -Xmx1g -jar target/nyx-1.0.0-executable.jar -s 64 samples/tiny-32x32-gray.jpg
+    $ java -Xmx1g -jar nyx-1.0.0.jar -s 64 samples/tiny-32x32-gray.jpg
 
 **tiny-32x32-gray.jpg:**
 
