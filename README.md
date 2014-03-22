@@ -40,10 +40,18 @@ If you experience out of memory errors when decoding at higher scales you will n
 
 ## Example results
 
-**Source image:**
+Here's an example of the source image the resulting decoded images:
 
-![](https://raw.githubusercontent.com/j-white/nyx/master/samples/fractal-256x256-gray.jpg)
+    $ java -Xmx1g -jar target/nyx-1.0.0-executable.jar -s 8 samples/fractal-256x256-gray.jpg
 
-**Decoded image:**
+**fractal-256x256-gray.jpg:**
+
+![](https://raw.githubusercontent.com/j-white/nyx/master/samples/fractal-256x256-gray.jpg) 
+
+**decoded-1x-fractal-256x256-gray.jpg:**
 
 ![](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-1x-fractal-256x256-gray.jpg)
+
+**decoded-8x-fractal-256x256-gray.jpg:**
+
+![](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-8x-fractal-256x256-gray.jpg)
