@@ -54,7 +54,7 @@ Here's a standard example using the algorithm to encode and decode an image of L
 
 **Original vs decoded:**
 
-![Original](https://raw.githubusercontent.com/j-white/nyx/master/samples/lena-256x256-gray.png)  ![Decoded](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-1x-lena-256x256-gray.png) 
+![Original](https://raw.githubusercontent.com/j-white/nyx/master/samples/lena-256x256-gray.png) &nbsp; ![Decoded](https://raw.githubusercontent.com/j-white/nyx/master/examples/decoded-1x-lena-256x256-gray.png) 
 
 ### Resolution independence
 
