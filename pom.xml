@@ -11,16 +11,16 @@
 
     <modules>
         <module>nyx-core</module>
-		<!-- <module>nyx-gl</module> -->
-		<module>nyx-full-assembly</module>
+        <!-- <module>nyx-gl</module> --!>
+        <module>nyx-full-assembly</module>
     </modules>
 
     <properties>
         <!-- Build settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<!-- Project settings -->
-		<nyxVersion>1.0.0</nyxVersion>
+        <!-- Project settings -->
+        <nyxVersion>1.0.0</nyxVersion>
         <!-- Global version settings -->
         <junitVersion>4.11</junitVersion>
         <springVersion>4.0.2.RELEASE</springVersion>
@@ -46,7 +46,7 @@
     </build>
 
     <dependencies>
-	    <!-- Global dependencies -->
+        <!-- Global dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
